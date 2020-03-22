@@ -1,0 +1,11 @@
+gen_*.json
+__pycache__
+images
+*.tex
+*.pdf
+*.exr
+*.png
+node_modules
+dist
+package-lock.json
+yarn.lock
