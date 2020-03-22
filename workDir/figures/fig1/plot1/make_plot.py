@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 def setup_fonts(plt):
     plt.rcParams.update({
-    "text.usetex": True,     # use inline math for ticks
+    "text.usetex": True,     # use inline math for tikz
     "pgf.rcfonts": False,    # don't setup fonts from rc parameters
     "pgf.texsystem": "pdflatex",
     "pgf.preamble": [
@@ -22,7 +22,7 @@ setup_fonts(plt)
 filename = 'abc_fz_10'
 plot_width_mm = 30
 plot_height_mm = 50.63225806451613
-tick_font_size_pt = 10 # 3 # unit: points
+tick_font_size_pt = 10 # unit: points
 line_widths_pt = 0.5 # unit: points
 outer_padding_pt = 0.0
 
@@ -43,7 +43,7 @@ has_box = False
 
 # GRID
 grid_line_width = 0.25 # 0 = no grid
-grid_color = (0.95,0.95,0.95)
+grid_color = (0.95,0.95,0.95) # rgb as tripel, each value has range from 0.0 to 1.0
 grid_linestyle = '-'
 
 
