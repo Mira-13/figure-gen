@@ -5,23 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "RunApp",
+            "name": "RunGen",
             "type": "python",
             "request": "launch",
             "module": "app",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "CreateFigure",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/app/logic/create_figure.py",
-            "console": "integratedTerminal", 
             "args": [
                 "fig1", "grid1"
             ],
-            "cwd": "${workspaceFolder}/app/logic"
+            "cwd": "${workspaceFolder}/generator"
         },
         {
             "name": "Python: Current File",
