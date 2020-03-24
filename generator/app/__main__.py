@@ -3,6 +3,7 @@ import sys
 import json
 
 from .tex import compile_tex, make_tex
+from pdf2image import convert_from_path
 
 def run_create_figure(main_path, wd_path, module_path):
     script_name = 'create_figure.py'
@@ -34,8 +35,11 @@ def main():
     run_create_figure(main_path, wd_path, module_path)
 
     tex_filename = 'gen_tex_file.tex'
+    pdf_filename='gen_pdf_file.pdf'
     create_tex_file(module_path, tex_filename)
-    compile_tex.compile(module_path, tex_filename, pdf_filename='gen_pdf_file.pdf')
+    compile_tex.compile(module_path, tex_filename, pdf_filename)
+    images = convert_from_path(pdf_path=os.path.join(module_path, pdf_filename), dpi=500)
+    images[0].save(os.path.join(module_path, 'gen_png_file.png'))
 
 if __name__ == "__main__":
     main()
