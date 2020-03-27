@@ -15,3 +15,7 @@ export function genMonaco(parent:HTMLElement) {
     language: 'python'
   });
 }
+
+export function makeMocoModel(res:string, language:string) {
+  return monaco.editor.createModel(res, language);
+}

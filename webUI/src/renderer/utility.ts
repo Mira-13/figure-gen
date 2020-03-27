@@ -13,3 +13,50 @@ export function loadImage(parent:HTMLElement, path:string){
 
   return img;
 }
+
+export function addEvent(object, type, callback) {
+      if (object == null || typeof(object) == 'undefined') return;
+      if (object.addEventListener) {
+          object.addEventListener(type, callback, false);
+      } else if (object.attachEvent) {
+          object.attachEvent("on" + type, callback);
+      } else {
+          object["on"+type] = callback;
+      }
+  };
+
+// SEARCH FOR TABS/NAV FOLDER
+import { remote } from 'electron';
+import * as fs from 'fs';
+
+export function getTabsFromFolder(path:string) : string[]{
+  let files = fs.readdirSync(path);
+  let tabs = [];
+  files.forEach(element => {
+    if (element.includes('combined') || element.includes('grid') || element.includes('plot')) {
+      tabs.push(element);
+    }
+  });
+  return tabs
+}
+
+export function getSideNavs(path:string) : string[]{
+  let files = fs.readdirSync(path);
+  let figures = [];
+  files.forEach(element => {
+    figures.push(element);
+  });
+  return figures;
+}
+
+export function allCapitalizeFirstLetter(strings:string[]) : string[]{
+  let newStrings = [];
+  strings.forEach(element => {
+    newStrings.push(capitalizeFirstLetter(element));
+  });
+  return newStrings;
+}
+
+export function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}

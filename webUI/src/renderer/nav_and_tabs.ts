@@ -38,16 +38,15 @@ export function openSideNav(a:HTMLElement) {
 // TODO should generate as many Fig-Elements as folders
 // Allowing the user to rename a folder could lead to problems like "cannot rename open file"
 // Maybe the user renames a .txt file, which uses the webUI as 'foldernames'
-export function genSideNav(parent:HTMLElement) : HTMLElement {
+export function genSideNav(parent:HTMLElement, nav_names:string[]) : HTMLElement[] {
   let sidenav = util.genElement(parent, 'div', 'sidenav', 'sidenav', '');
 
   let first = util.genElement(sidenav, 'a', '', 'Project', 'Project');
-  let second = util.genElement(sidenav, 'a', '', '', 'Fig1');
-  let third = util.genElement(sidenav, 'a', '', '', 'Fig2');
-  let fourth = util.genElement(sidenav, 'a', '', '', '+');
-
-  openSideNav(second)
-  return sidenav;
+  nav_names.forEach(element => {
+    util.genElement(sidenav, 'a', '', '', element);
+  });
+  openSideNav(first)
+  return [sidenav, first];
 }
 
 /* When the user clicks on the button,
@@ -75,8 +74,8 @@ export function genPlusDropDown(parent:HTMLElement) {
   let btn = util.genElement(div_parent, 'button', 'dropbtn', '', '+');
   btn.onclick = openDropdown; 
   let div_items = util.genElement(div_parent, 'div', 'dropdown-content', 'DropdownAddMenu', '');
-  let refBtn = util.genElement(div_items, 'button', '', 'addRef', 'Add reference');
-  refBtn.onclick = (ev: MouseEvent) => { return addTab('Reference') };
+  // let refBtn = util.genElement(div_items, 'button', '', 'addRef', 'Add reference');
+  // refBtn.onclick = (ev: MouseEvent) => { return addTab('Reference') };
   let gridBtn= util.genElement(div_items, 'button', '', 'addGrid', 'Add grid');
   gridBtn.onclick = (ev: MouseEvent) => { return addTab('Grid') };
   let plotBtn = util.genElement(div_items, 'button', '', 'addPlot', 'Add plot');
@@ -88,7 +87,7 @@ export function genPlusDropDown(parent:HTMLElement) {
 function addTab(type:string){
   let parent = document.getElementById("groupALink");
 
-  // get current tab ids
+  // get current tab ids to create unqiue tab name
   let children = parent.childNodes;
   let current_tabs = <string[]>[];
   for (let i = 0; i < children.length; i++) {
@@ -98,13 +97,14 @@ function addTab(type:string){
 
   // give based on type and current tabs suitable id
   let tab_unique_name = type+'8';
-  let name_list = [type+'7', type+'6', type+'5', type+'4', type+'3', type+'2', type+'1']; 
+  let name_list = [type+'9',type+'8', type+'7', type+'6', type+'5', type+'4', type+'3', type+'2', type+'1']; 
   for (let i = 0; i < name_list.length; i++) {
     if (!current_tabs.some(x => x === name_list[i])) {
       tab_unique_name = name_list[i];
     }
-  }
-  
+  } 
+
+  // TODO create folder (with default files in it)
   let btn = util.genElement(parent, 'button', 'tablinks', tab_unique_name, tab_unique_name);
   openTab(btn);
 }
@@ -125,10 +125,10 @@ function removeActiveTab() {
         alert('Tab "Combined" cannot be deleted.')
       }
       else if (confirm('Are you sure you want to delete the active tab: "'+ child.id+'"? Deleting a tab cannot be undone.')) {
-        // TODO delete
         child.remove();
         openTab(document.getElementById('Combined'));
         document.getElementById('delBtn').style.display = 'none';
+        // TODO delete corresponding folder
       } else {
         // Do nothing!
       }
