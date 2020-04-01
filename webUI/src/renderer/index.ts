@@ -9,46 +9,38 @@ import * as moco from "./monaco";
 
 // PATHS & FILENAMES 
 const workDir_path = 'C:/Users/admin/Documents/MasterThesis/mtc/workDir'; // changes once
-const figures_path = workDir_path + '/figures'
+const figures_path = workDir_path + '/figures' // fix
 const spez_fig_path = figures_path + '/fig1' // changes
 const module_path = spez_fig_path + '/grid1' // changes 
 
 const content_filename = 'content.py'
 const config_filename = 'layout_and_design.json'
 const png_filename = 'gen_png_file.png'
+const manage_images_file = 'manage_images.py'
 // PATHS & FILENAMES END
 
 // HTML ELEMENTs
-let nav_and_active_nav = nat.genSideNav(document.body, util.getSideNavs(figures_path));
+let nav_and_active_nav = nat.genFigureNav(document.body, util.getFigureNavs(figures_path));
 let nav = nav_and_active_nav[0];
 let active_nav = nav_and_active_nav[1];
-console.log(active_nav.textContent);
 const mainbody = util.genElement(document.body, 'div', 'main', '', '');
 
 nat.createDeleteButton(mainbody);
-function showDeleteBtn(clickedBtn:HTMLElement) {
-    if (clickedBtn.id === 'Combined') {
-        document.getElementById('delBtn').style.display = 'none';
-    } else {
-        document.getElementById('delBtn').style.display = 'block';
-    }
-}  
-let tab_list = [];
-if (active_nav.textContent === 'Project') {
-    tab_list = ['Combined'];
-} else {
-    tab_list = util.getTabsFromFolder(figures_path + '/' + active_nav.textContent);
-}
-let top_tab = nat.genTabs(mainbody, 'groupA', 'tab', tab_list, (btn:HTMLElement) => { showDeleteBtn(btn); });
-// if delete tab button also delete corresponding folder
+// showDeleteBtn  
+
+let top_tab = nat.genTabHelper(mainbody, active_nav, figures_path);
+
+// MONACO body/tabs
+const monaco_body = util.genElement(mainbody, 'div', 'half left', '', '');
 if (active_nav.textContent !== 'Project') {
     nat.genPlusDropDown(top_tab);
+    nat.genTabs(monaco_body, 'groupB', 'tab1', ['Content', 'Layout and design']);
+} else {
+    nat.genTabs(monaco_body, 'groupB', 'tab1', ['Manage Images']);
 }
-
-const monaco_body = util.genElement(mainbody, 'div', 'half left', '', '');
-nat.genTabs(monaco_body, 'groupB', 'tab1', ['Content', 'Config']);
 mainbody.style.width = document.body.clientWidth - nav.clientWidth + 'px'; //needs to be done before genMonaco
 let mocoEditor = moco.genMonaco(monaco_body);
+// MONACO body/tabs end
 
 const img_viewer = util.genElement(mainbody, 'div', 'half right', '', '');
 let img = util.loadImage(img_viewer, 'file:///'+ module_path +'/'+ png_filename);
@@ -58,13 +50,28 @@ let img = util.loadImage(img_viewer, 'file:///'+ module_path +'/'+ png_filename)
 import { remote } from 'electron';
 import * as fs from 'fs';
 
-fs.readFile(module_path + '/' + content_filename, 'utf8', (err, res) => {
-    if (!err) {
+let open_file = '';
+if (active_nav.textContent === 'Project'){
+    open_file = workDir_path + '/' + manage_images_file;
+} else {
+    open_file = module_path + '/' + content_filename;
+}
+
+fs.readFile(open_file, 'utf8', (err, res) => {
+    if (!err) { 
         mocoEditor.setModel(moco.makeMocoModel(res, 'python'));
+    } else {
+        // TODO ERROR HANDLING
     }
-})
-let folder_tabs = util.getTabsFromFolder(spez_fig_path);
-console.log(folder_tabs);
+});
+// fs.writeFile(open_file, mocoEditor.getValue(), (err) => {
+//     if (err) {
+//         TODO
+//         console.log(err)
+//     } else {
+//         console.log('Saved changes.')
+//     }
+// })
 // LOAD FILE END
 
 // PYTHON CALL

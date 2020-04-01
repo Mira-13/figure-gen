@@ -1,11 +1,29 @@
 import * as util from "./utility";
 
 export function openTab(clickedBtn: HTMLElement){
-  var tablinks = clickedBtn.parentElement.childNodes;
-  for (var i = 0; i < tablinks.length; i++) {
-    (<HTMLElement>tablinks[i]).className = (<HTMLElement>tablinks[i]).className.replace(" active", "");
+  util.updateActive(clickedBtn);
+
+  // TODO update monaco + images accordingly
+  // if (clickedBtn.parentElement.id === 'groupALinks'){
+  //   let mocotabs = document.getElementById('groupBLinks');
+  //   openTab(<HTMLElement>mocotabs.childNodes[0]);
+  // }
+}
+
+export function openFigure(clickedA:HTMLElement) {
+  util.updateActive(clickedA);
+
+  // TODO: Renaming figures does not work as intended yet
+  clickedA.parentElement.childNodes.forEach(element => {
+    (<HTMLElement>element).contentEditable = 'false';
+  });
+  if (clickedA.id != 'Project') { // 'Project' cannot be renamed by user
+    clickedA.contentEditable = 'true';
   }
-  clickedBtn.className += " active";
+
+  // TODO update tabs accordingly
+  // let modules = document.getElementById('groupALinks');
+  // openTab(modules[0]);
 }
 
 export function genTabs(parent:HTMLElement, group_tab_id:string, cssstyle:string, tab_unique_names: string[], onOpen: (btn:HTMLElement) => any = null){
@@ -22,31 +40,20 @@ export function genTabs(parent:HTMLElement, group_tab_id:string, cssstyle:string
   return parent_links;
 }
 
-export function openSideNav(a:HTMLElement) {
-  let sidenav = document.getElementById("sidenav");
-  for (let i = 0; i<sidenav.childNodes.length; i++) {
-    let child = <HTMLElement>sidenav.childNodes[i]
-    child.className.replace(" active", "");
-    child.contentEditable = 'false';
-  }
-  a.className += " active";
-  if (a.id != 'Project') {
-    a.contentEditable = 'true';
-  }
-}
-
 // TODO should generate as many Fig-Elements as folders
 // Allowing the user to rename a folder could lead to problems like "cannot rename open file"
 // Maybe the user renames a .txt file, which uses the webUI as 'foldernames'
-export function genSideNav(parent:HTMLElement, nav_names:string[]) : HTMLElement[] {
-  let sidenav = util.genElement(parent, 'div', 'sidenav', 'sidenav', '');
+export function genFigureNav(parent:HTMLElement, nav_names:string[]) : HTMLElement[] {
+  let figure_nav = util.genElement(parent, 'div', 'sidenav', 'sidenav', '');
 
-  let first = util.genElement(sidenav, 'a', '', 'Project', 'Project');
+  let first = util.genElement(figure_nav, 'a', '', 'Project', 'Project');
+  first.onclick = (ev: MouseEvent) => {openFigure(first);}
   nav_names.forEach(element => {
-    util.genElement(sidenav, 'a', '', '', element);
+    let child = util.genElement(figure_nav, 'a', '', '', element);
+    child.onclick = (ev: MouseEvent) => {openFigure(child);}
   });
-  openSideNav(first)
-  return [sidenav, first];
+  openFigure(first)
+  return [figure_nav, first];
 }
 
 /* When the user clicks on the button,
@@ -67,6 +74,10 @@ window.onclick = function(event) {
       }
     }
   }
+  // if (event.target.parentElement.id === 'sidenav') {
+  //   openFigure(event.target);
+  //   console.log('clicked on sidenav');
+  // }
 }
 
 export function genPlusDropDown(parent:HTMLElement) {
@@ -96,8 +107,8 @@ function addTab(type:string){
   }
 
   // give based on type and current tabs suitable id
-  let tab_unique_name = type+'8';
-  let name_list = [type+'9',type+'8', type+'7', type+'6', type+'5', type+'4', type+'3', type+'2', type+'1']; 
+  let tab_unique_name = type+'9';
+  let name_list = [type+'8', type+'7', type+'6', type+'5', type+'4', type+'3', type+'2', type+'1']; 
   for (let i = 0; i < name_list.length; i++) {
     if (!current_tabs.some(x => x === name_list[i])) {
       tab_unique_name = name_list[i];
@@ -113,6 +124,12 @@ export function createDeleteButton(parent:HTMLElement) {
   let deleteBtn = util.genElement(parent, 'button', 'deleteButton', 'delBtn', 'Delete active Tab');
   deleteBtn.onclick = removeActiveTab;
   return deleteBtn;
+}
+
+export function createSaveButton(parent:HTMLElement) {
+  let saveBtn = util.genElement(parent, 'button', 'saveButton', 'saveBtn', 'Save open file changes');
+  saveBtn.onclick = saveActiveFiles;
+  return saveBtn;
 }
 
 function removeActiveTab() {
@@ -133,5 +150,40 @@ function removeActiveTab() {
         // Do nothing!
       }
     }
+  }
+}
+
+// TODO
+function saveActiveFiles() {
+  let parent = document.getElementById("groupALink");
+  let children = parent.childNodes;
+  for (let i = 0; i < children.length; i++) {
+    let child = <HTMLElement>children[i]
+    if (child.className.includes('active')) {
+      if (child.id.includes('Combined')) {
+        console.log('TODO');
+      } else {
+        // TODO save content AND Layout/design
+      }
+    }
+  }
+}
+
+export function genTabHelper(parent:HTMLElement, active_nav:HTMLElement, figures_path:string) : HTMLElement {
+  let tab_list = [];
+  if (active_nav.textContent === 'Project') {
+      tab_list = ['Combined'];
+  } else {
+      tab_list = util.getModuleTabs(figures_path + '/' + active_nav.textContent);
+  }
+  let top_tab = genTabs(parent, 'groupA', 'tab', tab_list, (btn:HTMLElement) => { showDeleteBtn(btn); });
+  return top_tab;
+}
+
+function showDeleteBtn(clickedBtn:HTMLElement) {
+  if (clickedBtn.id === 'Combined') {
+      document.getElementById('delBtn').style.display = 'none';
+  } else {
+      document.getElementById('delBtn').style.display = 'block';
   }
 }
