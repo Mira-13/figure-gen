@@ -1,203 +1,8 @@
 import json
+from . import calculate
 
-# CALCULATIONS FOR HEIGHTS AND WIDTHS
-def calculate_min_width(data):
-    '''
-    Minimum width is the sum of all fixed space/padding based on the json-config file, including titles, offsets, paddings, etc.
-    So basically: everything except for the images.
-    '''
-    num_cols = data['num_columns']
-
-    min_width = data['column_space'] * (num_cols - 1)# + (muliplied by num -1)
-    min_width += data['padding']['left'] # +
-    min_width += data['padding']['right'] # +
-    if (data['element_config']['captions']['east']['width'] > 0.0): # + (muliplied by num)
-        min_width += data['element_config']['captions']['east']['offset'] * num_cols # if width # else ignore (muliplied by num)
-        min_width += data['element_config']['captions']['east']['width'] * num_cols
-    if (data['element_config']['captions']['west']['width'] > 0.0): # + (muliplied by num)
-        min_width += data['element_config']['captions']['west']['offset'] * num_cols # if width # else ignore (muliplied by num)
-        min_width += data['element_config']['captions']['west']['width'] * num_cols
-    if (data['titles']['east']['width'] > 0.0): # + 
-        min_width += data['titles']['east']['offset'] + data['titles']['east']['width']
-    if (data['titles']['west']['width'] > 0.0): # + 
-        min_width += data['titles']['west']['offset'] + data['titles']['west']['width']
-    if (data['row_titles']['east']['width'] > 0.0): # + 
-        min_width += data['row_titles']['east']['offset'] + data['row_titles']['east']['width']
-    if (data['row_titles']['west']['width'] > 0.0): # + 
-        min_width += data['row_titles']['west']['offset'] + data['row_titles']['west']['width']
-    
-    return min_width
-
-def calculate_min_height(data):
-    '''
-    Minimum height is the sum of all fixed space/padding based on the json-config file, including titles, offsets, paddings, etc.
-    So basically: everything except for the images.
-    '''
-    num_rows = data['num_rows']
-
-    min_height = data['row_space'] * (num_rows -1)
-    min_height += data['padding']['top']
-    min_height += data['padding']['bottom']
-    if (data['element_config']['captions']['north']['height'] > 0.0):
-        min_height += data['element_config']['captions']['north']['height'] * num_rows
-        min_height += data['element_config']['captions']['north']['offset'] * num_rows
-    if (data['element_config']['captions']['south']['height'] > 0.0):
-        min_height += data['element_config']['captions']['south']['height'] * num_rows
-        min_height += data['element_config']['captions']['south']['offset'] * num_rows
-    if (data['titles']['north']['height'] > 0.0):
-        min_height += data['titles']['north']['height'] + data['titles']['north']['offset']
-    if (data['titles']['south']['height'] > 0.0):
-        min_height += data['titles']['south']['height'] + data['titles']['south']['offset']
-    if (data['column_titles']['north']['height'] > 0.0):
-        min_height += data['column_titles']['north']['height'] + data['column_titles']['north']['offset']
-    if (data['column_titles']['south']['height'] > 0.0):
-        min_height += data['column_titles']['south']['height'] + data['column_titles']['south']['offset']
-
-    return min_height
-
-def calculate_fixed_inner_height(data):
-    '''
-    Fixed inner height is the sum of spacing between all images, which also includes element captions 
-    '''
-    num_rows = data['num_rows']
-
-    inner_height = data['row_space'] * (num_rows -1)
-    if (data['element_config']['captions']['north']['height'] > 0.0):
-        inner_height += data['element_config']['captions']['north']['height'] * (num_rows -1)
-        inner_height += data['element_config']['captions']['north']['offset'] * (num_rows -1)
-    if (data['element_config']['captions']['south']['height'] > 0.0):
-        inner_height += data['element_config']['captions']['south']['height'] * (num_rows -1)
-        inner_height += data['element_config']['captions']['south']['offset'] * (num_rows -1)
-
-    return inner_height
-
-def calculate_fixed_inner_width(data):
-    '''
-    Fixed inner width is the sum of spacing between all images, which also includes element captions 
-    '''
-    num_columns = data['num_columns']
-
-    inner_width = data['column_space'] * (num_columns -1)
-    if (data['element_config']['captions']['east']['width'] > 0.0):
-        inner_width += data['element_config']['captions']['east']['width'] * (num_columns -1)
-        inner_width += data['element_config']['captions']['east']['offset'] * (num_columns -1)
-    if (data['element_config']['captions']['west']['width'] > 0.0):
-        inner_width += data['element_config']['captions']['west']['width'] * (num_columns -1)
-        inner_width += data['element_config']['captions']['west']['offset'] * (num_columns -1)
-
-    return inner_width
-
-def calculate_body_width(data):
-    '''
-    body means: all images and their spaces/padding inbetween the images.
-    Careful: Frames are not considered if frame line widht > spaces/paddings! TODO 
-    Not included are: column/row titles and titles as well as their corresping offsets.
-    '''
-    return calculate_fixed_inner_width(data) + data['num_columns'] * data['element_config']['img_width']
-
-def calculate_body_height(data):
-    '''
-    body means: all images and their spaces/padding inbetween the images.
-    Careful: Frames are not considered if frame line widht > spaces/paddings! TODO  
-    Not included are: column/row titles and titles as well as their corresping offsets.
-    '''
-    return calculate_fixed_inner_height(data) + data['num_rows'] * data['element_config']['img_height']
-
-def calculate_total_width(data):
-    total_width = calculate_body_width(data)
-    if (data['element_config']['captions']['east']['width'] > 0.0):
-        total_width += data['element_config']['captions']['east']['width']
-        total_width += data['element_config']['captions']['east']['offset']
-    if (data['element_config']['captions']['west']['width'] > 0.0):
-        total_width += data['element_config']['captions']['west']['width']
-        total_width += data['element_config']['captions']['west']['offset']
-
-    if data['row_titles']['west']['width']!=0.0:
-        total_width += data['row_titles']['west']['width'] + data['row_titles']['west']['offset']
-    if data['row_titles']['east']['width']!=0.0:
-        total_width += data['row_titles']['east']['width'] + data['row_titles']['east']['offset']
-
-    if data['titles']['west']['width']!=0.0:
-        total_width += data['titles']['west']['width'] + data['titles']['west']['offset']
-    if data['titles']['east']['width']!=0.0:
-        total_width += data['titles']['east']['width'] + data['titles']['east']['offset']
-    
-    total_width += data['padding']['left'] + data['padding']['right']
-    return total_width 
-
-def calculate_total_height(data):
-    total_height = calculate_body_height(data)
-
-    if data['column_titles']['north']['height']!=0.0:
-        total_height += data['column_titles']['north']['height'] + data['column_titles']['north']['offset']
-    if data['column_titles']['south']['height']!=0.0:
-        total_height += data['column_titles']['south']['height'] + data['column_titles']['south']['offset']
-
-    if data['titles']['north']['height']!=0.0:
-        total_height += data['titles']['north']['height'] + data['titles']['north']['offset']
-    if data['titles']['south']['height']!=0.0:
-        total_height += data['titles']['south']['height'] + data['titles']['south']['offset']
-    
-    total_height += data['padding']['top'] + data['padding']['bottom']
-    return total_height
-
-def calculate_vertical_figure_title_height(data):
-    vert_title_height = calculate_body_height(data)
-
-    if data['column_titles']['north']['height']!=0.0:
-        vert_title_height += data['column_titles']['north']['height'] + data['column_titles']['north']['offset']
-    if data['column_titles']['south']['height']!=0.0:
-        vert_title_height += data['column_titles']['south']['height'] + data['column_titles']['south']['offset']
-
-    return vert_title_height
-
-def calculate_and_overwrite_img_resolution_based_on_total_width(data):
-    num_cols = data['num_columns']
-    num_rows = data['num_rows']
-    total_width = data['total_width']
-    width_to_height_ratio = data['img_height_px'] / data['img_width_px']
-
-    min_height = calculate_min_height(data)
-    min_width = calculate_min_width(data)
-    width_left_per_img = (total_width - min_width) / num_cols
-    if width_left_per_img < 1.0:
-        if width_left_per_img < 0.0:
-            print('consider less columns or allow as total_width more than '+ str(total_width) + 
-            ', because the image width of all images are below 0.0 ' + data['units']+ '. ')
-        else: 
-            print('consider less columns or allow as total_width more than '+ str(total_width) + 
-            ', because the image width of all images are below 1.0 ' + data['units']+ 
-            '. If that is fine by you then ignore this message.')
-
-    # force width/height ratio of origin img 
-    data['element_config']['img_width'] = width_left_per_img
-    data['element_config']['img_height'] = width_left_per_img * width_to_height_ratio
-
-def calculate_and_overwrite_img_resolution_based_on_total_height(data):
-    # TODO test function at some point
-    num_cols = data['num_columns']
-    num_rows = data['num_rows']
-    total_height = data['total_height'] 
-    heigth_to_width_ratio = data['img_width_px'] / data['img_height_px']
-
-    min_height = calculate_min_height(data)
-    min_width = calculate_min_width(data)
-
-    height_left_per_img = (total_height - min_height) / num_rows
-    if height_left_per_img < 1.0:
-        if height_left_per_img < 0.0:
-            print('consider less rows or allow as total_height more than '+ str(total_height) + 
-            ', because the image height of the images are below 0.0 ' + data['units']+ '. ')
-        else: 
-            print('consider less rows or allow as total_height more than '+ str(total_height) + 
-            ', because the image height of the images are below 1.0 ' + data['units']+ 
-            '. If that is fine by you then ignore this message.')
-    
-    # force width/height ratio of origin img 
-    data['element_config']['img_width'] = height_left_per_img * heigth_to_width_ratio
-    data['element_config']['img_height'] = height_left_per_img
-
-def calculate_h_offset_for_title(title_offset, caption_config, row_config):
+# Calculations
+def get_h_offset_for_title(title_offset, caption_config, row_config):
     offset = title_offset
     if caption_config['width']!=0.0:
         offset += caption_config['width'] + caption_config['offset']
@@ -205,8 +10,7 @@ def calculate_h_offset_for_title(title_offset, caption_config, row_config):
         offset += row_config['width'] + row_config['offset']
 
     return offset
-# END CALCULAITONS
-
+# END Calculations
 
 
 # BEGIN minor utitities for TIKZ generation
@@ -551,8 +355,8 @@ def add_col_and_row_titles(data, str_appendix=''):
     return c_r_title_nodes
 
 def add_big_titles(data, str_appendix=''):
-    body_width = calculate_body_width(data)
-    body_height = calculate_body_height(data)
+    body_width = calculate.get_body_width(data)
+    body_height = calculate.get_body_height(data)
 
     # horizontal
     title_nodes = gen_horizontal_figure_title('north', num_rows=data['num_rows'], width=body_width, title_config=data['titles']['north'], 
@@ -561,11 +365,11 @@ def add_big_titles(data, str_appendix=''):
                                                     column_config=data['column_titles']['south'], str_appendix=str_appendix)
 
     # vertical
-    offset_west_title = calculate_h_offset_for_title(title_offset=data['titles']['west']['offset'], caption_config=data['element_config']['captions']['west'], 
+    offset_west_title = get_h_offset_for_title(title_offset=data['titles']['west']['offset'], caption_config=data['element_config']['captions']['west'], 
                                                      row_config=data['row_titles']['west'])
     title_nodes += gen_vertical_figure_title('west', num_columns=data['num_columns'], height=body_height, title_config=data['titles']['west'], 
                                                   title_offset=offset_west_title, column_north_config=data['column_titles']['north'], str_appendix=str_appendix)
-    offset_east_title = calculate_h_offset_for_title(title_offset=data['titles']['east']['offset'], caption_config=data['element_config']['captions']['east'], 
+    offset_east_title = get_h_offset_for_title(title_offset=data['titles']['east']['offset'], caption_config=data['element_config']['captions']['east'], 
                                                      row_config=data['row_titles']['east'])
     title_nodes += gen_vertical_figure_title('east', num_columns=data['num_columns'], height=body_height, title_config=data['titles']['east'],
                                                   title_offset=offset_east_title, column_north_config=data['column_titles']['north'], str_appendix=str_appendix)

@@ -11,7 +11,7 @@
             "module": "app",
             "console": "integratedTerminal",
             "args": [
-                "fig1", "grid1"
+                "fig2", "grid2"
             ],
             "cwd": "${workspaceFolder}/generator"
         },

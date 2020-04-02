@@ -30,7 +30,8 @@ def main():
     main_path = r'C:\Users\admin\Documents\MasterThesis\mtc\generator'
     wd_path = r'C:\Users\admin\Documents\MasterThesis\mtc\workDir'
     fig_path = os.path.join(wd_path, 'figures')
-    module_path = os.path.join(fig_path, 'fig1', 'grid1')
+    
+    module_path = os.path.join(fig_path, sys.argv[1], sys.argv[2]) # e.g. 'fig1' 'grid1'
 
     run_create_figure(main_path, wd_path, module_path)
 

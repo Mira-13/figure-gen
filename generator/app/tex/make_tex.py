@@ -1,14 +1,16 @@
 import os
 
 from . import tikz
+from . import calculate
 
 def gen_content(data, str_appendix=''):
     '''
     A str_appendix is recommended if this script is used to combine the generated tikz code with another set of generated tikz code:
     Allowing to merge two or multiple generated tikz is somewhat in progress and I am not sure if and when this will be completely supported.
     '''
-    tikz.calculate_and_overwrite_img_resolution_based_on_total_width(data)
-    
+    # tikz.calculate_and_overwrite_img_resolution_based_on_total_width(data)
+    calculate.overwrite_image_resolution_based_on_total_width(data)
+
     # img/element blocks 
     # Usually an img/block consists only of an image node (with or without frames) and some paddings between other image nodes. 
     # However, it can also contain a complex subset of nodes (caption titles on each side) - if so desired.
@@ -24,8 +26,8 @@ def gen_content(data, str_appendix=''):
     content += tikz.add_all_outer_paddings(data, str_appendix)
     
     # write into json height and width. # CAREFUL: NOT frames included if frame line width > paddings
-    data['total_height'] = tikz.calculate_total_height(data)
-    data['total_width'] = tikz.calculate_total_width(data)
+    data['total_height'] = calculate.get_total_height(data)
+    data['total_width'] = calculate.get_total_width(data)
     print('total widht of generated tikz file: ', data['total_width'])
     print('total height of generated tikz file: ', data['total_height'])
 
