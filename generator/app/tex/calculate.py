@@ -1,5 +1,38 @@
 import json
 
+# helper
+def get_space_type(position):
+    if position == 'east' or position == 'west':
+        return 'width'
+    return 'height'
+
+def sum_caption_spacing(data, position, muliplied): # e.g. multiplied = num_cols
+    sum = 0
+    caption = data['element_config']['captions'][position]
+    spacing = get_space_type(position)
+    
+    if (caption[spacing] > 0.0):
+        sum = caption['offset'] + caption[spacing]
+    return sum * muliplied
+
+def sum_title_spacing(data, position):
+    title = data['titles'][position]
+    spacing = get_space_type(position)
+    if (title[spacing] > 0.0):
+        return title['offset'] + title[spacing]
+    return 0
+
+def sum_row_title_spacing(data, position):
+    if (data['row_titles'][position]['width'] > 0.0):
+        return data['row_titles'][position]['offset'] + data['row_titles'][position]['width']
+    return 0
+
+def sum_col_title_spacing(data, position):
+    if (data['column_titles'][position]['height'] > 0.0):
+        return data['column_titles'][position]['height'] + data['column_titles'][position]['offset']
+    return 0
+# END helper
+
 # CALCULATIONS FOR HEIGHTS AND WIDTHS
 def get_min_width(data):
     '''
@@ -9,22 +42,14 @@ def get_min_width(data):
     num_cols = data['num_columns']
 
     min_width = data['column_space'] * (num_cols - 1)# + (muliplied by num -1)
-    min_width += data['padding']['left'] # +
-    min_width += data['padding']['right'] # +
-    if (data['element_config']['captions']['east']['width'] > 0.0): # + (muliplied by num)
-        min_width += data['element_config']['captions']['east']['offset'] * num_cols # if width # else ignore (muliplied by num)
-        min_width += data['element_config']['captions']['east']['width'] * num_cols
-    if (data['element_config']['captions']['west']['width'] > 0.0): # + (muliplied by num)
-        min_width += data['element_config']['captions']['west']['offset'] * num_cols # if width # else ignore (muliplied by num)
-        min_width += data['element_config']['captions']['west']['width'] * num_cols
-    if (data['titles']['east']['width'] > 0.0): # + 
-        min_width += data['titles']['east']['offset'] + data['titles']['east']['width']
-    if (data['titles']['west']['width'] > 0.0): # + 
-        min_width += data['titles']['west']['offset'] + data['titles']['west']['width']
-    if (data['row_titles']['east']['width'] > 0.0): # + 
-        min_width += data['row_titles']['east']['offset'] + data['row_titles']['east']['width']
-    if (data['row_titles']['west']['width'] > 0.0): # + 
-        min_width += data['row_titles']['west']['offset'] + data['row_titles']['west']['width']
+    min_width += data['padding']['left']
+    min_width += data['padding']['right']
+    min_width += sum_caption_spacing(data, 'east', num_cols)
+    min_width += sum_caption_spacing(data, 'west', num_cols)
+    min_width += sum_title_spacing(data, 'east')
+    min_width += sum_title_spacing(data, 'west')
+    min_width += sum_row_title_spacing(data, 'east')
+    min_width += sum_row_title_spacing(data, 'west')
     
     return min_width
 
@@ -38,20 +63,12 @@ def get_min_height(data):
     min_height = data['row_space'] * (num_rows -1)
     min_height += data['padding']['top']
     min_height += data['padding']['bottom']
-    if (data['element_config']['captions']['north']['height'] > 0.0):
-        min_height += data['element_config']['captions']['north']['height'] * num_rows
-        min_height += data['element_config']['captions']['north']['offset'] * num_rows
-    if (data['element_config']['captions']['south']['height'] > 0.0):
-        min_height += data['element_config']['captions']['south']['height'] * num_rows
-        min_height += data['element_config']['captions']['south']['offset'] * num_rows
-    if (data['titles']['north']['height'] > 0.0):
-        min_height += data['titles']['north']['height'] + data['titles']['north']['offset']
-    if (data['titles']['south']['height'] > 0.0):
-        min_height += data['titles']['south']['height'] + data['titles']['south']['offset']
-    if (data['column_titles']['north']['height'] > 0.0):
-        min_height += data['column_titles']['north']['height'] + data['column_titles']['north']['offset']
-    if (data['column_titles']['south']['height'] > 0.0):
-        min_height += data['column_titles']['south']['height'] + data['column_titles']['south']['offset']
+    min_height += sum_caption_spacing(data, 'north', num_rows)
+    min_height += sum_caption_spacing(data, 'south', num_rows)
+    min_height += sum_title_spacing(data, 'north')
+    min_height += sum_title_spacing(data, 'south')
+    min_height += sum_col_title_spacing(data, 'north')
+    min_height += sum_col_title_spacing(data, 'south')
 
     return min_height
 
@@ -62,12 +79,8 @@ def get_fixed_inner_height(data):
     num_rows = data['num_rows']
 
     inner_height = data['row_space'] * (num_rows -1)
-    if (data['element_config']['captions']['north']['height'] > 0.0):
-        inner_height += data['element_config']['captions']['north']['height'] * (num_rows -1)
-        inner_height += data['element_config']['captions']['north']['offset'] * (num_rows -1)
-    if (data['element_config']['captions']['south']['height'] > 0.0):
-        inner_height += data['element_config']['captions']['south']['height'] * (num_rows -1)
-        inner_height += data['element_config']['captions']['south']['offset'] * (num_rows -1)
+    inner_height += sum_caption_spacing(data, 'north', num_rows-1)
+    inner_height += sum_caption_spacing(data, 'south', num_rows-1)
 
     return inner_height
 
@@ -78,12 +91,8 @@ def get_fixed_inner_width(data):
     num_columns = data['num_columns']
 
     inner_width = data['column_space'] * (num_columns -1)
-    if (data['element_config']['captions']['east']['width'] > 0.0):
-        inner_width += data['element_config']['captions']['east']['width'] * (num_columns -1)
-        inner_width += data['element_config']['captions']['east']['offset'] * (num_columns -1)
-    if (data['element_config']['captions']['west']['width'] > 0.0):
-        inner_width += data['element_config']['captions']['west']['width'] * (num_columns -1)
-        inner_width += data['element_config']['captions']['west']['offset'] * (num_columns -1)
+    inner_width += sum_caption_spacing(data,'east', num_columns-1)
+    inner_width += sum_caption_spacing(data,'west', num_columns-1)
 
     return inner_width
 
@@ -104,39 +113,37 @@ def get_body_height(data):
     return get_fixed_inner_height(data) + data['num_rows'] * data['element_config']['img_height']
 
 def get_total_width(data):
+    '''
+    Includes everything that takes up width: padding, images, captions, row/column titles, 
+    and all corresponding offsets
+    '''
     total_width = get_body_width(data)
-    if (data['element_config']['captions']['east']['width'] > 0.0):
-        total_width += data['element_config']['captions']['east']['width']
-        total_width += data['element_config']['captions']['east']['offset']
-    if (data['element_config']['captions']['west']['width'] > 0.0):
-        total_width += data['element_config']['captions']['west']['width']
-        total_width += data['element_config']['captions']['west']['offset']
-
-    if data['row_titles']['west']['width']!=0.0:
-        total_width += data['row_titles']['west']['width'] + data['row_titles']['west']['offset']
-    if data['row_titles']['east']['width']!=0.0:
-        total_width += data['row_titles']['east']['width'] + data['row_titles']['east']['offset']
-
-    if data['titles']['west']['width']!=0.0:
-        total_width += data['titles']['west']['width'] + data['titles']['west']['offset']
-    if data['titles']['east']['width']!=0.0:
-        total_width += data['titles']['east']['width'] + data['titles']['east']['offset']
+    total_width += sum_caption_spacing(data, 'east', 1) # add to inner body one more
+    total_width += sum_caption_spacing(data, 'west', 1) # same reason as above
+    
+    # add outer titles
+    total_width += sum_row_title_spacing(data, 'east')
+    total_width += sum_row_title_spacing(data, 'west')
+    total_width += sum_title_spacing(data, 'east')
+    total_width += sum_title_spacing(data, 'west')
     
     total_width += data['padding']['left'] + data['padding']['right']
     return total_width 
 
 def get_total_height(data):
+    '''
+    Includes everything that takes up height: padding, images, captions, row/column titles, 
+    and all corresponding offsets
+    '''
     total_height = get_body_height(data)
+    total_height += sum_caption_spacing(data, 'north', 1) # add to inner body one more
+    total_height += sum_caption_spacing(data, 'south', 1) # add to inner body one more
 
-    if data['column_titles']['north']['height']!=0.0:
-        total_height += data['column_titles']['north']['height'] + data['column_titles']['north']['offset']
-    if data['column_titles']['south']['height']!=0.0:
-        total_height += data['column_titles']['south']['height'] + data['column_titles']['south']['offset']
-
-    if data['titles']['north']['height']!=0.0:
-        total_height += data['titles']['north']['height'] + data['titles']['north']['offset']
-    if data['titles']['south']['height']!=0.0:
-        total_height += data['titles']['south']['height'] + data['titles']['south']['offset']
+    # add outer titles
+    total_height += sum_col_title_spacing(data, 'north')
+    total_height += sum_col_title_spacing(data, 'south')
+    total_height += sum_title_spacing(data, 'north')
+    total_height += sum_title_spacing(data, 'south')
     
     total_height += data['padding']['top'] + data['padding']['bottom']
     return total_height
@@ -144,15 +151,16 @@ def get_total_height(data):
 def get_vertical_figure_title_height(data):
     vert_title_height = get_body_height(data)
 
-    if data['column_titles']['north']['height']!=0.0:
-        vert_title_height += data['column_titles']['north']['height'] + data['column_titles']['north']['offset']
-    if data['column_titles']['south']['height']!=0.0:
-        vert_title_height += data['column_titles']['south']['height'] + data['column_titles']['south']['offset']
+    vert_title_height += sum_col_title_spacing(data, 'north')
+    vert_title_height += sum_col_title_spacing(data, 'south')
 
     return vert_title_height
 
 def overwrite_image_resolution_based_on_total_width(data):
-    # TODO those overwrites are never used yet (bc we don't call make_tex and compile_tex afterwards)
+    '''
+    You overwrite the local value. If you use this function and want to have the value used permanently
+    then you need to make sure to save it in a file.
+    '''
     num_cols = data['num_columns']
     num_rows = data['num_rows']
     total_width = data['total_width']
@@ -176,8 +184,11 @@ def overwrite_image_resolution_based_on_total_width(data):
     return width_left_per_img, (width_left_per_img * width_to_height_ratio)
 
 def overwrite_image_resolution_based_on_total_height(data):
+    '''
+    You overwrite the local value. If you use this function and want to have the value used permanently
+    then you need to make sure to save it in a file.
+    '''
     # TODO test function at some point
-    # TODO those overwrites are never used yet (bc we don't call make_tex and compile_tex afterwards)
     num_cols = data['num_columns']
     num_rows = data['num_rows']
     total_height = data['total_height'] 
@@ -238,40 +249,95 @@ def get_body_widths_for_equal_heights(data1, data2, sum_total_width):
     return bw1, bw2
 
 def get_height_paddings_with_titles(data):
-    title_with_offset_top = 0.0
-    captions_with_offset_top = 0.0
-    title_with_offset_bottom = 0.0
-    captions_with_offset_bottom = 0.0
+    captions_with_offset_top = sum_col_title_spacing(data, 'north')
+    captions_with_offset_top += sum_caption_spacing(data, 'north', 1)
 
-    if (data['titles']['north']['height'] > 0.0):
-        title_with_offset_top += data['titles']['north']['height'] + data['titles']['north']['offset']
-
-    if (data['column_titles']['north']['height'] > 0.0):
-        captions_with_offset_top += data['column_titles']['north']['height'] + data['column_titles']['north']['offset']
-    if (data['element_config']['captions']['north']['height'] > 0.0):
-        captions_with_offset_top += data['element_config']['captions']['north']['height'] 
-        captions_with_offset_top += data['element_config']['captions']['north']['offset']
-    
-    if (data['titles']['south']['height'] > 0.0):
-        title_with_offset_bottom += data['titles']['south']['height'] + data['titles']['south']['offset']
-
-    if (data['column_titles']['south']['height'] > 0.0):
-        captions_with_offset_bottom += data['column_titles']['south']['height'] + data['column_titles']['south']['offset']
-    if (data['element_config']['captions']['south']['height'] > 0.0):
-        captions_with_offset_bottom += data['element_config']['captions']['south']['height']
-        captions_with_offset_bottom += data['element_config']['captions']['south']['offset']
+    captions_with_offset_bottom = sum_col_title_spacing(data, 'south')
+    captions_with_offset_bottom += sum_caption_spacing(data, 'south', 1)
     
     height_alignments = {
         'top': {
             'padding': data['padding']['top'],
-            'title+offset': title_with_offset_top,
+            'title+offset': sum_title_spacing(data, 'north'),
             'captions+offset': captions_with_offset_top
         },
         'bottom': {
             'padding': data['padding']['bottom'],
-            'title+offset': title_with_offset_bottom,
+            'title+offset': sum_title_spacing(data, 'south'),
             'captions+offset': captions_with_offset_bottom
         }
     }
     return height_alignments
 # END CALCULATIONS
+
+# TEST
+def load_test_data():
+    import os
+    wd_path = r'C:\Users\admin\Documents\MasterThesis\mtc\workDir'
+    fig_path = os.path.join(wd_path, 'figures')
+    module_path = os.path.join(fig_path, 'fig2', 'grid2') # e.g. 'fig1' 'grid1'
+
+    with open(os.path.join(module_path, 'gen_figure.json')) as json_file:
+        data = json.load(json_file)
+    
+    return data
+
+def compare_values(val1, val2):
+    if val1 != val2:
+        print(False)
+        print(val1)
+        print(val2)
+    else:
+        print(True)
+        print(val1)
+        print(val2)
+
+def test_caption():
+    data = load_test_data()
+
+    val1 = 0
+    val2 = 0
+    num_cols = data['num_columns']
+    if (data['element_config']['captions']['east']['width'] > 0.0): # + (muliplied by num)
+        val1 += data['element_config']['captions']['east']['offset'] * num_cols # if width # else ignore (muliplied by num)
+        val1 += data['element_config']['captions']['east']['width'] * num_cols
+    val2 += sum_caption_spacing(data, 'east', num_cols)
+
+    compare_values(val1, val2)
+
+def test_row_title():
+    data = load_test_data()
+
+    val1 = 0
+    val2 = 0
+
+    if (data['row_titles']['east']['width'] > 0.0): # + 
+        val1 += data['row_titles']['east']['offset'] + data['row_titles']['east']['width']
+    if (data['row_titles']['west']['width'] > 0.0): # + 
+        val1 += data['row_titles']['west']['offset'] + data['row_titles']['west']['width']
+    
+    val2 += sum_row_title_spacing(data, 'east')
+    val2 += sum_row_title_spacing(data, 'west')
+
+    compare_values(val1, val2)
+
+def test_fixed_inner_width():
+    data = load_test_data()
+
+    val1 = 0
+    val2 = 0
+    num_columns = data['num_columns']
+
+    val2 += sum_caption_spacing(data,'east', num_columns-1)
+    val2 += sum_caption_spacing(data,'west', num_columns-1)
+
+    print(str(sum_caption_spacing(data,'east', 1)) + ' * ' + str(num_columns))
+
+    if (data['element_config']['captions']['east']['width'] > 0.0):
+        val1 += data['element_config']['captions']['east']['width'] * (num_columns -1)
+        val1 += data['element_config']['captions']['east']['offset'] * (num_columns -1)
+    if (data['element_config']['captions']['west']['width'] > 0.0):
+        val1 += data['element_config']['captions']['west']['width'] * (num_columns -1)
+        val1 += data['element_config']['captions']['west']['offset'] * (num_columns -1)
+
+    compare_values(val1, val2)
