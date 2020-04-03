@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "app",
-            "console": "integratedTerminal",
+            "console": "internalConsole",
             "args": [
                 "fig2", "grid2"
             ],
@@ -20,7 +20,7 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "internalConsole"
         }
     ]
 }
