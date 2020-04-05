@@ -8,9 +8,6 @@ def gen_content(data, str_appendix=''):
     A str_appendix is recommended if this script is used to combine the generated tikz code with another set of generated tikz code:
     Allowing to merge two or multiple generated tikz is somewhat in progress and I am not sure if and when this will be completely supported.
     '''
-    # tikz.calculate_and_overwrite_img_resolution_based_on_total_width(data)
-    calculate.overwrite_image_resolution_based_on_total_width(data)
-
     # img/element blocks 
     # Usually an img/block consists only of an image node (with or without frames) and some paddings between other image nodes. 
     # However, it can also contain a complex subset of nodes (caption titles on each side) - if so desired.

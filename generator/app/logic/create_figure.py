@@ -9,7 +9,7 @@ class CreateFigurePNGs:
     ''' Process array image data in content dictionary
     Make out of array image data new image files: give them unique.png-names and save them in separate folder, 
     update content dictionary with new pathfile and delete old array image data,
-    create new content.json file with the ne content dictionary.
+    create new content.json file with the new content dictionary.
     '''
     def __init__(self, module_path):
         self.module_path = module_path
@@ -70,6 +70,9 @@ class CreateFigureJSON:
     
     Merge figure content dictionary with the layout and design and process images: 
     create a content json out of content dictionary and combine content json and layout json to one json file.
+    In case, the user took the option to adjust img_width and img_height based on img_width_px or
+    img_height_px we do that before saving the final json file. This makes sure, that the picture will 
+    not be distorted.
     '''
     def __init__(self, module_path):
         self.module_path = module_path
@@ -77,8 +80,15 @@ class CreateFigureJSON:
     def merge(self, dict1, dict2): 
         res = {**dict1, **dict2} 
         return res
+    
+    def adjust_image_res(self, jsonMerged, is_img_res_based_on_width, is_img_res_based_on_height):
+        if is_img_res_based_on_width:
+            calculate.overwrite_image_resolution_based_on_total_width(jsonMerged)
+        elif is_img_res_based_on_height: 
+            calculate.overwrite_image_resolution_based_on_total_height(jsonMerged)
+        return jsonMerged # not sure if I need to return it or if it is already overwritten?
 
-    def combine_content_and_config_files(self, content_filename):
+    def merge_content_and_config_files(self, content_filename, is_img_res_based_on_width, is_img_res_based_on_height):
         with open(os.path.join(self.module_path, 'layout_and_design.json'), 'r') as json_file:
             dict_configs = json.load(json_file)
 
@@ -86,6 +96,8 @@ class CreateFigureJSON:
             dict_content = json.load(json_file2)
 
         jsonMerged = self.merge(dict_configs, dict_content)
+
+        jsonMerged = self.adjust_image_res(jsonMerged, is_img_res_based_on_width, is_img_res_based_on_height)
         
         with open(os.path.join(self.module_path, 'gen_figure.json'), 'w') as file:
             json.dump(jsonMerged, file)
@@ -96,4 +108,4 @@ a = CreateFigurePNGs(module_path)
 a.create_content_json(content_filename)
 
 b = CreateFigureJSON(module_path)
-b.combine_content_and_config_files(content_filename)
+b.merge_content_and_config_files(content_filename, is_img_res_based_on_width, is_img_res_based_on_height)
