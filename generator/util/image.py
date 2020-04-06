@@ -17,15 +17,24 @@ def luminance(img):
 def exposure(img, exposure):
     return img * pow(2, exposure)   
 
+def average_color_channels(img):
+    assert(img.shape[2] == 3)
+    return np.sum(img, axis=2) / 3.0
+
 
 def squared_error(img, ref):
     return (img - ref)**2
 
-def relative_squared_error(img, ref):
-    return (img - ref)**2 / (ref**2 + 0.0001)
+def relative_squared_error(img, ref, epsilon=0.0001):
+    return (img - ref)**2 / (ref**2 + epsilon)
 
 def mean(img):
     return np.mean(img)
 
 def mse(img, ref):
     return mean(luminance(squared_error(img, ref)))
+
+def relative_mse(img, ref, epsilon=0.0001):
+    err_img_rgb = relative_squared_error(img, ref, epsilon)
+    err_img_gray = average_color_channels(err_img_rgb)
+    return mean(err_img_gray)
