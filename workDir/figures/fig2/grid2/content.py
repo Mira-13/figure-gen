@@ -9,6 +9,9 @@ fifth = manage_images.gloskitch120_ofull
 # get an image for the resolution 
 a = manage_images.glossyKitchenInset1(reference)
 
+def relMSE(img, ref):
+    return util.image.relative_mse(img, ref, epsilon=0.0001)
+
 def mse(img, ref):
     return util.image.mean(util.image.luminance(util.image.squared_error(img, ref)))
 
@@ -19,7 +22,7 @@ def imgInset2(img):
     return util.image.lin_to_srgb(manage_images.glossyKitchenInset2(img))
 
 # define figure data
-data = {
+data = { 
     "img_width_px": len(a[0]),
     "img_height_px": len(a),
     "column_titles": {
@@ -31,12 +34,12 @@ data = {
             "line_space": 1.2,
             "text_color": [0,0,0],
             "content": 
-            [r"\textbf{PT}\strut\\" + "${0:.2f}$\\strut".format(mse(first, reference)),
-             r"\textbf{BDPT}\strut\\"+"${0:.2f}$\\strut".format(mse(second, reference)),
-             "\\textbf{VCM+MLT}\\strut\\\\"+"${0:.2f}$\\strut".format(mse(third, reference)),
-             "\\textbf{M\\\"uller et al.}\\strut\\\\"+"${0:.2f}$\\strut".format(mse(fourth, reference)),
-             "\\textbf{Ours}\\strut\\\\"+"${0:.2f}$\\strut".format(mse(fifth, reference)),
-             "\\textbf{Reference}\\strut\\\\-\\strut"
+            [r"\textbf{PT}\strut\\" + "${0:.2f}$\\strut".format(util.image.relative_mse(first, reference)),
+             r"\textbf{BDPT}\strut\\"+"${0:.2f}$\\strut".format(util.image.relative_mse(second, reference)),
+             "\\textbf{VCM+MLT}\\strut\\\\"+"${0:.2f}$\\strut".format(util.image.relative_mse(third, reference)),
+             "\\textbf{M\\\"uller et al.}\\strut\\\\"+"${0:.2f}$\\strut".format(util.image.relative_mse(fourth, reference)),
+             "\\textbf{Ours}\\strut\\\\"+"${0:.2f}$\\strut".format(util.image.relative_mse(fifth, reference)),
+             r"\textbf{Reference}\strut\\\emph{relMSE}\strut"
             ]
         },
         "south": {
