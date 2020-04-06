@@ -224,7 +224,7 @@ def get_body_widths_for_equal_heights(data1, data2, sum_total_width):
     (2) body width of ref (bw1) + body width of grid (bw2) + fixed width = sum total width  
 
     In more detail, if you want to understand how those constrains are applied:
-    bw1: body_width_reference = flexible width_refernce = only contains the images widths (usually one image)
+    bw1: body_width_reference = flexible width_reference = only contains the images widths (usually one image)
     bw2: body_width_grid = flexible width_grid = only contains the images widths
     xF: sum_total_width, must be given (user defines)
     wF: width fix = includes all the stuff that is fixed (e.g. paddings, offsets, text-field sizes defined by user in config.jsons)
@@ -269,6 +269,22 @@ def get_height_paddings_with_titles(data):
     }
     return height_alignments
 # END CALCULATIONS
+
+def align_heights(data_to_be_aligned, data):
+    data_to_be_aligned['padding']['top'] = data['padding']['top']
+    data_to_be_aligned['padding']['bottom'] = data['padding']['bottom']
+
+    data_to_be_aligned['titles']['north']['height'] = data['titles']['north']['height']
+    data_to_be_aligned['titles']['north']['offset'] = data['titles']['north']['offset']
+    data_to_be_aligned['titles']['south']['height'] = data['titles']['south']['height']
+    data_to_be_aligned['titles']['south']['offset'] = data['titles']['north']['offset']
+
+    data_to_be_aligned['column_titles']['north']['height'] = data['column_titles']['north']['height']
+    data_to_be_aligned['column_titles']['north']['offset'] = data['column_titles']['north']['offset']
+    data_to_be_aligned['column_titles']['south']['height'] = data['column_titles']['south']['height']
+    data_to_be_aligned['column_titles']['south']['offset'] = data['column_titles']['south']['offset']
+
+    return data_to_be_aligned
 
 # TEST
 def load_test_data():
