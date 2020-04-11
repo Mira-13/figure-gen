@@ -106,9 +106,13 @@ def gen_text_node(width, height, text, parent_name, fontsize, position='center',
     if text_color is not None and text_color!=[0,0,0]:
         txt_color='text='+gen_tikZ_rgb255(text_color)+', '
 
+    # ensure that all lines are of equal height
+    paddedtext = text.replace("\n", "\\strut\\\\")
+    paddedtext += "\\strut"
+
     node = '\\node[anchor='+ anchor +', minimum width='+ str(width) +'mm, minimum height='+ str(height) +'mm, rotate='+str(rotation)+\
         ', '+ txt_color +'inner sep=0, outer sep=0] at ('+parent_name+'.'+position+') \n'
-    node_content = '{\\begin{minipage}[c]['+str(height)+'mm]{'+str(width)+'mm} '+ fontsize + ' \\selectfont \\'+alignment+' \n'+text+'\n\\end{minipage}};\n'
+    node_content = '{\\begin{minipage}[c]['+str(height)+'mm]{'+str(width)+'mm} '+ fontsize + ' \\selectfont \\'+alignment+' \n'+paddedtext+'\n\\end{minipage}};\n'
     end_clipping = '\\end{scope}'
 
     return begin_clipping + node + node_content + end_clipping + '\n'
@@ -395,16 +399,19 @@ def gen_all_image_blocks(data, str_appendix=''):
             rowIndex += 1
     return content
 
-def draw_rectangle_on_img(img_name, inset_num, img_width, img_height, rel_pos_x1, rel_pos_y1, rel_pos_x2, rel_pos_y2, line_width, color=[255,255,255], dashed=False):
-    offset_node = gen_plain_node(width=img_width * rel_pos_x1,height=img_height *rel_pos_y1, name='inset'+str(inset_num)+'-offset-'+img_name, parent_name=img_name, 
+def draw_rectangle_on_img(parent_name, inset_num, parent_width, parent_height, rel_pos_x1, rel_pos_y1, rel_pos_x2, rel_pos_y2, line_width, 
+                          color=[255,255,255], dashed=False):
+    offset_node = gen_plain_node(width=parent_width * rel_pos_x1,height=parent_height * rel_pos_y1, 
+                                 name='inset'+str(inset_num)+'-offset-'+parent_name, parent_name=parent_name, 
     position= "north west", anchor="north west", additional_params='')
 
     draw_params = 'draw='+str(gen_tikZ_rgb255(color))+', line width='+str(line_width)+'mm, '
     if dashed:
         draw_params = draw_params + 'dashed, '
 
-    inset_node = gen_plain_node(width=img_width * (rel_pos_x2 - rel_pos_x1),height=img_height *(rel_pos_y2-rel_pos_y1), name='inset'+str(inset_num)+'-'+img_name, 
-    parent_name='inset'+str(inset_num)+'-offset-'+img_name, position= "south east", anchor="north west", additional_params=draw_params)
+    inset_node = gen_plain_node(width=parent_width * (rel_pos_x2 - rel_pos_x1),height=parent_height *(rel_pos_y2-rel_pos_y1), 
+                                name='inset'+str(inset_num)+'-'+parent_name, 
+    parent_name='inset'+str(inset_num)+'-offset-'+parent_name, position= "south east", anchor="north west", additional_params=draw_params)
     return offset_node + inset_node
 
 def gen_inset_nodes(inset_configs, parent_name, parent_widht, parent_height):
@@ -415,8 +422,10 @@ def gen_inset_nodes(inset_configs, parent_name, parent_widht, parent_height):
         for inset in inset_list:
             inset_num += 1
             inset_pos = inset['pos']
-            inset_nodes += draw_rectangle_on_img(img_name=parent_name, inset_num=inset_num, img_width=parent_widht, img_height=parent_height, rel_pos_x1=inset_pos[0], 
-            rel_pos_y1=inset_pos[1], rel_pos_x2=inset_pos[2], rel_pos_y2=inset_pos[3], line_width=inset_configs['line_width'], color=inset['color'], dashed=inset_configs['dashed'])
+            inset_nodes += draw_rectangle_on_img(parent_name=parent_name, inset_num=inset_num, parent_width=parent_widht, 
+                                                 parent_height=parent_height, rel_pos_x1=inset_pos[0], rel_pos_y1=inset_pos[1], 
+                                                 rel_pos_x2=inset_pos[2], rel_pos_y2=inset_pos[3], line_width=inset_configs['line_width'], 
+                                                 color=inset['color'], dashed=inset_configs['dashed'])
 
     return inset_nodes
 

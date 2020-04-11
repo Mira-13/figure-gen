@@ -2,6 +2,7 @@ import os
 import sys
 import json
 from shutil import copy
+import scipy.ndimage
 
 from .tex import compile_tex, make_tex, calculate
 from pdf2image import convert_from_path
@@ -25,9 +26,10 @@ def run_create_module(main_path, wd_path, module_path, is_img_res_based_on_width
     sys.path.append(wd_path)
     import manage_images
     
-    exec(compiled_script, {'util': util, 'manage_images': manage_images, 'calculate': calculate, 
-    'module_path': module_path, 'content_filename': 'gen_content.json',
-    'is_img_res_based_on_width': is_img_res_based_on_width, 'is_img_res_based_on_height': is_img_res_based_on_height})
+    exec(compiled_script, {
+        'util': util, 'manage_images': manage_images, 'calculate': calculate, 'scipy.ndimage': scipy.ndimage,
+        'module_path': module_path, 'content_filename': 'gen_content.json', 
+        'is_img_res_based_on_width': is_img_res_based_on_width, 'is_img_res_based_on_height': is_img_res_based_on_height})
     
 
 def align_two_modules(module_path1, module_path2, sum_total_width):
@@ -96,7 +98,7 @@ def make_two_modules(main_path, wd_path, module_path, module_path2, is_img_res_b
     run_create_module(main_path, wd_path, module_path2, is_img_res_based_on_width, is_img_res_based_on_height)
 
     # Step 2) align those modules
-    align_two_modules(module_path, module_path2, sum_total_width=150)
+    align_two_modules(module_path, module_path2, sum_total_width=145)
 
     # Step 3) use output of step 1) and create a suitable tikz/tex file
     create_tex_file(module_path, tex_filename)
@@ -111,7 +113,29 @@ def make_two_modules(main_path, wd_path, module_path, module_path2, is_img_res_b
     images = convert_from_path(pdf_path=os.path.join(module_path2, pdf_filename), dpi=500)
     images[0].save(os.path.join(module_path2, 'gen_png_file.png'))
 
+def copy_into_combined_folder(fig_path, module_path, module_path2, filename='gen_png_file.png'):
+    combined_path = os.path.join(fig_path, sys.argv[1], 'combined')
+    filename_without_end, file_ending = filename.split('.')
+    # copy first 
+    copy(os.path.join(module_path, filename), combined_path)
+    new_filename = filename_without_end + '1.' + file_ending
+    try:
+        os.remove(os.path.join(combined_path, new_filename))
+    except:
+        print("File already deleted or did not exist in the first place: .../combined/gen_png_file1.png ")
+    os.rename(os.path.join(combined_path, filename), os.path.join(combined_path, new_filename))
+    print('Copied '+ filename +' of provided module 1 into combined')
 
+    # copy second
+    copy(os.path.join(module_path2, filename), combined_path)
+    new_filename = filename_without_end + '2.' + file_ending
+    try:
+        os.remove(os.path.join(combined_path, new_filename))
+    except:
+        print("File already deleted or did not exist in the first place: .../combined/gen_png_file2.png ")
+    os.rename(os.path.join(combined_path, filename), os.path.join(combined_path, new_filename))
+    print('Copied '+ filename +' of provided module 2 into combined')
+    
 
 def main():
     main_path = r'C:\Users\admin\Documents\MasterThesis\mtc\generator'
@@ -138,23 +162,15 @@ def main():
         make_two_modules(main_path, wd_path, module_path, module_path2, is_img_res_based_on_width, 
                     is_img_res_based_on_height, tex_filename, pdf_filename)
 
-        # copy output pngs into combined folder
-        combined_path = os.path.join(fig_path, sys.argv[1], 'combined')
-        copy(os.path.join(module_path, 'gen_png_file.png'), combined_path)
-        try:
-            os.remove(os.path.join(combined_path, 'gen_png_file1.png'))
-        except:
-            print("File already deleted or did not exist in the first place: .../combined/gen_png_file1.png ")
-        os.rename(os.path.join(combined_path, 'gen_png_file.png'), os.path.join(combined_path, 'gen_png_file1.png'))
-        print('Copied gen_png_file.png of provided module 1 into combined')
+        copy_into_combined_folder(fig_path, module_path, module_path2, pdf_filename)
 
-        copy(os.path.join(module_path2, 'gen_png_file.png'), combined_path)
-        try:
-            os.remove(os.path.join(combined_path, 'gen_png_file2.png'))
-        except:
-            print("File already deleted or did not exist in the first place: .../combined/gen_png_file2.png ")
-        os.rename(os.path.join(combined_path, 'gen_png_file.png'), os.path.join(combined_path, 'gen_png_file2.png'))
-        print('Copied gen_png_file.png of provided module 2 into combined')
+        with open(os.path.join(module_path, 'gen_figure.json')) as json_file:
+            data1 = json.load(json_file)
+        with open(os.path.join(module_path2, 'gen_figure.json')) as json_file:
+            data2 = json.load(json_file)
+        print('Total height, module 1:', calculate.get_total_height(data1))
+        print('Total height, module 2:', calculate.get_total_height(data2))
+
     else:
         make_one_module(main_path, wd_path, module_path, is_img_res_based_on_width, is_img_res_based_on_height,
                     tex_filename, pdf_filename)

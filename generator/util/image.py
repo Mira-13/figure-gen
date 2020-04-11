@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import scipy.ndimage
 
 def lin_to_srgb(rgba):
     """
@@ -21,6 +22,9 @@ def average_color_channels(img):
     assert(img.shape[2] == 3)
     return np.sum(img, axis=2) / 3.0
 
+def zoom(img, scale=20):
+    return scipy.ndimage.zoom(img, (scale, scale, 1), order=0)
+
 
 def squared_error(img, ref):
     return (img - ref)**2
@@ -38,3 +42,9 @@ def relative_mse(img, ref, epsilon=0.0001):
     err_img_rgb = relative_squared_error(img, ref, epsilon)
     err_img_gray = average_color_channels(err_img_rgb)
     return mean(err_img_gray)
+
+
+# for drawing insets / TODO location of this function might change
+def calculateInsetBox(img, img_width_px, img_height_px, rel_pos_x1, rel_pos_y1, rel_pos_x2, rel_pos_y2):
+    # parent_width, parent_height, rel_pos_x1, rel_pos_y1, rel_pos_x2, rel_pos_y2
+    pass
