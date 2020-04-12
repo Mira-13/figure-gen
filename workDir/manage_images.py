@@ -28,6 +28,18 @@ livroom120_radia = load_exr(path + 'living-room-120s/living-room-120s-radiance.e
 livroom120_upscmc = load_exr(path + 'living-room-120s/living-room-120s-upsmcmc.exr') 
 livroom120_ofull = load_exr(path + 'living-room-120s/living-room-120s-full.exr')
 
+bookshelf120_ref = load_exr(path + 'bookshelf-120s/bookshelf.exr')
+bookshelf120_patht = load_exr(path + 'bookshelf-120s/bookshelf-120s-path.exr')
+bookshelf120_radia = load_exr(path + 'bookshelf-120s/bookshelf-120s-radiance.exr')
+bookshelf120_upscmc = load_exr(path + 'bookshelf-120s/bookshelf-120s-upsmcmc.exr') 
+bookshelf120_ofull = load_exr(path + 'bookshelf-120s/bookshelf-120s-full.exr')
+
+def bookshelfCrop1(img, left=200, top=120, width=20, height=20):
+    return crop(img, left, top, width, height)
+
+def bookshelfCrop2(img, left=500, top=230, width=20, height=20):
+    return crop(img, left, top, width, height)
+
 def livingRoomInset1(img, left=180, top=120, width=20, height=20):
     return crop(img, left, top, width, height)
 
