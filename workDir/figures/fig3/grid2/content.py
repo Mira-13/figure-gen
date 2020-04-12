@@ -57,7 +57,7 @@ data = {
         },
         "south": {
             "height": 5.8,
-            "offset": 0.2,
+            "offset": 0.5,
             "rotation": 0,
             "fontsize": 7, 
             "line_space": 1.2,
@@ -86,14 +86,14 @@ data = {
             "content": ["row a 1", "row b 2", "row c 3", "row d 4", "row e 5", "row f 6"]
         },
         "west": {
-            "width": 0.0,
-            "offset": 0.0,
+            "width": 1.0,
+            "offset": 0.5,
             "rotation": 90,
             "fontsize": 7, 
             "line_space": 1.2,
             "text_color": [0,0,0],
-            "background_colors": [[41, 96, 188], [221, 191, 38], [66, 180, 70], [231, 191, 78], [180, 55, 68], [210, 135, 38]],
-            "content": ["row a 1", "row b 2", "row c 3", "row d 4", "row e 5", "row f 6"]
+            "background_colors": [[242, 113, 0], [0, 89, 186], [66, 180, 70], [231, 191, 78], [180, 55, 68], [210, 135, 38]],
+            "content": ["", "", "row c 3", "row d 4", "row e 5", "row f 6"]
         }
     },
     "elements_content": [

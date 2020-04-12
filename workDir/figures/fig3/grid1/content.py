@@ -16,7 +16,7 @@ data = {
             "fontsize": 7, 
             "line_space": 1.2,
             "text_color": [0,0,0],
-            "content": ["", "col top 2", "col top 3", "col pottom 4", "col top 5", "col top 6"]
+            "content": ["Living Room", "col top 2", "col top 3", "col pottom 4", "col top 5", "col top 6"]
         },
         "south": {
             "height": 0.0,
@@ -24,9 +24,9 @@ data = {
             "rotation": 0,
             "fontsize": 7, 
             "line_space": 1.2,
-            "text_color": [255,255,255],
+            "text_color": [0,0,0],
             "background_colors": [255, 255, 255],
-            "content": ["", "col pottom 2", "col bottom 3", "col pottom 4", "col bottom 5", "col bottom 6"]
+            "content": ["Living Room", "col pottom 2", "col bottom 3", "col pottom 4", "col bottom 5", "col bottom 6"]
         }
     },
 
@@ -39,7 +39,7 @@ data = {
             "line_space": 1.2,
             "text_color": [0,0,0],
             "background_colors": [255, 255, 255],
-            "content": ["", "row b 2", "row c 3", "row d 4", "row e 5", "row f 6"]
+            "content": ["Living Room", "row b 2", "row c 3", "row d 4", "row e 5", "row f 6"]
         },
         "west": {
             "width": 0.0,
@@ -49,7 +49,7 @@ data = {
             "line_space": 1.2,
             "text_color": [0,0,0],
             "background_colors": [255, 255, 255],
-            "content": ["", "row b 2", "row c 3", "row d 4", "row e 5", "row f 6"]
+            "content": ["Living Room", "row b 2", "row c 3", "row d 4", "row e 5", "row f 6"]
         }
     },
     "elements_content": [

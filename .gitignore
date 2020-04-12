@@ -2,6 +2,8 @@ gen_*.json
 *__path.json
 *__pgfull6.json
 *__pgrad6.json
+*__pgfull7.json
+*__pgrad7.json
 *__upsmcmc.json
 __pycache__
 images

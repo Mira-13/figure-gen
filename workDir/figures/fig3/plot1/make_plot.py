@@ -126,12 +126,12 @@ def plot_errors(scene, integrators=["path","pgrad6","pgfull6","upsmcmc"], metric
 
     line_width_pt = 0.5
 
-    figsize = calculate_inch_fig_size(width_mm=35.0, height_mm=39.73896103896104)
+    figsize = calculate_inch_fig_size(width_mm=35.0, height_mm=39.54805194805194)
     #constrained_layout: https://matplotlib.org/3.2.1/tutorials/intermediate/constrainedlayout_guide.html
     fig, ax = plt.subplots(figsize=figsize, constrained_layout=True)
 
     # PLOT
-    plot_lines(ax, scene, integrators, linewidth_pt=0.6, metric=metric)
+    plot_lines(ax, scene, integrators, linewidth_pt=0.8, metric=metric)
     
     plt.tick_params(width=line_width_pt, length=(line_width_pt * 4),
         labelsize=fontsize_pt, pad=(line_width_pt * 2))
