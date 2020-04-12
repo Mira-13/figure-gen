@@ -34,6 +34,12 @@ bookshelf120_radia = load_exr(path + 'bookshelf-120s/bookshelf-120s-radiance.exr
 bookshelf120_upscmc = load_exr(path + 'bookshelf-120s/bookshelf-120s-upsmcmc.exr') 
 bookshelf120_ofull = load_exr(path + 'bookshelf-120s/bookshelf-120s-full.exr')
 
+gloskitch90_ref = load_exr(path + 'glossy-kitchen-90s/glossy-kitchen.exr')
+gloskitch90_patht = load_exr(path + 'glossy-kitchen-90s/glossy-kitchen-90s-path.exr')
+gloskitch90_radia = load_exr(path + 'glossy-kitchen-90s/glossy-kitchen-90s-radiance.exr')
+gloskitch90_upscmc = load_exr(path + 'glossy-kitchen-90s/glossy-kitchen-90s-upsmcmc.exr') 
+gloskitch90_ofull = load_exr(path + 'glossy-kitchen-90s/glossy-kitchen-90s-full.exr')
+
 def bookshelfCrop1(img, left=200, top=120, width=20, height=20):
     return crop(img, left, top, width, height)
 
