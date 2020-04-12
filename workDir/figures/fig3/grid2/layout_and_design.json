@@ -5,8 +5,8 @@
     "total_width": 85.0, 
     "total_height": 50.0, 
 
-    "row_space": 0.4,
-    "column_space": 0.4,
+    "row_space": 0.8,
+    "column_space": 0.8,
     
     "padding": {
         "top": 0.0,

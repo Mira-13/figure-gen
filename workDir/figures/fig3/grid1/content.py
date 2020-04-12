@@ -61,10 +61,10 @@ data = {
                 "south": "",
                 "west": "",
                 "frame": { "line_width": 0.0, "color": [100,100,100] },
-                "insets": {"line_width": 0.1, "dashed": False, 
+                "insets": {"line_width": 0.2, "dashed": False, 
                                 "list": [
-                                    {"pos": [180, 120, 200, 140], "color": [169, 229, 126]}, 
-                                    {"pos": [500, 320, 520, 340], "color": [221, 191, 38]}
+                                    {"pos": [180, 120, 200, 140], "color": [242, 113, 0]}, 
+                                    {"pos": [500, 320, 520, 340], "color": [0, 89, 186]}
                                     ]
                             }
             }

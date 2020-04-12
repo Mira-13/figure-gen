@@ -42,9 +42,3 @@ def relative_mse(img, ref, epsilon=0.0001):
     err_img_rgb = relative_squared_error(img, ref, epsilon)
     err_img_gray = average_color_channels(err_img_rgb)
     return mean(err_img_gray)
-
-
-# for drawing insets / TODO location of this function might change
-def calculateInsetBox(img, img_width_px, img_height_px, rel_pos_x1, rel_pos_y1, rel_pos_x2, rel_pos_y2):
-    # parent_width, parent_height, rel_pos_x1, rel_pos_y1, rel_pos_x2, rel_pos_y2
-    pass
