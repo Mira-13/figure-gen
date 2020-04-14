@@ -6,20 +6,20 @@ third = manage_images.vdoor60_upscmc
 fifth = manage_images.vdoor60_ofull
 
 # get an image for the resolution 
-a = manage_images.veachDoorCrop1(reference)
+a = manage_images.vdoor_crop(1, reference)
 
-def cropAndZoom(img, cropFn):
-    crop = cropFn(img)
-    return util.image.zoom(crop, scale=20)
+def zoom_and_lin_to_srgb(crop):
+    zoomed = util.image.zoom(crop, scale=20)
+    return util.image.lin_to_srgb(zoomed)
 
 def crop_1(img):
-    global cropAndZoom
-    zoomedCrop = cropAndZoom(img, manage_images.veachDoorCrop1)
-    return util.image.lin_to_srgb(zoomedCrop)
+    global zoom_and_lin_to_srgb
+    zoomedSRGBCrop = zoom_and_lin_to_srgb(manage_images.vdoor_crop(1, img))
+    return zoomedSRGBCrop
 
 def crop_2(img):
-    zoomedCrop = cropAndZoom(img, manage_images.veachDoorCrop2)
-    return util.image.lin_to_srgb(zoomedCrop)
+    zoomedSRGBCrop = zoom_and_lin_to_srgb(manage_images.vdoor_crop(2, img))
+    return zoomedSRGBCrop
 
 def method_caption(name, image, rgbString):
     global reference

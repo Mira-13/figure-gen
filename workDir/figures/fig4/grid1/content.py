@@ -16,7 +16,7 @@ data = {
             "fontsize": 7, 
             "line_space": 1.2,
             "text_color": [0,0,0],
-            "content": ["Bookshelf", "col top 2", "col top 3", "col pottom 4", "col top 5", "col top 6"]
+            "content": ["\\textsc{Bookshelf}", "col top 2", "col top 3", "col pottom 4", "col top 5", "col top 6"]
         },
         "south": {
             "height": 0.0,
@@ -26,7 +26,7 @@ data = {
             "line_space": 1.2,
             "text_color": [0,0,0],
             "background_colors": [255, 255, 255],
-            "content": ["Bookshelf", "col pottom 2", "col bottom 3", "col pottom 4", "col bottom 5", "col bottom 6"]
+            "content": ["\\textsc{Bookshelf}", "col pottom 2", "col bottom 3", "col pottom 4", "col bottom 5", "col bottom 6"]
         }
     },
 
@@ -39,7 +39,7 @@ data = {
             "line_space": 1.2,
             "text_color": [0,0,0],
             "background_colors": [255, 255, 255],
-            "content": ["Bookshelf", "row b 2", "row c 3", "row d 4", "row e 5", "row f 6"]
+            "content": ["\\textsc{Bookshelf}", "row b 2", "row c 3", "row d 4", "row e 5", "row f 6"]
         },
         "west": {
             "width": 0.0,
@@ -49,7 +49,7 @@ data = {
             "line_space": 1.2,
             "text_color": [0,0,0],
             "background_colors": [255, 255, 255],
-            "content": ["Bookshelf", "row b 2", "row c 3", "row d 4", "row e 5", "row f 6"]
+            "content": ["\\textsc{Bookshelf}", "row b 2", "row c 3", "row d 4", "row e 5", "row f 6"]
         }
     },
     "elements_content": [
@@ -63,8 +63,8 @@ data = {
                 "frame": { "line_width": 0.0, "color": [100,100,100] },
                 "insets": {"line_width": 0.2, "dashed": False, 
                                 "list": [
-                                    {"pos": [200, 120, 220, 140], "color": [242, 113, 0]}, 
-                                    {"pos": [500, 230, 520, 250], "color": [0, 89, 186]}
+                                    {"pos": manage_images.bookshelf_crop(1), "color": [242, 113, 0]}, 
+                                    {"pos": manage_images.bookshelf_crop(2), "color": [242, 113, 0]}
                                     ]
                             }
             }

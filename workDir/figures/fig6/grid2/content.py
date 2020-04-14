@@ -6,20 +6,20 @@ third = manage_images.pool60_upscmc
 fifth = manage_images.pool60_ofull
 
 # get an image for the resolution 
-a = manage_images.poolInset1(reference)
+a = manage_images.pool_crop(1, reference)
 
-def cropAndZoom(img, cropFn):
-    crop = cropFn(img)
-    return util.image.zoom(crop, scale=20)
+def zoom_and_lin_to_srgb(crop):
+    zoomed = util.image.zoom(crop, scale=20)
+    return util.image.lin_to_srgb(zoomed)
 
 def crop_1(img):
-    global cropAndZoom
-    zoomedCrop = cropAndZoom(img, manage_images.poolInset1)
-    return util.image.lin_to_srgb(zoomedCrop)
+    global zoom_and_lin_to_srgb
+    zoomedSRGBCrop = zoom_and_lin_to_srgb(manage_images.pool_crop(1, img))
+    return zoomedSRGBCrop
 
 def crop_2(img):
-    zoomedCrop = cropAndZoom(img, manage_images.poolInset2)
-    return util.image.lin_to_srgb(zoomedCrop)
+    zoomedSRGBCrop = zoom_and_lin_to_srgb(manage_images.pool_crop(2, img))
+    return zoomedSRGBCrop
 
 def method_caption(name, image, rgbString):
     global reference
@@ -85,8 +85,8 @@ data = {
             "content": ["row a 1", "row b 2", "row c 3", "row d 4", "row e 5", "row f 6"]
         },
         "west": {
-            "width": 1.0,
-            "offset": 0.5,
+            "width": 0.0,
+            "offset": 0.0,
             "rotation": 90,
             "fontsize": 7, 
             "line_space": 1.2,

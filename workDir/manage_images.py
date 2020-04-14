@@ -53,11 +53,18 @@ vdoor60_radia = load_exr(path + 'veach-door-60s/veach-door-60s-radiance.exr')
 vdoor60_upscmc = load_exr(path + 'veach-door-60s/veach-door-60s-upsmcmc.exr') 
 vdoor60_ofull = load_exr(path + 'veach-door-60s/veach-door-60s-full.exr')
 
-def veachDoorCrop1(img, left=246, top=268, width=20, height=20):
-    return crop(img, left, top, width, height)
-
-def veachDoorCrop2(img, left=355, top=230, width=20, height=20):
-    return crop(img, left, top, width, height)
+def vdoor_crop(num, img=[]):
+    width, height = 20, 20
+    if num == 1:
+        left, top = 246, 268
+        if img == []:
+            return left, top, width, height
+        return crop(img, left, top, width, height)
+    else:
+        left, top = 355, 230
+        if img == []:
+            return left, top, width, height
+        return crop(img, left, top, width, height)
 
 def bookshelf_crop(num, img=[]):
     width, height = 20, 20
@@ -72,63 +79,47 @@ def bookshelf_crop(num, img=[]):
             return left, top, width, height
         return crop(img, left, top, width, height)
 
-# def bookshelfCrop1(img, left=369, top=191, width=20, height=20):
-#     return crop(img, left, top, width, height)
+def pool_crop(num, img=[]):
+    width, height = 20, 20
+    if num == 1:
+        left, top = 400, 120
+        if img == []:
+            return left, top, width, height
+        return crop(img, left, top, width, height)
+    else:
+        left, top = 607, 81
+        if img == []:
+            return left, top, width, height
+        return crop(img, left, top, width, height)
 
-# def bookshelfCrop2(img, left=238, top=108, width=20, height=20):
-#     return crop(img, left, top, width, height)
+def livingroom_crop(num, img=[]):
+    width, height = 20, 20
+    if num == 1:
+        left, top = 180, 120
+        if img == []:
+            return left, top, width, height
+        return crop(img, left, top, width, height)
+    else:
+        left, top = 500, 320
+        if img == []:
+            return left, top, width, height
+        return crop(img, left, top, width, height)
 
-def livingRoomInset1(img, left=180, top=120, width=20, height=20):
-    return crop(img, left, top, width, height)
+def gkitchen_crop(num, img=[]):
+    width, height = 20, 20
+    if num == 1:
+        left, top = 100, 120
+        if img == []:
+            return left, top, width, height
+        return crop(img, left, top, width, height)
+    else:
+        left, top = 212, 330
+        if img == []:
+            return left, top, width, height
+        return crop(img, left, top, width, height)
 
-def livingRoomInset2(img, left=500, top=320, width=20, height=20):
-    return crop(img, left, top, width, height)
-
-
-def glossyKitchenRef(left=0, top=0, width=640, height=360):
-    return crop(gloskitch120_ref, left, top, width, height)
-
-def glossyKitchenInset1(img, left=100, top=120, width=20, height=20):
-    return crop(img, left, top, width, height)
-
-def glossyKitchenInset2(img, left=212, top=330, width=20, height=20):
-    return crop(img, left, top, width, height)
 
 def make_copies(scene_name):
     # TODO make copies and let the user decide a folder name
     print('TODO make copies')
 
-# in case user needs more structure, this serves as an example
-import enum
-class Scene(enum.Enum):
-    pool = 1
-    bathroom = 2
-
-class Method(enum.Enum):
-    reference = 0
-    pathtracing = 1
-    muller = 2
-    oursimple = 3
-    ourfull = 4
-
-def getScene(scene):
-    if scene == Scene.pool:
-        return [
-            pool_ref, 
-            pool_patht, 
-            pool_muller, 
-            pool_osimpl, 
-            pool_ofull
-        ]
-    else:
-        return []
-
-
-def poolInset1(img, left=400, top=120, width=20, height=20):
-    return crop(img, left, top, width, height)
-
-def poolInset2(img, left=607, top=81, width=20, height=20):
-    return crop(img, left, top, width, height)
-
-def poolInset3(img, left=210, top=115, width=20, height=20):
-    return crop(img, left, top, width, height)

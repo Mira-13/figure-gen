@@ -119,13 +119,15 @@ def plot_errors(scene, integrators=["path","pgrad7","pgfull7","upsmcmc"], metric
     setup_fonts(plt) # allow pgf
 
     # SIZE (font, lines, whole plot, etc.)
-    fontsize_pt = 6 # unit: points
+    fontsize_pt = 7 # unit: points
 
     line_width_pt = 0.5
 
-    figsize = calculate_inch_fig_size(width_mm=35.0, height_mm=39.54805194805194)
+    figsize = calculate_inch_fig_size(width_mm=35.0, height_mm=(39.77948051948052-3.0))
     #constrained_layout: https://matplotlib.org/3.2.1/tutorials/intermediate/constrainedlayout_guide.html
     fig, ax = plt.subplots(figsize=figsize, constrained_layout=True)
+    fig.set_constrained_layout_pads(w_pad=0, h_pad=0,
+        hspace=0., wspace=0.)
 
     # PLOT
     plot_lines(ax, scene, integrators, linewidth_pt=0.8, metric=metric)
@@ -140,7 +142,7 @@ def plot_errors(scene, integrators=["path","pgrad7","pgfull7","upsmcmc"], metric
                 ylabel="Error\n[relMSE]", yrotation="vertical", pad=(line_width_pt * 6))
 
     # if use_scientific_notations True, displaystyle is used in pgf --> offset pf ticks changes 
-    set_ticks(ax, xticks=[3, 20, 120], yticks=[0.001,0.01, 0.1], use_scientific_notations=False)
+    set_ticks(ax, xticks=[3, 20, 120], yticks=[0.01, 0.1, 1.0], use_scientific_notations=False)
 
     plt.savefig("gen_plot.pdf", pad_inches=0.0)
     # plt.savefig("gen_plot.pgf", pad_inches=0.0)

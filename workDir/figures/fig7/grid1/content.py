@@ -63,8 +63,8 @@ data = {
                 "frame": { "line_width": 0.0, "color": [100,100,100] },
                 "insets": {"line_width": 0.2, "dashed": False, 
                                 "list": [
-                                    {"pos": [246, 268, 266, 288], "color": [242, 113, 0]}, 
-                                    {"pos": [355, 230, 375, 250], "color": [242, 113, 0]}
+                                    {"pos": manage_images.vdoor_crop(1), "color": [242, 113, 0]}, 
+                                    {"pos": manage_images.vdoor_crop(2), "color": [242, 113, 0]}
                                     ]
                             }
             }
