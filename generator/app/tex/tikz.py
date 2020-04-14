@@ -405,23 +405,8 @@ def gen_all_image_blocks(data, str_appendix=''):
             rowIndex += 1
     return content
 
-def draw_rectangle_on_img1(parent_name, crop_num, parent_width, parent_height, rel_pos_x1, rel_pos_y1, rel_pos_x2, rel_pos_y2, line_width, 
-                          color=[255,255,255], dashed=False):
-    offset_node = gen_plain_node(width=parent_width * rel_pos_x1,height=parent_height * rel_pos_y1, 
-                                 name='inset'+str(crop_num)+'-offset-'+parent_name, parent_name=parent_name, 
-    position= "north west", anchor="north west", additional_params='')
-
-    draw_params = 'draw='+str(gen_tikZ_rgb255(color))+', line width='+str(line_width)+'mm, '
-    if dashed:
-        draw_params = draw_params + 'dashed, '
-
-    inset_node = gen_plain_node(width=parent_width * (rel_pos_x2 - rel_pos_x1),height=parent_height *(rel_pos_y2-rel_pos_y1), 
-                                name='inset'+str(crop_num)+'-'+parent_name, 
-    parent_name='inset'+str(crop_num)+'-offset-'+parent_name, position= "south east", anchor="north west", additional_params=draw_params)
-    return offset_node + inset_node
-
-def draw_rectangle_on_img2(parent_name, crop_num, parent_width_factor, parent_height_factor,
-                            pos_x1, pos_y1, pos_x2, pos_y2, line_width, color=[255,255,255], dashed=False):
+def draw_rectangle_on_img(parent_name, crop_num, parent_width_factor, parent_height_factor,
+                            pos_x1, pos_y1, xoffset, yoffset, line_width, color=[255,255,255], dashed=False):
     
     offset_node = gen_plain_node(width=parent_width_factor * pos_x1,height=parent_height_factor * pos_y1, 
                                  name='inset'+str(crop_num)+'-offset-'+parent_name, parent_name=parent_name, 
@@ -431,7 +416,7 @@ def draw_rectangle_on_img2(parent_name, crop_num, parent_width_factor, parent_he
     if dashed:
         draw_params = draw_params + 'dashed, '
 
-    inset_node = gen_plain_node(width=parent_width_factor * (pos_x2 - pos_x1),height=parent_height_factor *(pos_y2-pos_y1), 
+    inset_node = gen_plain_node(width=parent_width_factor * (xoffset),height=parent_height_factor *(yoffset), 
                                 name='inset'+str(crop_num)+'-'+parent_name, 
     parent_name='inset'+str(crop_num)+'-offset-'+parent_name, position= "south east", anchor="north west", additional_params=draw_params)
     return offset_node + inset_node
@@ -445,15 +430,11 @@ def gen_marker_nodes(inset_configs, parent_name, parent_width_px, parent_height_
             crop_num += 1
             inset_pos = inset['pos']
             width_factor, height_factor = calculate_relative_position(parent_width_px, parent_height_px, parent_width, parent_height)
-            marker_nodes += draw_rectangle_on_img2(parent_name=parent_name, crop_num=crop_num, 
+            marker_nodes += draw_rectangle_on_img(parent_name=parent_name, crop_num=crop_num, 
                                                  parent_width_factor=width_factor, parent_height_factor=height_factor,
                                                  pos_x1=inset_pos[0], pos_y1=inset_pos[1], 
-                                                 pos_x2=inset_pos[2], pos_y2=inset_pos[3], line_width=inset_configs['line_width'], 
+                                                 xoffset=inset_pos[2], yoffset=inset_pos[3], line_width=inset_configs['line_width'], 
                                                  color=inset['color'], dashed=inset_configs['dashed'])
-            # marker_nodes += draw_rectangle_on_img1(parent_name=parent_name, crop_num=crop_num, parent_width=parent_width, 
-            #                                      parent_height=parent_height, rel_pos_x1=inset_pos[0], rel_pos_y1=inset_pos[1], 
-            #                                      rel_pos_x2=inset_pos[2], rel_pos_y2=inset_pos[3], line_width=inset_configs['line_width'], 
-            #                                      color=inset['color'], dashed=inset_configs['dashed'])
 
     return marker_nodes
 

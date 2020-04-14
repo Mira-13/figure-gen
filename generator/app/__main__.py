@@ -90,7 +90,7 @@ def make_one_module(main_path, wd_path, module_path, is_img_res_based_on_width, 
     images = convert_from_path(pdf_path=os.path.join(module_path, pdf_filename), dpi=500)
     images[0].save(os.path.join(module_path, 'gen_png_file.png'))
 
-def make_two_modules(main_path, wd_path, module_path, module_path2, is_img_res_based_on_width, 
+def make_two_modules(main_path, wd_path, module_path, module_path2, sum_total_width, is_img_res_based_on_width, 
                     is_img_res_based_on_height, tex_filename, pdf_filename):
     # Create two modules: (part of) a figure.
     # Step 1) combine user input to one json file, that contains all information needed
@@ -98,7 +98,7 @@ def make_two_modules(main_path, wd_path, module_path, module_path2, is_img_res_b
     run_create_module(main_path, wd_path, module_path2, is_img_res_based_on_width, is_img_res_based_on_height)
 
     # Step 2) align those modules
-    align_two_modules(module_path, module_path2, sum_total_width=145)
+    align_two_modules(module_path, module_path2, sum_total_width)
 
     # Step 3) use output of step 1) and create a suitable tikz/tex file
     create_tex_file(module_path, tex_filename)
@@ -159,8 +159,8 @@ def main():
     
     if (third !=''):
         module_path2 = os.path.join(fig_path, sys.argv[1], third) # e.g. fig1 grid2
-        make_two_modules(main_path, wd_path, module_path, module_path2, is_img_res_based_on_width, 
-                    is_img_res_based_on_height, tex_filename, pdf_filename)
+        make_two_modules(main_path, wd_path, module_path, module_path2, 144.99, # sum_total_width
+                    is_img_res_based_on_width, is_img_res_based_on_height, tex_filename, pdf_filename)
 
         copy_into_combined_folder(fig_path, module_path, module_path2, pdf_filename)
 

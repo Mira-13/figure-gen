@@ -8,6 +8,7 @@ def crop(img, left, top, width, height):
 
 # load images, user needs to provide direct/total path
 path = 'C:/Users/admin/Documents/MasterThesis/mtc/workDir/raw-imgs/'
+
 pool_ref = load_exr(path + 'pool/referenz.exr')
 pool_patht = load_exr(path + 'pool/path-tracing.exr')
 pool_muller = load_exr(path + 'pool/muller.exr')
@@ -40,11 +41,42 @@ gloskitch90_radia = load_exr(path + 'glossy-kitchen-90s/glossy-kitchen-90s-radia
 gloskitch90_upscmc = load_exr(path + 'glossy-kitchen-90s/glossy-kitchen-90s-upsmcmc.exr') 
 gloskitch90_ofull = load_exr(path + 'glossy-kitchen-90s/glossy-kitchen-90s-full.exr')
 
-def bookshelfCrop1(img, left=200, top=120, width=20, height=20):
+pool60_ref = load_exr(path + 'pool-60s/pool.exr')
+pool60_patht = load_exr(path + 'pool-60s/pool-60s-path.exr')
+pool60_radia = load_exr(path + 'pool-60s/pool-60s-radiance.exr')
+pool60_upscmc = load_exr(path + 'pool-60s/pool-60s-upsmcmc.exr') 
+pool60_ofull = load_exr(path + 'pool-60s/pool-60s-full.exr')
+
+vdoor60_ref = load_exr(path + 'veach-door-60s/veach-door.exr')
+vdoor60_patht = load_exr(path + 'veach-door-60s/veach-door-60s-path.exr')
+vdoor60_radia = load_exr(path + 'veach-door-60s/veach-door-60s-radiance.exr')
+vdoor60_upscmc = load_exr(path + 'veach-door-60s/veach-door-60s-upsmcmc.exr') 
+vdoor60_ofull = load_exr(path + 'veach-door-60s/veach-door-60s-full.exr')
+
+def veachDoorCrop1(img, left=246, top=268, width=20, height=20):
     return crop(img, left, top, width, height)
 
-def bookshelfCrop2(img, left=500, top=230, width=20, height=20):
+def veachDoorCrop2(img, left=355, top=230, width=20, height=20):
     return crop(img, left, top, width, height)
+
+def bookshelf_crop(num, img=[]):
+    width, height = 20, 20
+    if num == 1:
+        left, top = 369, 191
+        if img == []:
+            return left, top, width, height
+        return crop(img, left, top, width, height)
+    else:
+        left, top = 238, 108
+        if img == []:
+            return left, top, width, height
+        return crop(img, left, top, width, height)
+
+# def bookshelfCrop1(img, left=369, top=191, width=20, height=20):
+#     return crop(img, left, top, width, height)
+
+# def bookshelfCrop2(img, left=238, top=108, width=20, height=20):
+#     return crop(img, left, top, width, height)
 
 def livingRoomInset1(img, left=180, top=120, width=20, height=20):
     return crop(img, left, top, width, height)
@@ -59,7 +91,7 @@ def glossyKitchenRef(left=0, top=0, width=640, height=360):
 def glossyKitchenInset1(img, left=100, top=120, width=20, height=20):
     return crop(img, left, top, width, height)
 
-def glossyKitchenInset2(img, left=300, top=320, width=20, height=20):
+def glossyKitchenInset2(img, left=212, top=330, width=20, height=20):
     return crop(img, left, top, width, height)
 
 def make_copies(scene_name):
@@ -92,11 +124,11 @@ def getScene(scene):
         return []
 
 
-def poolInset1(img, left=575, top=20, width=20, height=20):
+def poolInset1(img, left=400, top=120, width=20, height=20):
     return crop(img, left, top, width, height)
 
-def poolInset2(img, left=465, top=130, width=20, height=20):
+def poolInset2(img, left=607, top=81, width=20, height=20):
     return crop(img, left, top, width, height)
 
-def poolInset3(img, left=210, top=15, width=20, height=20):
+def poolInset3(img, left=210, top=115, width=20, height=20):
     return crop(img, left, top, width, height)
