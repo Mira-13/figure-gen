@@ -101,6 +101,7 @@ def set_ticks(ax, xticks, yticks, use_scientific_notations):
     '''
     ax.set_xticks(xticks)
     if not use_scientific_notations:
+        xticks[-1] = '\\textbf{'+ str(xticks[-1]) + '}'
         ax.set_xticklabels(xticks)
 
     ax.set_yticks(yticks)
