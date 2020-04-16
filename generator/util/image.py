@@ -25,6 +25,12 @@ def average_color_channels(img):
 def zoom(img, scale=20):
     return scipy.ndimage.zoom(img, (scale, scale, 1), order=0)
 
+def scale_and_convert_rgb(rgb_list, scale=255):
+    r = round(rgb_list[0] * 1/scale, 2)
+    g = round(rgb_list[1] * 1/scale, 2)
+    b = round(rgb_list[2] * 1/scale, 2)
+    return '{'+str(r)+","+str(g)+","+ str(b)+'}'
+
 
 def squared_error(img, ref):
     return (img - ref)**2

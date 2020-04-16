@@ -1,9 +1,9 @@
 # load images
-reference = manage_images.vdoor60_ref
+reference = manage_images.load_image(scene='veach-door')
 
 # get an image for the resolution 
-a = manage_images.vdoor60_ref
-content = "\\textsc{Veach Door} \\n $(60s)$"
+a = manage_images.load_image(scene='veach-door')
+content = "\\textsc{Veach Door}"#\\n $("+ str(manage_images.get_time_sec(scene='veach-door'))+"s)$"
 
 # define figure data
 data = {
@@ -64,8 +64,8 @@ data = {
                 "frame": { "line_width": 0.0, "color": [100,100,100] },
                 "insets": {"line_width": 0.2, "dashed": False, 
                                 "list": [
-                                    {"pos": manage_images.vdoor_crop(1), "color": [242, 113, 0]}, 
-                                    {"pos": manage_images.vdoor_crop(2), "color": [242, 113, 0]}
+                                    {"pos": manage_images.get_crop_list(scene='veach-door')[0], "color": [242, 113, 0]}, 
+                                    {"pos": manage_images.get_crop_list(scene='veach-door')[1], "color": [242, 113, 0]}
                                     ]
                             }
             }

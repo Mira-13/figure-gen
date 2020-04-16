@@ -1,9 +1,9 @@
 # load images
-reference = manage_images.gloskitch90_ref
+reference = manage_images.load_image(scene='glossy-kitchen')
 
 # get an image for the resolution 
-a = manage_images.gloskitch90_ref
-content = "\\textsc{Glossy Kitchen} \\n $(90s)$"
+a = manage_images.load_image(scene='glossy-kitchen')
+content = "\\textsc{Glossy Kitchen}"#\\n $("+ str(manage_images.get_time_sec(scene='glossy-kitchen'))+"s)$"
 
 # define figure data
 data = {
@@ -64,8 +64,8 @@ data = {
                 "frame": { "line_width": 0.0, "color": [100,100,100] },
                 "insets": {"line_width": 0.2, "dashed": False, 
                                 "list": [
-                                    {"pos": manage_images.gkitchen_crop(1), "color": [242, 113, 0]}, 
-                                    {"pos": manage_images.gkitchen_crop(2), "color": [242, 113, 0]}
+                                    {"pos": manage_images.get_crop_list(scene='glossy-kitchen')[0], "color": [242, 113, 0]}, 
+                                    {"pos": manage_images.get_crop_list(scene='glossy-kitchen')[1], "color": [242, 113, 0]}
                                     ]
                             }
             }

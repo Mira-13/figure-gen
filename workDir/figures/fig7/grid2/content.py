@@ -1,37 +1,58 @@
 # load images
-reference = manage_images.vdoor60_ref
-first = manage_images.vdoor60_patht
-fourth = manage_images.vdoor60_radia
-third = manage_images.vdoor60_upscmc
-fifth = manage_images.vdoor60_ofull
+scene='veach-door'
+reference = manage_images.load_image(scene)
+baseline = 2
+
+names = ['PT', 'VCM+MLT', 'M\\\"uller et al.', 'Ours']
+method_names = ['path', 'upsmcmc', 'radiance', 'full']
+images = [
+    manage_images.load_image(scene='veach-door', method=method_name) for method_name in method_names
+]
+colors = [
+    [232, 181, 88],
+    [5, 142, 78],
+    [94, 163, 188],
+    [181, 63, 106]
+]
+errors = [
+    manage_images.get_error(scene='veach-door', method=method) for method in method_names
+]
+
+methods = zip(names, images, errors, colors)
 
 # get an image for the resolution 
-a = manage_images.vdoor_crop(1, reference)
+a = manage_images.get_cropped_img(scene, method=method_names[0], crop_num=0)
 
-def zoom_and_lin_to_srgb(crop):
-    zoomed = util.image.zoom(crop, scale=20)
+def perfect_cropped_srgb(img, crop_num, scene):
+    crop_args = manage_images.get_crop_list(scene)[crop_num]
+    cropped_img = manage_images.crop(img, crop_args[0], crop_args[1], crop_args[2], crop_args[3])
+    zoomed = util.image.zoom(cropped_img, scale=20)
     return util.image.lin_to_srgb(zoomed)
 
-def crop_1(img):
-    global zoom_and_lin_to_srgb
-    zoomedSRGBCrop = zoom_and_lin_to_srgb(manage_images.vdoor_crop(1, img))
-    return zoomedSRGBCrop
-
-def crop_2(img):
-    zoomedSRGBCrop = zoom_and_lin_to_srgb(manage_images.vdoor_crop(2, img))
-    return zoomedSRGBCrop
-
-def method_caption(name, image, rgbString):
+global method_caption
+def method_caption(name, image, error, rgb_list):
     global reference
-    #r"\definecolor{orangu}{rgb}{1,0.5,0}{\color{orangu}\hrule height 10pt}\vspace*{1pt}\textbf{PT}\strut\\" + "${0:.2f}$\\strut".format(util.image.relative_mse(first, reference)),
-    c = r"{\definecolor{orangu}{rgb}" + rgbString + r"{\color{orangu}\hrule height 5pt}\vspace*{1pt}}"
-    return c + "\\textbf{" + name + "}\n" + f"${util.image.relative_mse(image, reference):.3f}$"
+    global baseline
+    global errors
+    global names
+    #r"\definecolor{orangu}{rgb}{1,0.5,0}{\color{orangu}\hrule height 10pt}\vspace*{1pt}\textbf{PT}\strut\\" 
+    vline_color = r"{\definecolor{orangu}{rgb}" + util.image.scale_and_convert_rgb(rgb_list) + r"{\color{orangu}\hrule height 2.5pt}\vspace*{2.5pt}}"
+    
+    if name == names[-1]: # if Ours then highlight
+        title = "\\textbf{" + name + "}"
+        speedup = "\\textbf{" + "("+ f"{errors[baseline] * 1./error:.1f}" + "x)" + "}"
+    else:
+        title = name
+        speedup = "$($"+ f"${errors[baseline] * 1./error:.1f}$" + "x$)$"
+    relMSE = f"${error:.3f}$"
+    if name == names[baseline]:
+        speedup = "$($base$)$"
+    return vline_color + title + "\n" + relMSE + " " + speedup
 
-def scale_and_convert_rgb(r,g,b, scale=255):
-    r = round(r * 1/scale, 2)
-    g = round(g * 1/scale, 2)
-    b = round(b * 1/scale, 2)
-    return '{'+str(r)+","+str(g)+","+ str(b)+'}'
+captions = [
+    method_caption(name, image, error, colorcode) for (name, image, error, colorcode) in methods
+]
+captions.append(r"\vspace*{5pt}Reference" + "\n" + r"\emph{relMSE} $("+ str(manage_images.get_time_sec(scene='veach-door')) +"s)$")
 
 # define figure data
 data = { 
@@ -47,29 +68,23 @@ data = {
             "text_color": [0,0,0],
             "background_colors": [255, 255, 255],
             "content": 
-            [r"\textbf{PT}\strut\\" + "${0:.2f}$\\strut".format(util.image.relative_mse(first, reference)),
-             "\\textbf{VCM+MLT}\\strut\\\\"+"${0:.2f}$\\strut".format(util.image.relative_mse(third, reference)),
-             "\\textbf{M\\\"uller et al.}\\strut\\\\"+"${0:.2f}$\\strut".format(util.image.relative_mse(fourth, reference)),
-             "\\textbf{Ours}\\strut\\\\"+"${0:.2f}$\\strut".format(util.image.relative_mse(fifth, reference)),
-             r"\textbf{Reference}\strut\\\emph{relMSE}\strut"
+            [
+            method_caption('PT', images[0], errors[0], [232, 181, 88]),
+            method_caption('VCM+MLT', images[1], errors[1], [5, 142, 78]),
+            method_caption('M\\\"uller et al.', images[2], errors[2], [94, 163, 188]),
+            method_caption('Ours', images[3], errors[3], [181, 63, 106]),
+             r"\vspace*{6pt}Reference" + "\n" + r"\emph{relMSE}"
             ]
         },
         "south": {
-            "height": 5.8,
+            "height": 7.0,
             "offset": 0.5,
             "rotation": 0,
             "fontsize": 7, 
             "line_space": 1.2,
             "text_color": [0, 0, 0],
             "background_colors": [255, 255, 255],
-            "content": 
-            [
-            method_caption('PT', first, scale_and_convert_rgb(232, 181, 88)),
-            method_caption('VCM+MLT', third, scale_and_convert_rgb(5, 142, 78)),
-            method_caption('M\\\"uller et al.', fourth, scale_and_convert_rgb(94, 163, 188)),
-            method_caption('Ours', fifth, scale_and_convert_rgb(181, 63, 106)),
-             r"\vspace*{6pt}\textbf{Reference}" + "\n" + r"\emph{relMSE}"
-            ]
+            "content": captions
         }
     },
 
@@ -91,13 +106,14 @@ data = {
             "fontsize": 7, 
             "line_space": 1.2,
             "text_color": [0,0,0],
+            "background_colors": [[242, 113, 0], [0, 89, 186], [66, 180, 70], [231, 191, 78], [180, 55, 68], [210, 135, 38]],
             "content": ["", "", "row c 3", "row d 4", "row e 5", "row f 6"]
         }
     },
     "elements_content": [
         [
             {
-                "image": crop_1(first),
+                "image": perfect_cropped_srgb(images[0],0, scene),
                 "north":"",
                 "east": "",
                 "south": "",
@@ -106,7 +122,7 @@ data = {
                 "insets": {"line_width": 0.0, "dashed": False, "list": []}
             },
             {
-                "image": crop_1(third),
+                "image": perfect_cropped_srgb(images[1],0, scene),
                 "north":"",
                 "east": "",
                 "south": "",
@@ -115,7 +131,7 @@ data = {
                 "insets": {"line_width": 0.0, "dashed": False, "list": []}
             },
             {
-                "image": crop_1(fourth),
+                "image": perfect_cropped_srgb(images[2],0, scene),
                 "north":"",
                 "east": "",
                 "south": "",
@@ -124,7 +140,7 @@ data = {
                 "insets": {"line_width": 0.0, "dashed": False, "list": []}
             },
             {
-                "image": crop_1(fifth),
+                "image": perfect_cropped_srgb(images[3],0, scene),
                 "north":"",
                 "east": "",
                 "south": "",
@@ -133,7 +149,7 @@ data = {
                 "insets": {"line_width": 0.0, "dashed": False, "list": []}
             },
             {
-                "image": crop_1(reference),
+                "image": perfect_cropped_srgb(reference,0, scene),
                 "north":"",
                 "east": "",
                 "south": "",
@@ -144,7 +160,7 @@ data = {
         ],
         [
             {
-                "image": crop_2(first),
+                "image": perfect_cropped_srgb(images[0],1, scene),
                 "north":"",
                 "east": "",
                 "south": "",
@@ -153,7 +169,7 @@ data = {
                 "insets": {"line_width": 0.0, "dashed": False, "list": []}
             },
             {
-                "image": crop_2(third),
+                "image": perfect_cropped_srgb(images[1],1, scene),
                 "north":"",
                 "east": "",
                 "south": "",
@@ -162,7 +178,7 @@ data = {
                 "insets": {"line_width": 0.0, "dashed": False, "list": []}
             },
             {
-                "image": crop_2(fourth),
+                "image": perfect_cropped_srgb(images[2],1, scene),
                 "north":"",
                 "east": "",
                 "south": "",
@@ -171,7 +187,7 @@ data = {
                 "insets": {"line_width": 0.0, "dashed": False, "list": []}
             },
             {
-                "image": crop_2(fifth),
+                "image": perfect_cropped_srgb(images[3],1, scene),
                 "north":"",
                 "east": "",
                 "south": "",
@@ -180,7 +196,7 @@ data = {
                 "insets": {"line_width": 0.0, "dashed": False, "list": []}
             },
             {
-                "image": crop_2(reference),
+                "image": perfect_cropped_srgb(reference,1, scene),
                 "north":"",
                 "east": "",
                 "south": "",

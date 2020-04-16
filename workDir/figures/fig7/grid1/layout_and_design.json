@@ -9,7 +9,7 @@
     "column_space": 0.4,
     
     "padding": {
-        "top": 0.1,
+        "top": 0.0,
         "left": 0.0,
         "right": 0.5,
         "bottom": 0.0
@@ -60,7 +60,7 @@
     },
     "titles": {
         "north":{
-            "height": 4.8,
+            "height": 0.0,
             "offset": 0.2,
             "rotation": 0,
             "fontsize": 8, 

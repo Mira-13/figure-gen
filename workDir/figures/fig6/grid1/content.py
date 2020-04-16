@@ -1,9 +1,9 @@
 # load images
-reference = manage_images.pool60_ref
+reference = manage_images.load_image(scene='pool')
 
 # get an image for the resolution 
-a = manage_images.pool60_ref
-content = "\\textsc{Pool} \\n $(60s)$"
+a = manage_images.load_image(scene='pool')
+content = "\\textsc{Pool}"#\\n $("+ str(manage_images.get_time_sec(scene='pool'))+"s)$"
 
 # define figure data
 data = {
@@ -64,8 +64,8 @@ data = {
                 "frame": { "line_width": 0.0, "color": [100,100,100] },
                 "insets": {"line_width": 0.2, "dashed": False, 
                                 "list": [
-                                    {"pos": manage_images.pool_crop(1), "color": [242, 113, 0]}, 
-                                    {"pos": manage_images.pool_crop(2), "color": [242, 113, 0]}
+                                    {"pos": manage_images.get_crop_list(scene='pool')[0], "color": [242, 113, 0]}, 
+                                    {"pos": manage_images.get_crop_list(scene='pool')[1], "color": [242, 113, 0]}
                                     ]
                             }
             }

@@ -124,7 +124,7 @@ def plot_errors(scene, integrators=["path","pgrad7","pgfull7","upsmcmc"], metric
 
     line_width_pt = 0.5
 
-    figsize = calculate_inch_fig_size(width_mm=35.0, height_mm=(39.77948051948052-3.0))
+    figsize = calculate_inch_fig_size(width_mm=40.0, height_mm=(34.68934782608696))
     #constrained_layout: https://matplotlib.org/3.2.1/tutorials/intermediate/constrainedlayout_guide.html
     fig, ax = plt.subplots(figsize=figsize, constrained_layout=True)
     fig.set_constrained_layout_pads(w_pad=0, h_pad=0,

@@ -1,9 +1,9 @@
 # load images
-reference = manage_images.bookshelf120_ref
+reference = manage_images.load_image(scene='bookshelf')
 
 # get an image for the resolution 
-a = manage_images.bookshelf120_ref
-content = "\\textsc{Bookshelf} \\n $(120s)$"
+a = manage_images.load_image(scene='bookshelf')
+content = "\\textsc{Bookshelf}"#\\n $("+ str(manage_images.get_time_sec(scene='bookshelf'))+"s)$"
 
 # define figure data
 data = {
@@ -64,8 +64,8 @@ data = {
                 "frame": { "line_width": 0.0, "color": [100,100,100] },
                 "insets": {"line_width": 0.2, "dashed": False, 
                                 "list": [
-                                    {"pos": manage_images.bookshelf_crop(1), "color": [242, 113, 0]}, 
-                                    {"pos": manage_images.bookshelf_crop(2), "color": [242, 113, 0]}
+                                    {"pos": manage_images.get_crop_list(scene='bookshelf')[0], "color": [242, 113, 0]}, 
+                                    {"pos": manage_images.get_crop_list(scene='bookshelf')[1], "color": [242, 113, 0]}
                                     ]
                             }
             }

@@ -159,7 +159,7 @@ def main():
     
     if (third !=''):
         module_path2 = os.path.join(fig_path, sys.argv[1], third) # e.g. fig1 grid2
-        make_two_modules(main_path, wd_path, module_path, module_path2, 144.99, # sum_total_width
+        make_two_modules(main_path, wd_path, module_path, module_path2, 139.99, # sum_total_width
                     is_img_res_based_on_width, is_img_res_based_on_height, tex_filename, pdf_filename)
 
         copy_into_combined_folder(fig_path, module_path, module_path2, pdf_filename)
