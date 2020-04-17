@@ -8,7 +8,7 @@ def setup_fonts(plt):
     "text.usetex": True,     # use inline math for tikz
     "pgf.rcfonts": False,    # don't setup fonts from rc parameters
     "pgf.texsystem": "pdflatex",
-    "font.family": "serif",
+    "font.family": "sans-serif",
     "pgf.preamble": [
          r"\usepackage[utf8]{inputenc}",
          r"\usepackage[T1]{fontenc}",
@@ -144,6 +144,10 @@ def plot_errors(scene, integrators=["path","pgrad7","pgfull7","upsmcmc"], metric
 
     # if use_scientific_notations True, displaystyle is used in pgf --> offset pf ticks changes 
     set_ticks(ax, xticks=[3, 20, 60], yticks=[0.01, 0.1, 1.0], use_scientific_notations=False)
+
+    # mark sth
+    ax.axvline(x=11.44, color=scaleRGB(94, 163, 188), linewidth=0.6, linestyle=(0, (4, 6)))
+    ax.axvline(x=11.17, color=scaleRGB(181, 63, 106), linewidth=0.6, linestyle=(-5, (4, 6)))
 
     plt.savefig("gen_plot.pdf", pad_inches=0.0)
     # plt.savefig("gen_plot.pgf", pad_inches=0.0)

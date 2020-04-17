@@ -39,20 +39,20 @@ def method_caption(name, image, error, rgb_list):
     vline_color = r"{\definecolor{orangu}{rgb}" + util.image.scale_and_convert_rgb(rgb_list) + r"{\color{orangu}\hrule height 2.5pt}\vspace*{2.5pt}}"
     
     if name == names[-1]: # if Ours then highlight
-        title = "\\textbf{" + name + "}"
-        speedup = "\\textbf{" + "("+ f"{errors[baseline] * 1./error:.1f}" + "x)" + "}"
+        title = "\\textsf{" + name + r"}"
+        speedup = "\\textsf{" + "("+ f"{errors[baseline] * 1./error:.1f}" + "x)" + r"}"
     else:
-        title = name
-        speedup = "$($"+ f"${errors[baseline] * 1./error:.1f}$" + "x$)$"
-    relMSE = f"${error:.3f}$"
+        title = "\\textsf{"+name+"}"
+        speedup = "\\textsf{("+ f"{errors[baseline] * 1./error:.1f}" + "x)}"
+    relMSE = "\\textsf{"+f"{error:.3f}"+"}"
     if name == names[baseline]:
-        speedup = "$($base$)$"
+        speedup = "\\textsf{(baseline)}"
     return vline_color + title + "\n" + relMSE + " " + speedup
 
 captions = [
     method_caption(name, image, error, colorcode) for (name, image, error, colorcode) in methods
 ]
-captions.append(r"\vspace*{5.0pt}Reference" + "\n" + r"\emph{relMSE} $("+ str(manage_images.get_time_sec(scene='bookshelf')) +"s)$")
+captions.append(r"\vspace*{5.0pt}\textsf{Reference}" + "\n" + r"\textsf{\emph{relMSE} ("+ str(manage_images.get_time_sec(scene='bookshelf')) +"s)}")
 
 # define figure data
 data = { 
