@@ -52,7 +52,7 @@ def method_caption(name, image, error, rgb_list):
 captions = [
     method_caption(name, image, error, colorcode) for (name, image, error, colorcode) in methods
 ]
-captions.append(r"\vspace*{5.0pt}\textsf{Reference}" + "\n" + r"\textsf{\emph{relMSE} ("+ str(manage_images.get_time_sec(scene='bookshelf')) +"s)}")
+captions.append(r"\vspace*{5.0pt}\textsf{Reference}" + "\n" + r"\textsf{\emph{relMSE} ("+ str(manage_images.get_time_sec(scene='veach-door')) +"s)}")
 
 # define figure data
 data = { 

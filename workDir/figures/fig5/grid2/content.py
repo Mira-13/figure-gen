@@ -42,17 +42,17 @@ def method_caption(name, image, error, rgb_list):
         title = "\\textsf{\\textbf{" + name + r"}}"
         speedup = "\\textsf{\\textbf{" + "("+ f"{errors[baseline] * 1./error:.1f}" + "x)" + r"}}"
     else:
-        title = "\\textsf{"+name+"}\\textbf{ }"
+        title = "\\textsf{"+name+"}"
         speedup = "\\textsf{("+ f"{errors[baseline] * 1./error:.1f}" + "x)}"
     relMSE = "\\textsf{"+f"{error:.3f}"+"}"
     if name == names[baseline]:
         speedup = "\\textsf{(baseline)}"
-    return vline_color + title + "\n" + relMSE + "\\textbf{ }" + speedup
+    return vline_color + title + "\n" + relMSE + " " + speedup
 
 captions = [
     method_caption(name, image, error, colorcode) for (name, image, error, colorcode) in methods
 ]
-captions.append(r"\vspace*{5.0pt}\textsf{Reference}\textbf{ }" + "\n" + r"\textsf{\emph{relMSE} ("+ str(manage_images.get_time_sec(scene='bookshelf')) +"s)}")
+captions.append(r"\vspace*{5.0pt}\textsf{Reference}" + "\n" + r"\textsf{\emph{relMSE} ("+ str(manage_images.get_time_sec(scene='glossy-kitchen')) +"s)}")
 
 # define figure data
 data = { 
