@@ -99,13 +99,6 @@ gloskitch120_radia = load_exr(rimg_path + 'glossy-kitchen-120s/glossy-kitchen-12
 gloskitch120_upscmc = load_exr(rimg_path + 'glossy-kitchen-120s/glossy-kitchen-120s-upsmcmc.exr') 
 gloskitch120_ofull = load_exr(rimg_path + 'glossy-kitchen-120s/glossy-kitchen-120s-full.exr')
 
-livroom120_ref = load_exr(rimg_path + 'living-room-120s/living-room.exr')
-livroom120_patht = load_exr(rimg_path + 'living-room-120s/living-room-120s-pt.exr')
-livroom120_bdpt = load_exr(rimg_path + 'living-room-120s/living-room-120s-bdpt.exr')
-livroom120_radia = load_exr(rimg_path + 'living-room-120s/living-room-120s-radiance.exr')
-livroom120_upscmc = load_exr(rimg_path + 'living-room-120s/living-room-120s-upsmcmc.exr') 
-livroom120_ofull = load_exr(rimg_path + 'living-room-120s/living-room-120s-full.exr')
-
 
 def make_copies(scene_name):
     # TODO make copies and let the user decide a folder name
