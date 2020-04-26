@@ -13,8 +13,8 @@ images
 *.pdf
 *.exr
 *.png
-node_modules
+*.pptx
 dist
 package-lock.json
 yarn.lock
-new-evaluation
+node_modules
