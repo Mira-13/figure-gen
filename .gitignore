@@ -7,14 +7,23 @@ gen_*.json
 *__pgfull7.json
 *__pgrad7.json
 *__upsmcmc.json
-__pycache__
 images
 *.tex
 *.pdf
 *.exr
 *.png
 *.pptx
+
+!tests/*
+
+# Python compiled files
+__pycache__
+
+# Web UI generated folders and files
 dist
 package-lock.json
 yarn.lock
 node_modules
+
+# Visual studio generated / user specific
+.vs
