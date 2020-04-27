@@ -46,3 +46,5 @@ def write_into_tex_file(path, body_content, file_name, background_color=[255,255
     print('Tikz/LaTeX file was generated.')
 
 
+def generate(module, layout):
+    pass

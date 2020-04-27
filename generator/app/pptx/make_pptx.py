@@ -27,4 +27,5 @@ def put_into_slide(data):
     pass
 
     
-    
+def generate(module, layout):
+    pass

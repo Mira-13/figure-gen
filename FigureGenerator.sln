@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "generator", "generator\generator.pyproj", "{DD5DFEC0-EA13-4B0D-88C9-5C91FE12712F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{86D1089C-9A28-4DD2-8AFA-C15FAEA91EB0}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "tests", "tests\tests.pyproj", "{C259ABA0-A5D6-4912-90A7-57904E1C4CC4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DD5DFEC0-EA13-4B0D-88C9-5C91FE12712F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD5DFEC0-EA13-4B0D-88C9-5C91FE12712F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C259ABA0-A5D6-4912-90A7-57904E1C4CC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C259ABA0-A5D6-4912-90A7-57904E1C4CC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E9754AB4-676A-45C9-8084-978CD9812516}
+	EndGlobalSection
+EndGlobal
