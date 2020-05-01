@@ -134,6 +134,9 @@ def gen_img_node(width, height, img_path, name, parent_name=None, position=None,
     if additional_params is None:
         additional_params=''
 
+    # make sure the path is LaTeX compatible
+    img_path = img_path.replace('\\', '/')
+
     return '\\node[anchor='+ anchor +', '+ additional_params +' minimum width='+ str(width) +'mm, minimum height='+ str(height) +\
             'mm, inner sep = 0, outer sep = 0] ('+ name +') at '+ pos +' {\\includegraphics[width='+str(width)+'mm, height='+str(height)+'mm]{'+ img_path +'}}; \n'
 ### END generating basic nodes ###

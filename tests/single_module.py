@@ -1,9 +1,15 @@
-
-# load the two images
 import pyexr
 import util
+import numpy as np
 from app import generator
 
+# generate test images
+blue = np.tile([0.2,0.3,0.9], (64, 64, 1))
+yellow = np.tile([0.9,0.8,0.2], (64, 64, 1))
+pyexr.write("blue.exr", blue)
+pyexr.write("yellow.exr", yellow)
+
+# load the two images
 images = [
     util.image.lin_to_srgb(pyexr.read("blue.exr")),
     util.image.lin_to_srgb(pyexr.read("yellow.exr"))

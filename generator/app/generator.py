@@ -162,7 +162,7 @@ def align_modules(modules, width):
 
     if num_modules == 1:
         modules[0]["total_width"] = width
-        calculate.overwrite_image_resolution_based_on_total_width(modules[0])
+        # calculate.overwrite_image_resolution_based_on_total_width(modules[0])
         return
 
     sum_fixed_deltas = 0
