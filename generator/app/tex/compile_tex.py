@@ -58,7 +58,7 @@ def call_pdflatex(is_os_windows, is_latex_on_linux, tmp_path, pathfile):
         # TODO
         pass
 
-def compile(module_path, tex_filename, pdf_filename, is_os_windows=True, is_latex_on_linux=True): 
+def compile(module_path, tex_filename, pdf_filename, is_os_windows=True, is_latex_on_linux=False): 
     '''
         Compiles a .tex file to .pdf
     Generates a temporary folder, where pdflatex will compile the output in in addition with it's default other files,
