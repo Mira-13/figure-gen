@@ -32,6 +32,9 @@
     <Compile Include="app\tex\calculate.py" />
     <Compile Include="app\tex\compile_tex.py" />
     <Compile Include="app\tex\make_tex.py" />
+    <Compile Include="app\tex\combine_pdfs.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\tex\tikz.py" />
     <Compile Include="app\tex\__init__.py" />
     <Compile Include="app\__init__.py" />

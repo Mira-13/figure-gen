@@ -71,8 +71,8 @@ def gen_frame_specs(element_content):
         if element_content['frame']['line_width'] == 0.0:
             return ''
         return gen_tikZ_frame(element_content['frame']['color'], element_content['frame']['line_width'])
-    except:
-        print("frame specs error")
+    except: # no frame
+        return ''
 
 def gen_LaTeX_fontsize(fontsize, line_space):
     line_space = float(fontsize) * line_space
@@ -429,11 +429,12 @@ def gen_marker_nodes(inset_configs, parent_name, parent_width_px, parent_height_
         for inset in crop_list:
             crop_num += 1
             inset_pos = inset['pos']
+            inset_size = inset['size']
             width_factor, height_factor = calculate_relative_position(parent_width_px, parent_height_px, parent_width, parent_height)
             marker_nodes += draw_rectangle_on_img(parent_name=parent_name, crop_num=crop_num, 
                                                  parent_width_factor=width_factor, parent_height_factor=height_factor,
                                                  pos_x1=inset_pos[0], pos_y1=inset_pos[1], 
-                                                 xoffset=inset_pos[2], yoffset=inset_pos[3], line_width=inset_configs['line_width'], 
+                                                 xoffset=inset_size[0], yoffset=inset_size[1], line_width=inset_configs['line_width'], 
                                                  color=inset['color'], dashed=inset_configs['dashed'])
 
     return marker_nodes
@@ -516,7 +517,9 @@ def gen_one_img_block(img_width_px, img_height_px, element_config, element_conte
                                 offset_name=None, content=element_content['south'], fontsize=gen_LaTeX_fontsize(south_config['fontsize'],south_config['line_space']), 
                                 alignment=txt_align, rotate_text=south_config['rotation'], background_color=None, text_color=south_config['text_color'])
 
-    tikz_content += gen_marker_nodes(inset_configs=element_content['insets'], parent_name='img-'+append, parent_width_px=img_width_px,
+    marker_specs = read_optional(element_content, 'marker', default='')
+    if marker_specs != '':
+        tikz_content += gen_marker_nodes(inset_configs=element_content['marker'], parent_name='img-'+append, parent_width_px=img_width_px,
                                     parent_height_px=img_height_px, parent_width=img_width, parent_height=img_height)
 
     return tikz_content + '\n'

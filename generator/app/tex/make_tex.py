@@ -2,6 +2,7 @@ import os
 
 from . import tikz
 from . import calculate
+from . import compile_tex
 
 def gen_content(data, str_appendix=''):
     '''
@@ -46,5 +47,7 @@ def write_into_tex_file(path, body_content, file_name, background_color=[255,255
     print('Tikz/LaTeX file was generated.')
 
 
-def generate(module, layout):
-    pass
+def generate(module_data, to_path, filename):
+    content = gen_content(module_data)
+    write_into_tex_file(to_path, content, filename, background_color=module_data['background_color'])
+    compile_tex.compile(to_path, filename, pdf_filename=filename.replace('tex', 'pdf'))

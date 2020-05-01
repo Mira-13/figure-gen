@@ -62,7 +62,7 @@ class CreateFigurePNGs:
 
     def create_content_json(self, content_filename):
         with open(os.path.join(self.module_path, content_filename), 'w') as f:
-            json.dump(self.data, f)
+            json.dump(self.data, f, indent=2)
         
 
 class CreateFigureJSON:
