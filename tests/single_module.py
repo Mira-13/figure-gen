@@ -26,7 +26,7 @@ elements = [ # rows
                 "north": "North Caption",
                 "south": "Yellow"
             },
-            "frame": { "line_width": 1.0, "color": [100,90,10] },
+            "frame": { "line_width": 1.0, "color": [50,230,10] },
         },
     ] # end first row
 ]
@@ -51,7 +51,7 @@ titles = {
     "north": "North Title",
     "south": "South Title",
     "east": "East Title",
-    "west": "West Title",
+    "west": "West Title"
 }
 
 modules = [
@@ -64,4 +64,5 @@ modules = [
     }
 ]
 
-generator.horizontal_figure(modules, backend='tikz')
+if __name__ == "__main__":
+    generator.horizontal_figure(modules, width_cm=18., backend='tikz')

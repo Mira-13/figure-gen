@@ -11,7 +11,7 @@
             "module": "app",
             "console": "internalConsole",
             "args": [
-                "fig6", "grid1", "grid2"
+                "fig3", "grid1", "grid2"
             ],
             "cwd": "${workspaceFolder}/generator"
         },
