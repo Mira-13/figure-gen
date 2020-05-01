@@ -50,9 +50,6 @@
     <Folder Include="util" />
   </ItemGroup>
   <ItemGroup>
-    <InterpreterReference Include="Global|PythonCore|3.6" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="app\default_layout.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
