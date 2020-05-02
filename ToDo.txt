@@ -1,0 +1,52 @@
+
+Create an issue tracker on bitbucket and populate with these ToDo's
+
+
+Documentation
+-------------
+An overview of the exact components of the GUI should be maintained in this repository.
+
+
+Multi-backend support for fonts:
+--------------------------------------
+Fonts should be specified in the .json along the lines of:
+
+"font": {
+	"latex": "\usepackage{libertine}",
+	"serif": "Linux Libertine",
+	"sans-serif": "Linux Biolinum"
+}
+
+The LaTeX backend can then copy over its specific setting, every other backend will simply
+use the OS to search for and use the font(s) by name.
+
+
+LaTeX and non-LaTeX captions / titles:
+--------------------------------------
+The .pptx and .html backends cannot use LaTeX to typeset captions.
+Captions that contain specific commands (\textbf, \textsc, ...) need an alternative for these backends.
+The simplest solution would be to allow the user to specify:
+"north": {
+	"latex": "\textbf{Hi}: $52$",
+	"simple": "Hi: 53",
+	"format": "*Hi*: $52$"
+}
+Here, "format" is a variant that supports basic formatting (bold, italic, equations).
+This can be used to get better results in, e.g., PowerPoint.
+"simple" acts as a default: it is used by LaTeX if "latex" is not specified.
+That way, we can still have one caption for all backends, if no special formatting is needed.
+It might also be worth thinking about generating a "latex" from a "format" by string replacement.
+That way, the user would have to use the LaTeX stuff even less often.
+
+
+Image comparison in all backends
+--------------------------------
+The first rudimentary image comparison feature works as follows:
+Elements can be a list of dictionaries, instead of image data. 
+In that case, the dictionary is expected to have the following form:
+{
+"name": "Cool Method",
+"image": The actual image data
+}
+The name is used in the HTML backend to generate tab titles. 
+Can probably be ignored by all static backends.

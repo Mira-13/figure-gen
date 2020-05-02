@@ -1,14 +1,15 @@
 import json
 import numpy
-from .tex import make_tex, calculate, combine_pdfs
 import os
 import imageio
+from .tex import make_tex, calculate, combine_pdfs
+from .html import make_html
 #from .pptx import make_pptx
 
 backends = {
     "tikz": make_tex,
     "pptx": None, #make_pptx,
-    "html": None,
+    "html": make_html,
     "sdl2": None
 }
 
@@ -75,7 +76,7 @@ def merge_data_into_layout(data, layout):
             if marker is not None: elem["marker"] = marker
 
             # add the image data itself (raw): matrix of rgb
-            assert ((data_elem["image"]).shape[2] == 3)
+            # assert ((data_elem["image"]).shape[2] == 3)
             elem["filename"] = data_elem["image"]
 
 
@@ -128,8 +129,12 @@ def merge_data_into_layout(data, layout):
             layout['titles'][d]['content'] = ''
 
     # set px size based on the first image
-    layout["img_width_px"] = layout["elements_content"][0][0]["filename"].shape[0]
-    layout["img_height_px"] = layout["elements_content"][0][0]["filename"].shape[1]
+    try:
+        first = layout["elements_content"][0][0]["filename"][0]["image"]
+    except:
+        first = layout["elements_content"][0][0]["filename"]
+    layout["img_width_px"] = first.shape[0]
+    layout["img_height_px"] = first.shape[1]
     calculate.overwrite_image_resolution_based_on_total_width(layout)
     return layout
 
@@ -207,14 +212,36 @@ def export_raw_img_to_png(module):
     path = os.path.join(os.path.dirname(__file__))
     for row in range(module["num_rows"]):
         for col in range(module["num_columns"]):
-            img_raw = module["elements_content"][row][col]["filename"]
-            filename = 'image-'+str(row+1)+'-'+str(col+1)+'.png'
-            file_path = os.path.join(path, filename)
-            png_export(img_raw, file_path)
-            module["elements_content"][row][col]["filename"] = file_path
+            elem = module["elements_content"][row][col]
 
+            # the element can be either a list of multiple images, or one image
+            try:
+                file = elem["filename"][0]["image"]
+                is_multi = True
+            except:
+                is_multi = False
 
-def horizontal_figure(modules: list, width_cm: float, backend: str):
+            if is_multi:
+                for i in range(len(elem["filename"])):
+                    img_raw = elem["filename"][i]["image"]
+                    filename = 'image-'+str(row+1)+'-'+str(col+1) + '-' + str(i+1) +'.png'
+                    file_path = os.path.join(path, filename)
+                    png_export(img_raw, file_path)
+                    elem["filename"][i]["image"] = file_path
+            else:
+                img_raw = elem["filename"]
+                filename = 'image-'+str(row+1)+'-'+str(col+1)+'.png'
+                file_path = os.path.join(path, filename)
+                png_export(img_raw, file_path)
+                elem["filename"] = file_path
+
+def horizontal_figure(modules: "a list of dictionaries, one for each module", 
+                      width_cm: float, 
+                      backend: "Can be one of: 'tikz', 'pptx', 'html', 'sdl2'"):
+    """ 
+    Creates a figure by putting modules next to each other, from left to right.
+    Aligns the height of the given modules such that they fit the given total width.
+    """
     layouts = []
     for m in modules:
         layouts.append(modify_default_layout(m['layout']))

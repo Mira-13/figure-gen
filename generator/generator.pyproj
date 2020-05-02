@@ -19,6 +19,9 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="app\html\make_html.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\logic\create_figure.py" />
     <Compile Include="app\logic\create_plot.py" />
     <Compile Include="app\generator.py">
@@ -45,6 +48,7 @@
   <ItemGroup>
     <Folder Include="app" />
     <Folder Include="app\logic" />
+    <Folder Include="app\html\" />
     <Folder Include="app\pptx" />
     <Folder Include="app\tex" />
     <Folder Include="util" />
