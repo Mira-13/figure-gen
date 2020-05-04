@@ -49,9 +49,9 @@ def align_two_modules(module_path1, module_path2, sum_total_width):
 
     data1['total_width'] = total_width1
     # data1['element_config']['img_width']  = image_width1
-    calculate.overwrite_image_resolution_based_on_total_width(data1)
+    calculate.resize_to_match_total_width(data1)
     data2['total_width'] = total_width2
-    calculate.overwrite_image_resolution_based_on_total_width(data2)
+    calculate.resize_to_match_total_width(data2)
     print("applied total_width in module 1: " + str(total_width1))
     print("applied total_width in module 2: " + str(total_width2))
 

@@ -1,6 +1,9 @@
 {
   "padding.right": 0.1,
   "padding.top": 0.5,
-  "total_width": 60,
-  "element_config.captions.north.height": 5
+  "element_config.captions.south.height": 5,
+  "element_config.captions.north.height": 5,
+
+  "column_space": 1,
+  "row_space": 2
 }

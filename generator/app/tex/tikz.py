@@ -11,8 +11,8 @@ def get_h_offset_for_title(title_offset, caption_config, row_config):
 
     return offset
 
-def calculate_relative_position(img_widht_px, img_height_px, img_used_width, img_used_height):
-    width_factor = img_used_width * 1/img_widht_px 
+def calculate_relative_position(img_width_px, img_height_px, img_used_width, img_used_height):
+    width_factor = img_used_width * 1/img_width_px 
     height_factor = img_used_height * 1/img_height_px
     return width_factor, height_factor
 # END Calculations

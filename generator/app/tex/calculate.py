@@ -107,7 +107,7 @@ def get_body_width(data):
 def get_body_height(data):
     '''
     body means: all images and their spaces/padding inbetween the images.
-    Careful: Frames are not considered if frame line widht > spaces/paddings! <--TODO  
+    Careful: Frames are not considered if frame line width > spaces/paddings! <--TODO  
     Not included are: column/row titles and titles as well as their corresping offsets.
     '''
     return get_fixed_inner_height(data) + data['num_rows'] * data['element_config']['img_height']
@@ -156,7 +156,7 @@ def get_vertical_figure_title_height(data):
 
     return vert_title_height
 
-def overwrite_image_resolution_based_on_total_width(data):
+def resize_to_match_total_width(data):
     '''
     You overwrite the local value. If you use this function and want to have the value used permanently
     then you need to make sure to save it in a file.
@@ -183,7 +183,7 @@ def overwrite_image_resolution_based_on_total_width(data):
     data['element_config']['img_height'] = width_left_per_img * width_to_height_ratio
     return width_left_per_img, (width_left_per_img * width_to_height_ratio)
 
-def overwrite_image_resolution_based_on_total_height(data):
+def resize_to_match_total_height(data):
     '''
     You overwrite the local value. If you use this function and want to have the value used permanently
     then you need to make sure to save it in a file.

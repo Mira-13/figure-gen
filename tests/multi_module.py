@@ -42,28 +42,13 @@ elem2 = [ # rows
         },
     ], # end second row
 ]
-column_titles = {
-    #"north": { 
-    #    "text_color": [0,0,0],
-    #    "background_colors": [[10, 10, 200], [255, 200, 10]],
-    #    "content": [ "Blue", "Yellow" ]
-    #}
-}
 
-row_titles = {
-    #"east": { 
-    #    "text_color": [0,0,0],
-    #    "background_colors": [255, 255, 255],
-    #    "content": [ "Awesome pictures" ]
-    #}
-}
+column_titles = {}
 
-titles = {
-    #"north": "North Title",
-    #"south": "South Title",
-    #"east": "East Title",
-    #"west": "West Title"
-}
+row_titles = {}
+
+titles = {}
+
 m2 = { 
         "elements": elem2, 
         "row_titles": row_titles, 

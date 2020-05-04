@@ -61,6 +61,7 @@ def call_pdflatex(is_os_windows, is_latex_on_linux, tmp_path, pathfile):
 def compile(module_path, tex_filename, pdf_filename, is_os_windows=True, is_latex_on_linux=False): 
     '''
         Compiles a .tex file to .pdf
+    arg 'pdf_filename' needs to include '.pdf'-ending
     Generates a temporary folder, where pdflatex will compile the output in in addition with it's default other files,
     copies only the generated pdf file into the same path where the .tex file lies and delete the tmp folder afterwards.
     '''
@@ -82,4 +83,4 @@ def compile(module_path, tex_filename, pdf_filename, is_os_windows=True, is_late
     rmtree(os_tmp_path)
 
 if __name__ == "__main__":
-    compile(module_path, tex_filename, pdf_filename)
+    compile(module_path, tex_filename, pdf_filename) 

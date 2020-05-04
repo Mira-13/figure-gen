@@ -135,7 +135,7 @@ def merge_data_into_layout(data, layout):
         first = layout["elements_content"][0][0]["filename"]
     layout["img_width_px"] = first.shape[0]
     layout["img_height_px"] = first.shape[1]
-    calculate.overwrite_image_resolution_based_on_total_width(layout)
+    calculate.resize_to_match_total_width(layout)
     return layout
 
 def merge(modules: dict, layouts: dict):
@@ -147,7 +147,7 @@ def merge(modules: dict, layouts: dict):
 def apply_height_and_width(module, height, width):
     module["total_height"] = height
     module["total_width"] = width
-    calculate.overwrite_image_resolution_based_on_total_width(module)
+    calculate.resize_to_match_total_width(module)
 
 def align_two_modules(data1, data2, combined_width):
     # calculate total widths
@@ -157,9 +157,9 @@ def align_two_modules(data1, data2, combined_width):
 
     data1['total_width'] = total_width1
     # data1['element_config']['img_width']  = image_width1
-    calculate.overwrite_image_resolution_based_on_total_width(data1)
+    calculate.resize_to_match_total_width(data1)
     data2['total_width'] = total_width2
-    calculate.overwrite_image_resolution_based_on_total_width(data2)
+    calculate.resize_to_match_total_width(data2)
 
 def align_modules(modules, width):
     num_modules = len(modules)
@@ -167,28 +167,32 @@ def align_modules(modules, width):
 
     if num_modules == 1:
         modules[0]["total_width"] = width
-        # calculate.overwrite_image_resolution_based_on_total_width(modules[0])
+        calculate.resize_to_match_total_width(modules[0])
         return
 
-    sum_fixed_deltas = 0
-    for m in modules:
-        w_fix = calculate.get_min_width(m)
-        h_fix = calculate.get_min_height(m)
-        sum_fixed_deltas += w_fix - h_fix
-
     sum_inverse_aspect_ratios = 0
+    inverse_aspect_ratios = []
     for m in modules:
         #if matplotlib
         #    sum_inverse_aspect_ratios += 1/a
         image_aspect_ratio = m['img_height_px'] / float(m['img_width_px'])
         a = m['num_rows'] / float(m['num_columns']) * image_aspect_ratio
         sum_inverse_aspect_ratios += 1/a
+        inverse_aspect_ratios.append(1/a)
+
+    sum_fixed_deltas = 0
+    i = 0
+    for m in modules:
+        w_fix = calculate.get_min_width(m)
+        h_fix = calculate.get_min_height(m)
+        sum_fixed_deltas += w_fix - h_fix * inverse_aspect_ratios[i]
+        i += 1 
 
     height = (width - sum_fixed_deltas) / sum_inverse_aspect_ratios
 
     for m in modules:
         m['total_height'] = height
-        calculate.overwrite_image_resolution_based_on_total_height(m)
+        calculate.resize_to_match_total_height(m)
 
     
     #elif num_modules == 2:
@@ -253,5 +257,5 @@ def horizontal_figure(modules: "a list of dictionaries, one for each module",
         export_raw_img_to_png(merged_data[i])
         backends[backend].generate(merged_data[i], to_path=os.path.join(os.path.dirname(__file__)), filename='gen_tex'+str(i)+'.tex')
     
-    combine_pdfs.include_graphics(os.path.dirname(__file__))
+    combine_pdfs.make_pdf(os.path.dirname(__file__), search_for_filenames='gen_pdf*.pdf')
         

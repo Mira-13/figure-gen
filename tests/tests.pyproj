@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{c259aba0-a5d6-4912-90a7-57904e1c4cc4}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>comparison_module.py</StartupFile>
+    <StartupFile>multi_module.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -23,6 +23,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="multi_module.py" />
+    <Compile Include="simple_multi_module.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="single_module.py" />
   </ItemGroup>
   <ItemGroup>

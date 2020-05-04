@@ -26,13 +26,13 @@ def gen_content(data, str_appendix=''):
     # write into json height and width. # CAREFUL: NOT frames included if frame line width > paddings
     data['total_height'] = calculate.get_total_height(data)
     data['total_width'] = calculate.get_total_width(data)
-    print('total widht of generated tikz file: ', data['total_width'])
+    print('total width of generated tikz file: ', data['total_width'])
     print('total height of generated tikz file: ', data['total_height'])
 
     return content
 
 def write_into_tex_file(path, body_content, file_name, background_color=[255,255,255]):
-    documenttype = '\\documentclass[varwidth=true, border=0pt]{standalone}\n'
+    documenttype = '\\documentclass[varwidth=500cm, border=0pt]{standalone}\n'
     packages = '\\usepackage[utf8]{inputenc} \n\\usepackage{comment} \n\\usepackage{amsmath} \n\\usepackage{graphicx} \n\\usepackage{tikz}\n'
     font_packages = '\\usepackage[T1]{fontenc} \n\\usepackage{libertine}\n'
     beginnig ='\\usetikzlibrary{backgrounds} \n\\begin{document} \n\\tikzstyle{background rectangle}=[fill='+ tikz.gen_tikZ_rgb255(background_color) + '] \n\\begin{tikzpicture}[show background rectangle,inner frame sep=0pt]\n\n'
