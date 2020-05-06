@@ -240,7 +240,7 @@ def horizontal_figure(modules: "a list of dictionaries, one for each module",
 
     for i in range(len(modules)):
         export_raw_img_to_png(merged_data[i])
-        backends[backend].generate(merged_data[i], to_path=os.path.join(os.path.dirname(__file__)), filename='gen_tex'+str(i)+'.tex')
+        backends[backend].generate(merged_data[i], to_path=os.path.join(os.path.dirname(__file__)), tex_filename='gen_tex'+str(i)+'.tex')
     
     combine_pdfs.make_pdf(os.path.dirname(__file__), search_for_filenames='gen_pdf*.pdf')
         
