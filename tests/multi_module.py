@@ -57,9 +57,18 @@ m2 = {
         "layout": "layout.json" 
 }
 
+m3 = {
+    "elements":[[{ "image": single_module.images[0]}]],
+    "row_titles": row_titles, 
+    "column_titles": column_titles, 
+    "titles": titles, 
+    "layout": "layout.json" 
+    }
+
 modules = [
     copy.deepcopy(single_module.modules[0]),
-    m2
+    m2,
+    m3
 ]
 
 if __name__ == "__main__":

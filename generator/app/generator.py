@@ -163,7 +163,7 @@ def align_two_modules(data1, data2, combined_width):
 
 def align_modules(modules, width):
     num_modules = len(modules)
-    assert(num_modules!=0) # not supported yet, sry
+    assert(num_modules!=0)
 
     if num_modules == 1:
         modules[0]["total_width"] = width
@@ -193,21 +193,6 @@ def align_modules(modules, width):
     for m in modules:
         m['total_height'] = height
         calculate.resize_to_match_total_height(m)
-
-    
-    #elif num_modules == 2:
-    #    align_two_modules(module_data[0], module_data[1], width)
-
-    #elif num_modules == 3:
-    #    # left combination have little more weight
-    #    left_combined = width / float(num_modules) * 1.2
-    #    aligned_height = align_two_modules(module_data[0], module_data[1], left_combined)
-    #    apply_height_and_width(module_data[2], height=aligned_height, width=width-left_combined)
-
-    #elif num_modules == 4:
-    #    aligned_height = align_two_modules(module_data[0], module_data[1], width/2.)
-    #    apply_height_and_width(module_data[2], height=aligned_height, width=width/4.)
-    #    apply_height_and_width(module_data[3], height=aligned_height, width=width/4.)
 
 def png_export(img_raw, filename):
     imageio.imwrite(filename, img_raw)
