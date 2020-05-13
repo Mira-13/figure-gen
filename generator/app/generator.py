@@ -24,11 +24,11 @@ def replace_option(name: str, val, layout: dict):
     path = name.split(sep='.')
     overwrite(path, val, layout)
 
-def modify_default_layout(layout_filename: str):
+def modify_default_layout(layout_filename: str, type: str):
     with open(layout_filename) as json_file:
         user = json.load(json_file)
-
-    default_filename = os.path.join(os.path.dirname(__file__), "default_layout.json")
+    
+    default_filename = os.path.join(os.path.dirname(__file__), "default_"+type+"_layout.json")
     with open(default_filename) as json_file:
         default = json.load(json_file)
 
@@ -37,7 +37,16 @@ def modify_default_layout(layout_filename: str):
 
     return default
 
+def merge_plot_data_into_layout(data, layout):
+    layout['type'] = data['type']
+    layout["data"] = data['data']
+    layout["axis_labels"] = data['axis_labels']
+    layout["axis_properties"] = data['axis_properties']
+    layout["markers"] = data['markers']
+    return layout
+
 def merge_data_into_layout(data, layout):
+    layout['type'] = data['type']
     directions = ["north", "south", "east", "west"]
 
     num_rows = len(data["elements"])
@@ -141,25 +150,12 @@ def merge_data_into_layout(data, layout):
 def merge(modules: dict, layouts: dict):
     merged_dicts = []
     for i in range(len(modules)):
-        merged_dicts.append(merge_data_into_layout(modules[i], layouts[i]))
+        if modules[i]['type'] == 'plot':
+            merged_dicts.append(merge_plot_data_into_layout(modules[i], layouts[i]))
+        else:
+            merged_dicts.append(merge_data_into_layout(modules[i], layouts[i]))
     return merged_dicts
 
-def apply_height_and_width(module, height, width):
-    module["total_height"] = height
-    module["total_width"] = width
-    calculate.resize_to_match_total_width(module)
-
-def align_two_modules(data1, data2, combined_width):
-    # calculate total widths
-    image_width1, image_width2 = calculate.get_body_widths_for_equal_heights(data1, data2, combined_width)
-    total_width1 = image_width1 + calculate.get_min_width(data1)
-    total_width2 = image_width2 + calculate.get_min_width(data2)
-
-    data1['total_width'] = total_width1
-    # data1['element_config']['img_width']  = image_width1
-    calculate.resize_to_match_total_width(data1)
-    data2['total_width'] = total_width2
-    calculate.resize_to_match_total_width(data2)
 
 def align_modules(modules, width):
     num_modules = len(modules)
@@ -167,16 +163,24 @@ def align_modules(modules, width):
 
     if num_modules == 1:
         modules[0]["total_width"] = width
-        calculate.resize_to_match_total_width(modules[0])
+        if modules[0]["type"] == "grid":
+            calculate.resize_to_match_total_width(modules[0])
+        elif modules[0]['type'] == 'plot':
+            modules[0]['total_height'] = width / modules[0]['width_to_height_aspect_ratio']
+        else:
+            pass
         return
 
     sum_inverse_aspect_ratios = 0
     inverse_aspect_ratios = []
     for m in modules:
-        #if matplotlib
-        #    sum_inverse_aspect_ratios += 1/a
-        image_aspect_ratio = m['img_height_px'] / float(m['img_width_px'])
-        a = m['num_rows'] / float(m['num_columns']) * image_aspect_ratio
+        if m["type"] == "grid":
+            image_aspect_ratio = m['img_height_px'] / float(m['img_width_px'])
+            a = m['num_rows'] / float(m['num_columns']) * image_aspect_ratio
+        elif m["type"] == "plot":
+            a =  m['width_to_height_aspect_ratio']
+        else:
+            raise "unsupported module type '" + module_data['type'] + "'"
         sum_inverse_aspect_ratios += 1/a
         inverse_aspect_ratios.append(1/a)
 
@@ -192,12 +196,20 @@ def align_modules(modules, width):
 
     for m in modules:
         m['total_height'] = height
-        calculate.resize_to_match_total_height(m)
+        if m["type"] == "grid":
+            calculate.resize_to_match_total_height(m)
+        elif m['type'] == 'plot':
+            m['total_width'] = height * m['width_to_height_aspect_ratio']
+        else:
+            pass
 
 def png_export(img_raw, filename):
     imageio.imwrite(filename, img_raw)
 
 def export_raw_img_to_png(module):
+    if module['type'] != 'grid':
+        return
+
     path = os.path.join(os.path.dirname(__file__))
     for row in range(module["num_rows"]):
         for col in range(module["num_columns"]):
@@ -224,22 +236,26 @@ def export_raw_img_to_png(module):
                 png_export(img_raw, file_path)
                 elem["filename"] = file_path
 
-def horizontal_figure(modules: "a list of dictionaries, one for each module", 
-                      width_cm: float, 
-                      backend: "Can be one of: 'tikz', 'pptx', 'html', 'sdl2'"):
+def horizontal_figure(modules, width_cm: float, backend):
     """ 
     Creates a figure by putting modules next to each other, from left to right.
     Aligns the height of the given modules such that they fit the given total width.
+
+    Args:
+        modules: a list of dictionaries, one for each module
+        backend: can be one of: 'tikz', 'pptx', 'html', 'sdl2'
     """
     layouts = []
     for m in modules:
-        layouts.append(modify_default_layout(m['layout']))
+        layouts.append(modify_default_layout(m['layout'], m['type']))
 
     merged_data = merge(modules, layouts)
     align_modules(merged_data, width_cm*10.)
 
     for i in range(len(modules)):
-        export_raw_img_to_png(merged_data[i])
+        if merged_data[i]['type'] != 'plot':
+            export_raw_img_to_png(merged_data[i])
+            
         backends[backend].generate(merged_data[i], to_path=os.path.join(os.path.dirname(__file__)), tex_filename='gen_tex'+str(i)+'.tex')
     
     combine_pdfs.make_pdf(os.path.dirname(__file__), search_for_filenames='gen_pdf*.pdf')

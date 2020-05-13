@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{c259aba0-a5d6-4912-90a7-57904e1c4cc4}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>multi_module.py</StartupFile>
+    <StartupFile>matplot_module.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -20,6 +20,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="comparison_module.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="matplot_module.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="multi_module.py" />
@@ -37,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="layout.json" />
+    <Content Include="plot_layout.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

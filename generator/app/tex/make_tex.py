@@ -3,9 +3,11 @@ import os
 from . import tikz
 from . import calculate
 from . import compile_tex
+from ..mplot import make_plot
 
 def gen_content(data, str_appendix=''):
-    '''
+    ''' TODO Describe me please
+
     A str_appendix is recommended if this script is used to combine the generated tikz code with another set of generated tikz code:
     Allowing to merge two or multiple generated tikz is somewhat in progress and I am not sure if and when this will be completely supported.
     '''
@@ -51,12 +53,19 @@ def delete_gen_images(data):
         for elem in row:
             os.remove(os.path.join(elem['filename']))
 
+
 def generate(module_data, to_path, tex_filename, pdf_filename=None, delete_gen_files=True):
     if pdf_filename is None:
         pdf_filename = tex_filename.replace('tex', 'pdf')
-    content = gen_content(module_data)
-    write_into_tex_file(to_path, content, tex_filename, background_color=module_data['background_color'])
-    compile_tex.compile(to_path, tex_filename, pdf_filename)
+
+    if module_data['type'] == 'grid':
+        content = gen_content(module_data)
+        write_into_tex_file(to_path, content, tex_filename, background_color=module_data['background_color'])
+        compile_tex.compile(to_path, tex_filename, pdf_filename)
+    elif module_data['type'] == 'plot':
+        make_plot.generate(module_data, to_path, pdf_filename)
+    else:
+        raise "unsupported module type '" + module_data['type'] + "'"
 
     if delete_gen_files:
         os.remove(os.path.join(to_path, tex_filename))

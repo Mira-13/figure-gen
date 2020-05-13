@@ -50,20 +50,22 @@ row_titles = {}
 titles = {}
 
 m2 = { 
-        "elements": elem2, 
-        "row_titles": row_titles, 
-        "column_titles": column_titles, 
-        "titles": titles, 
-        "layout": "layout.json" 
+    "type": "grid",
+    "elements": elem2, 
+    "row_titles": row_titles, 
+    "column_titles": column_titles, 
+    "titles": titles, 
+    "layout": "layout.json" 
 }
 
 m3 = {
+    "type": "grid",
     "elements":[[{ "image": single_module.images[0]}]],
     "row_titles": row_titles, 
     "column_titles": column_titles, 
     "titles": titles, 
     "layout": "layout.json" 
-    }
+}
 
 modules = [
     copy.deepcopy(single_module.modules[0]),

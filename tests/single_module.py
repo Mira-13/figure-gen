@@ -62,6 +62,7 @@ titles = {
 
 modules = [
     { 
+        "type": "grid",
         "elements": elements, 
         "row_titles": row_titles, 
         "column_titles": column_titles, 

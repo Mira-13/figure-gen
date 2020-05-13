@@ -27,6 +27,9 @@
     <Compile Include="app\generator.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\mplot\make_plot.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\pptx\helper.py" />
     <Compile Include="app\pptx\make_pptx.py" />
     <Compile Include="app\pptx\__init__.py">
@@ -49,12 +52,14 @@
     <Folder Include="app" />
     <Folder Include="app\logic" />
     <Folder Include="app\html\" />
+    <Folder Include="app\mplot\" />
     <Folder Include="app\pptx" />
     <Folder Include="app\tex" />
     <Folder Include="util" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="app\default_layout.json" />
+    <Content Include="app\default_grid_layout.json" />
+    <Content Include="app\default_plot_layout.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
