@@ -68,5 +68,8 @@ def generate(module_data, to_path, tex_filename, pdf_filename=None, delete_gen_f
         raise "unsupported module type '" + module_data['type'] + "'"
 
     if delete_gen_files:
-        os.remove(os.path.join(to_path, tex_filename))
-        delete_gen_images(module_data)
+        try:
+            os.remove(os.path.join(to_path, tex_filename))
+            delete_gen_images(module_data)
+        except:
+            pass

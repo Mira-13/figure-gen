@@ -3,6 +3,7 @@ import os
 import matplotlib
 matplotlib.use('pgf')
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
 
 
 def setup_fonts(plt, data):
@@ -67,30 +68,15 @@ def set_labels(fig, ax, data, pad): #fontsize_pt, xlabel, xrotation, ylabel, yro
     ax.yaxis.set_label_coords(-(pad - lwY) / width, 1)
 
 
-#def plot_style(integrator, linewidth_pt):
-#    return {
-#        "path": { "color": scaleRGB(232, 181, 88), "linewidth": linewidth_pt},
-#        "radiance": { "color": scaleRGB(94, 163, 188), "linewidth": linewidth_pt},
-#        "full": { "color": scaleRGB(181, 63, 106), "linewidth": linewidth_pt}, # ours
-#        "upsmcmc": { "color": scaleRGB(5, 142, 78), "linewidth": linewidth_pt}
-#    }.get(integrator, {})
-
-#def label_name(method):
-#    return {
-#        "path": "PT w/ NEE",
-#        "radiance": "PG (radiance)",
-#        "full": "PG (ours)",
-#        "upsmcmc": "UPSMCMC",
-
-#        "MRSE": "relMSE"
-#    }.get(method, method)
-
 def plot_lines(ax, data): #error_path, methods, linewidth_pt, has_xscale_log=True, has_yscale_log=True
     for d in data['data']:
         #x, y =  d['x'], d['y']#load_error(error_path, m)
-        ax.plot(d, linewidth=data['plot_config']['plot_linewidth_pt']) # m['label'], **plot_style(m, linewidth_pt))
+        ax.plot(d[0], d[1], linewidth=data['plot_config']['plot_linewidth_pt']) # m['label'], **plot_style(m, linewidth_pt))
 
-def apply_axes_properties_and_labels(plt, fig, ax, data):
+def apply_axes_properties_and_labels(fig, ax, data):
+    ax.set_xlim(data['axis_properties']['x']['range'][0], data['axis_properties']['x']['range'][1])
+    ax.set_ylim(data['axis_properties']['y']['range'][0], data['axis_properties']['y']['range'][1])
+
     if data['axis_properties']['x']['use_log_scale']:
         ax.set_xscale('log')
     if data['axis_properties']['y']['use_log_scale']:
@@ -115,11 +101,25 @@ def apply_axes_properties_and_labels(plt, fig, ax, data):
     if not data['axis_properties']['y']['use_scientific_notations']:
         ax.set_yticklabels(data['axis_properties']['y']['ticks'])
 
-def place_marker(ax, data):
-    # TODO
-    return
-    ax.axvline(x=13.97, color=scaleRGB(94, 163, 188), linewidth=0.6, linestyle=(0, (4, 6)))
-    ax.axvline(x=18.62, color=scaleRGB(181, 63, 106), linewidth=0.6, linestyle=(0, (4, 6)))
+    ax.yaxis.set_minor_formatter(FormatStrFormatter(""))
+    ax.xaxis.set_minor_formatter(FormatStrFormatter(""))
+
+def place_marker(ax, marker_data):
+    try:
+        vlines = marker_data['vertical_lines']
+    except:
+        vlines = []
+
+    for vl in vlines:
+        ax.axvline(x=vl['pos'], color=scaleRGB(vl['color']), linewidth=vl['linewidth_pt'], linestyle=vl['linestyle'])
+
+    try:
+        hlines = marker_data['horizontal_lines']
+    except:
+        hlines = []
+
+    for hl in hlines:
+        ax.axhline(y=hl['pos'], color=scaleRGB(hl['color']), linewidth=hl['linewidth_pt'], linestyle=hl['linestyle'])
 
 def generate(module_data, to_path, pdf_filename):
     setup_fonts(plt, module_data) 
@@ -131,11 +131,12 @@ def generate(module_data, to_path, pdf_filename):
 
     plot_lines(ax, module_data)
     
-    apply_axes_properties_and_labels(plt, fig, ax, module_data)
+    apply_axes_properties_and_labels(fig, ax, module_data)
     
     grid_properties = module_data['plot_config']['grid']
     plt.grid(color=scaleRGB(grid_properties['color']), linestyle=grid_properties['linestyle'], linewidth=grid_properties['linewidth_pt'])
 
-    place_marker(ax, module_data)
+    place_marker(ax, module_data['markers'])
 
-    plt.savefig(os.path.join(to_path, pdf_filename), pad_inches=0.0)
+    path = os.path.join(to_path, pdf_filename).replace('\\','/')
+    plt.savefig(path, pad_inches=0.0)

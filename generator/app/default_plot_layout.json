@@ -14,7 +14,7 @@
       "linewidth_pt": 0.25,
       "linestyle": "-"
     },
-    "has_upper_axis": "False",
-    "has_right_axis": "False"
+    "has_upper_axis": false,
+    "has_right_axis": false
   }
 }
