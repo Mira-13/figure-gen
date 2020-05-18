@@ -30,9 +30,12 @@
     <Compile Include="app\mplot\make_plot.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\pptx\helper.py" />
-    <Compile Include="app\pptx\make_pptx.py" />
-    <Compile Include="app\pptx\__init__.py">
+    <Compile Include="app\slide_pptx\calculate.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\slide_pptx\helper.py" />
+    <Compile Include="app\slide_pptx\make_pptx.py" />
+    <Compile Include="app\slide_pptx\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\tex\calculate.py" />
@@ -53,7 +56,7 @@
     <Folder Include="app\logic" />
     <Folder Include="app\html\" />
     <Folder Include="app\mplot\" />
-    <Folder Include="app\pptx" />
+    <Folder Include="app\slide_pptx\" />
     <Folder Include="app\tex" />
     <Folder Include="util" />
   </ItemGroup>

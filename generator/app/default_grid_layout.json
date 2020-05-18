@@ -2,7 +2,6 @@
   "units": "mm",
   "LaTeX_font_family": "libertine",
   "background_color": [ 255, 255, 255 ],
-  "total_width": 85.0,
 
   "row_space": 0.8,
   "column_space": 0.8,

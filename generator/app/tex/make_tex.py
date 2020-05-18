@@ -54,9 +54,9 @@ def delete_gen_images(data):
             os.remove(os.path.join(elem['filename']))
 
 
-def generate(module_data, to_path, tex_filename, pdf_filename=None, delete_gen_files=True):
-    if pdf_filename is None:
-        pdf_filename = tex_filename.replace('tex', 'pdf')
+def generate(module_data, to_path, index, delete_gen_files=True):
+    tex_filename = 'gen_tex'+str(index)+'.tex'
+    pdf_filename = tex_filename.replace('tex', 'pdf')
 
     if module_data['type'] == 'grid':
         content = gen_content(module_data)

@@ -37,19 +37,21 @@ grid_2x2 = [ # rows
 ]
 
 m_right = { 
-        "elements": grid_2x2, 
-        "row_titles": {}, 
-        "column_titles": {}, 
-        "titles": {}, 
-        "layout": "layout.json" 
+    "elements": grid_2x2, 
+    "row_titles": {}, 
+    "column_titles": {}, 
+    "titles": {}, 
+    "layout": "layout.json",
+    "type": "grid" 
 }
 
 m_left = { 
-        "elements": grid, 
-        "row_titles": {}, 
-        "column_titles": {}, 
-        "titles": {}, 
-        "layout": "layout.json" 
+    "elements": grid, 
+    "row_titles": {}, 
+    "column_titles": {}, 
+    "titles": {}, 
+    "layout": "layout.json",
+    "type": "grid"
 }
 
 modules = [

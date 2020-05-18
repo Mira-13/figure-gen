@@ -72,4 +72,4 @@ modules = [
 ]
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=18., backend='tikz')
+    generator.horizontal_figure(modules, width_cm=28., backend='pptx')

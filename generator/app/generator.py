@@ -3,12 +3,13 @@ import numpy
 import os
 import imageio
 from .tex import make_tex, calculate, combine_pdfs
+from .slide_pptx import make_pptx
 from .html import make_html
 #from .pptx import make_pptx
 
 backends = {
     "tikz": make_tex,
-    "pptx": None, #make_pptx,
+    "pptx": make_pptx,
     "html": make_html,
     "sdl2": None
 }
@@ -144,7 +145,6 @@ def merge_data_into_layout(data, layout):
         first = layout["elements_content"][0][0]["filename"]
     layout["img_width_px"] = first.shape[0]
     layout["img_height_px"] = first.shape[1]
-    calculate.resize_to_match_total_width(layout)
     return layout
 
 def merge(modules: dict, layouts: dict):
@@ -178,7 +178,7 @@ def align_modules(modules, width):
             image_aspect_ratio = m['img_height_px'] / float(m['img_width_px'])
             a = m['num_rows'] / float(m['num_columns']) * image_aspect_ratio
         elif m["type"] == "plot":
-            a =  m['width_to_height_aspect_ratio']
+            a = 1 / m['width_to_height_aspect_ratio']
         else:
             raise "unsupported module type '" + module_data['type'] + "'"
         sum_inverse_aspect_ratios += 1/a
@@ -187,8 +187,12 @@ def align_modules(modules, width):
     sum_fixed_deltas = 0
     i = 0
     for m in modules:
-        w_fix = calculate.get_min_width(m)
-        h_fix = calculate.get_min_height(m)
+        if m["type"] == "grid":
+            w_fix = calculate.get_min_width(m)
+            h_fix = calculate.get_min_height(m)
+        else:
+            w_fix = 0
+            h_fix = 0
         sum_fixed_deltas += w_fix - h_fix * inverse_aspect_ratios[i]
         i += 1 
 
@@ -198,6 +202,7 @@ def align_modules(modules, width):
         m['total_height'] = height
         if m["type"] == "grid":
             calculate.resize_to_match_total_height(m)
+            m['total_width'] = calculate.get_total_width(m)
         elif m['type'] == 'plot':
             m['total_width'] = height * m['width_to_height_aspect_ratio']
         else:
@@ -252,11 +257,12 @@ def horizontal_figure(modules, width_cm: float, backend):
     merged_data = merge(modules, layouts)
     align_modules(merged_data, width_cm*10.)
 
+    generated_data = []
     for i in range(len(modules)):
         if merged_data[i]['type'] != 'plot':
             export_raw_img_to_png(merged_data[i])
-            
-        backends[backend].generate(merged_data[i], to_path=os.path.join(os.path.dirname(__file__)), tex_filename='gen_tex'+str(i)+'.tex')
-    
-    combine_pdfs.make_pdf(os.path.dirname(__file__), search_for_filenames='gen_pdf*.pdf')
+        generated_data.append(backends[backend].generate(merged_data[i], to_path=os.path.join(os.path.dirname(__file__)), index=i))
+
+    backends[backend].combine(generated_data, to_path=os.path.join(os.path.dirname(__file__)))
+    #combine_pdfs.make_pdf(os.path.dirname(__file__), search_for_filenames='gen_pdf*.pdf')
         

@@ -25,12 +25,14 @@ axis_labels = {
 
 axis_properties = {
     "x": {
-        "ticks": [ 3, 20, 60 ],
+        "range": [1, 65],
+        "ticks": [ 3, 20, 50],
         "use_log_scale": True,
         "use_scientific_notations": False
     },
     "y": {
-        "ticks": [ 0.01, 0.1 ],
+        "range": [10, 105],
+        "ticks": [ 10, 50, 80],
         "use_log_scale": True,
         "use_scientific_notations": False
     }
@@ -41,13 +43,13 @@ markers = {
         {
             "pos": 10.5,
             "color": [ 242, 113, 0 ],
-            "linestyle": "(0(4,6))",
+            "linestyle": (0,(4,6)),
             "linewidth_pt": 0.6,
         },
         {
             "pos": 12.0,
             "color": [ 242, 113, 0 ],
-            "linestyle": "(0(4,6))",
+            "linestyle": (0,(4,6)),
             "linewidth_pt": 0.6,
         }
     ]
