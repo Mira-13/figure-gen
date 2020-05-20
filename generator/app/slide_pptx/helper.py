@@ -3,9 +3,7 @@ import json
 import numpy
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE
-#from pptx.dml.fill import FillFormat
-from pptx.dml.line import LineFormat
-from pptx.dml.color import ColorFormat, RGBColor
+from pptx.dml.color import RGBColor
 from pptx.util import Inches, Pt
 from . import calculate
 
@@ -14,14 +12,21 @@ def add_img_to_slide(slide, path, width_inch, pos_top, pos_left):
     slide.shapes.add_picture(path, Inches(pos_left), Inches(pos_top), width=Inches(width_inch))
 
 def add_frame_on_top(slide, pos_top, pos_left, width_inch, height_inch, color, thickness_pt):
-    slide.shapes.add_shape(
-        #LineFormat(thickness_pt),
-        #ColorFormat(RGBColor(color)),
-        MSO_SHAPE.RECTANGLE, pos_left, pos_top, width_inch, height_inch
+    shape = slide.shapes.add_shape(
+        MSO_SHAPE.RECTANGLE, Inches(pos_left), Inches(pos_top), Inches(width_inch), Inches(height_inch)
     )
 
-def has_frame(rowIndex, colIndex):
-    return False # TODO
+    shape.line.color.rgb = RGBColor(color[0], color[1], color[2])
+    shape.line.width = Pt(thickness_pt)
+    shape.fill.background()
+    shape.shadow.inherit = False
+
+def has_frame(element):
+    try:
+        frame = element['frame']
+    except:
+        return False
+    return True
 
 def place_images_and_frames(slide, data, factor, offset_width_mm):
     '''
@@ -40,11 +45,10 @@ def place_images_and_frames(slide, data, factor, offset_width_mm):
                     pos_top, pos_left = calculate.img_pos_for_slide(data, colIndex, rowIndex, factor, offset_left_mm=offset_width_mm)
                     add_img_to_slide(slide, element['filename'], width_inch, pos_top, pos_left)
                     #print(element['filename'], pos_top, pos_left)
-                    if has_frame(rowIndex, colIndex):
-                        add_frame_on_top(slide, color, thickness_pt, pos_top, pos_left, width_inch, height_inch)
+                    if has_frame(element):
+                        add_frame_on_top(slide, pos_top, pos_left, width_inch, height_inch, color=element['frame']['color'], thickness_pt=element['frame']['line_width'])
                     colIndex += 1
             rowIndex += 1
-    add_frame_on_top(slide, pos_top, pos_left, width_inch, height_inch, color=(40, 200, 10), thickness_pt=0.25)
 
 def add_text(slide, content, rotation, fontsize, factor, pos_top, pos_left):
     pass # TODO
