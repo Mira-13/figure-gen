@@ -38,3 +38,24 @@ def img_pos_for_slide(data, column, row, factor, offset_left_mm=0.0, offset_top_
     top = offset_top_mm + data['padding']['top'] + title_top + col_title_top + (data['row_space'] + data['element_config']['img_height'])*(row-1)
     left = offset_left_mm + data['padding']['left'] + title_left + row_title_left + (data['column_space'] + data['element_config']['img_width'])*(column-1)
     return mm_to_inch(top) * factor, mm_to_inch(left) * factor
+
+def titles_pos_for_slide(data, direction, factor):
+    '''
+    Note: this does not include element captions, yet. Because it was never really used in tikz or elsewhere.
+    '''
+    if direction == 'north' or direction == 'south':
+        offset_left = data['padding']['left'] + sum(padding_of(data['titles'], 'west')) + sum(padding_of(data['row_titles'], 'west'))
+        width = data['element_config']['img_width'] * data['num_column'] + data['column_space']*(data['num_column'] - 1)
+        height = padding_of(data['titles'], direction)[0]
+        if direction == 'north':
+            offset_top = data['padding']['top']
+        else: # south
+            offset_top = data['padding']['top'] + sum(padding_of(data['titles'], 'north')) + sum(padding_of(data['column_titles'], 'north'))
+            offset_top += (data['row_space']*(data['num_row'] - 1)) + (data['element_config']['img_height']) * data['num_row'])
+            offset_top += sum(padding_of(data['column_titles'], 'south')) + padding_of(data['titles'], 'south')[1]
+        # INSET STUFF HERE
+        return offset_top, offset_left, width, height
+    elif direction == 'east' or direction == 'west':
+        pass # TODO
+    else:
+        raise "Error: Invalid direction value: " + direction +". (slide_pptx module)"

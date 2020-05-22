@@ -108,7 +108,7 @@ def add_text(slide, pos_top, pos_left, width_inch, height_inch, text, txt_rotati
     apply_text_properties(shape, text, fontsize_pt, txt_color)
 
 
-def place_titles(slide, data, factor):
+def titles(slide, data, factor):
     titles = data['titles']
     for d in ['north', 'south']:
         padding_list = calculate.padding_of(data['titles'], d)
