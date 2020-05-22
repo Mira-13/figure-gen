@@ -33,7 +33,7 @@
     <Compile Include="app\slide_pptx\calculate.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\slide_pptx\helper.py" />
+    <Compile Include="app\slide_pptx\place_element.py" />
     <Compile Include="app\slide_pptx\make_pptx.py" />
     <Compile Include="app\slide_pptx\__init__.py">
       <SubType>Code</SubType>
