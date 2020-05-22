@@ -1,10 +1,13 @@
 import json
 import numpy
 import os
+import copy
 import imageio
+
 from .tex import make_tex, calculate, combine_pdfs
 from .slide_pptx import make_pptx
 from .html import make_html
+from . import default_layouts
 #from .pptx import make_pptx
 
 backends = {
@@ -29,9 +32,7 @@ def modify_default_layout(layout_filename: str, type: str):
     with open(layout_filename) as json_file:
         user = json.load(json_file)
     
-    default_filename = os.path.join(os.path.dirname(__file__), "default_"+type+"_layout.json")
-    with open(default_filename) as json_file:
-        default = json.load(json_file)
+    default = copy.deepcopy(default_layouts.layouts[type])
 
     for key,val in user.items():
         replace_option(key, val, default)
@@ -241,7 +242,7 @@ def export_raw_img_to_png(module):
                 png_export(img_raw, file_path)
                 elem["filename"] = file_path
 
-def horizontal_figure(modules, width_cm: float, backend):
+def horizontal_figure(modules, width_cm: float, backend, out_dir):
     """ 
     Creates a figure by putting modules next to each other, from left to right.
     Aligns the height of the given modules such that they fit the given total width.
@@ -249,6 +250,7 @@ def horizontal_figure(modules, width_cm: float, backend):
     Args:
         modules: a list of dictionaries, one for each module
         backend: can be one of: 'tikz', 'pptx', 'html', 'sdl2'
+        out_dir: path to the folder that will contain the generated figure and data
     """
     layouts = []
     for m in modules:
@@ -261,8 +263,8 @@ def horizontal_figure(modules, width_cm: float, backend):
     for i in range(len(modules)):
         if merged_data[i]['type'] != 'plot':
             export_raw_img_to_png(merged_data[i])
-        generated_data.append(backends[backend].generate(merged_data[i], to_path=os.path.join(os.path.dirname(__file__)), index=i))
+        generated_data.append(backends[backend].generate(merged_data[i], to_path=out_dir, index=i))
 
-    backends[backend].combine(generated_data, to_path=os.path.join(os.path.dirname(__file__)))
+    backends[backend].combine(generated_data, to_path=out_dir)
     #combine_pdfs.make_pdf(os.path.dirname(__file__), search_for_filenames='gen_pdf*.pdf')
         

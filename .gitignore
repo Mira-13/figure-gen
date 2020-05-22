@@ -27,3 +27,7 @@ node_modules
 
 # Visual studio generated / user specific
 .vs
+
+# Python setuptools / wheel / pip generated files
+build/*
+figuregen.egg-info/*

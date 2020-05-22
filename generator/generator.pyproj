@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{dd5dfec0-ea13-4b0d-88c9-5c91fe12712f}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>app\__main__.py</StartupFile>
+    <StartupFile>__main__.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -19,50 +19,50 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="app\html\make_html.py">
+    <Compile Include="html\make_html.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\logic\create_figure.py" />
-    <Compile Include="app\logic\create_plot.py" />
-    <Compile Include="app\generator.py">
+    <Compile Include="logic\create_figure.py" />
+    <Compile Include="logic\create_plot.py" />
+    <Compile Include="generator.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\mplot\make_plot.py">
+    <Compile Include="mplot\make_plot.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\slide_pptx\calculate.py">
+    <Compile Include="slide_pptx\calculate.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\slide_pptx\helper.py" />
-    <Compile Include="app\slide_pptx\make_pptx.py" />
-    <Compile Include="app\slide_pptx\__init__.py">
+    <Compile Include="slide_pptx\helper.py" />
+    <Compile Include="slide_pptx\make_pptx.py" />
+    <Compile Include="slide_pptx\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\tex\calculate.py" />
-    <Compile Include="app\tex\compile_tex.py" />
-    <Compile Include="app\tex\make_tex.py" />
-    <Compile Include="app\tex\combine_pdfs.py">
+    <Compile Include="tex\calculate.py" />
+    <Compile Include="tex\compile_tex.py" />
+    <Compile Include="tex\make_tex.py" />
+    <Compile Include="tex\combine_pdfs.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\tex\tikz.py" />
-    <Compile Include="app\tex\__init__.py" />
-    <Compile Include="app\__init__.py" />
-    <Compile Include="app\__main__.py" />
+    <Compile Include="tex\tikz.py" />
+    <Compile Include="tex\__init__.py" />
+    <Compile Include="__init__.py" />
+    <Compile Include="__main__.py" />
     <Compile Include="util\image.py" />
     <Compile Include="util\__init__.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="app" />
-    <Folder Include="app\logic" />
-    <Folder Include="app\html\" />
-    <Folder Include="app\mplot\" />
-    <Folder Include="app\slide_pptx\" />
-    <Folder Include="app\tex" />
+    <Folder Include="logic" />
+    <Folder Include="html\" />
+    <Folder Include="mplot\" />
+    <Folder Include="slide_pptx\" />
+    <Folder Include="tex" />
     <Folder Include="util" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="app\default_grid_layout.json" />
-    <Content Include="app\default_plot_layout.json" />
+    <Content Include="default_grid_layout.json" />
+    <Content Include="default_plot_layout.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
