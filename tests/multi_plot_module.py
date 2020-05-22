@@ -1,6 +1,7 @@
 import multi_module
 import matplot_module
-from app import generator
+import generator
+import generator.util
 
 plot_module = matplot_module.modules[0]
 

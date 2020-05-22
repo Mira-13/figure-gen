@@ -3,6 +3,7 @@
   "padding.top": 0.5,
   "element_config.captions.south.height": 5,
   "element_config.captions.north.height": 5,
+  "titles.north.height":  8,
 
   "column_space": 1,
   "row_space": 2

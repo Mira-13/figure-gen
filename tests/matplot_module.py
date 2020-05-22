@@ -1,4 +1,5 @@
-from app import generator
+import generator
+import generator.util
 import numpy as np
 
 # generate test data

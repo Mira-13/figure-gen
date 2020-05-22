@@ -1,7 +1,8 @@
 import pyexr
 import util
 import numpy as np
-from app import generator
+import generator
+import generator.util
 
 # generate test images
 blue = np.tile([0.2,0.3,0.9], (64, 64, 1))

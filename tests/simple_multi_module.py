@@ -1,7 +1,7 @@
-
 import copy
 import single_module
-from app import generator
+import generator
+import generator.util
 
 grid = [ # rows
     [ # first row

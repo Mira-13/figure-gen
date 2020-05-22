@@ -4,6 +4,7 @@ import numpy
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.dml.color import RGBColor
+from pptx.enum.text import PP_ALIGN
 from pptx.util import Inches, Pt
 from . import calculate
 
@@ -26,6 +27,7 @@ def apply_fill_color(shape, color):
     else:
         shape.fill.solid()
         shape.fill.fore_color.rgb = RGBColor(color[0], color[1], color[2])
+    shape.line.fill.background()
 
 def add_frame_on_top(slide, pos_top, pos_left, width_inch, height_inch, color, thickness_pt):
     '''
@@ -108,14 +110,13 @@ def add_text(slide, pos_top, pos_left, width_inch, height_inch, text, txt_rotati
     apply_text_properties(shape, text, fontsize_pt, txt_color)
 
 
-def titles(slide, data, factor):
-    titles = data['titles']
-    for d in ['north', 'south']:
-        padding_list = calculate.padding_of(data['titles'], d)
-        if sum(padding_list) != 0.:
-            title = titles[d]
-    pass # TODO
-
+def titles(slide, data, factor, offset_left_mm):
+    for direction in ['north', 'east', 'south', 'west']:
+        position, size = calculate.titles_pos_for_slide(data, direction, factor, offset_left_mm)
+        if size[0] != 0.0 and size[1] != 0.0:
+            title = data['titles'][direction]
+            add_text(slide, position[0], position[1], size[0], size[1], title['content'], title['rotation'], title['fontsize'], title['text_color'], title['background_color'])
+            
 def place_row_titles(slide, data, factor):
     pass # Todo
 
