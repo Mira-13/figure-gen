@@ -52,17 +52,12 @@
     <Compile Include="util\__init__.py" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="app" />
     <Folder Include="logic" />
     <Folder Include="html\" />
     <Folder Include="mplot\" />
     <Folder Include="slide_pptx\" />
     <Folder Include="tex" />
     <Folder Include="util" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="default_grid_layout.json" />
-    <Content Include="default_plot_layout.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
