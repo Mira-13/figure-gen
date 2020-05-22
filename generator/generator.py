@@ -144,8 +144,8 @@ def merge_data_into_layout(data, layout):
         first = layout["elements_content"][0][0]["filename"][0]["image"]
     except:
         first = layout["elements_content"][0][0]["filename"]
-    layout["img_width_px"] = first.shape[0]
-    layout["img_height_px"] = first.shape[1]
+    layout["img_width_px"] = first.shape[1]
+    layout["img_height_px"] = first.shape[0]
     return layout
 
 def merge(modules: dict, layouts: dict):
@@ -266,5 +266,4 @@ def horizontal_figure(modules, width_cm: float, backend, out_dir):
         generated_data.append(backends[backend].generate(merged_data[i], to_path=out_dir, index=i))
 
     backends[backend].combine(generated_data, to_path=out_dir)
-    #combine_pdfs.make_pdf(os.path.dirname(__file__), search_for_filenames='gen_pdf*.pdf')
         

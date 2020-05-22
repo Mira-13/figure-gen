@@ -4,8 +4,8 @@ import generator
 import generator.util
 
 # generate test images
-blue = np.tile([0.2,0.3,0.9], (64, 64, 1))
-yellow = np.tile([0.9,0.8,0.2], (64, 64, 1))
+blue = np.tile([0.2,0.3,0.9], (32, 64, 1))
+yellow = np.tile([0.9,0.8,0.2], (32, 64, 1))
 pyexr.write("blue.exr", blue)
 pyexr.write("yellow.exr", yellow)
 

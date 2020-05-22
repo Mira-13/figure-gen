@@ -3,6 +3,7 @@ import os
 from . import tikz
 from . import calculate
 from . import compile_tex
+from . import combine_pdfs
 from ..mplot import make_plot
 
 def gen_content(data, str_appendix=''):
@@ -73,3 +74,8 @@ def generate(module_data, to_path, index, delete_gen_files=True):
             delete_gen_images(module_data)
         except:
             pass
+
+    return pdf_filename
+
+def combine(data, to_path, delete_gen_files=True):
+    combine_pdfs.make_pdf(to_path, delete_gen_files=delete_gen_files)

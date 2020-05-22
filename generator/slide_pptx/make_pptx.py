@@ -19,12 +19,10 @@ def combine(data, to_path, delete_gen_files=True):
     sum_total_width_mm = 0
     for d in data:
         sum_total_width_mm += d['total_width']
-    width_scaling = 16 / calculate.mm_to_inch(sum_total_width_mm)
 
     #create slide
     prs = Presentation()
-    prs.slide_height = Inches(9) 
-    # prs.slide_width = Inches(16)
+    prs.slide_height = Inches(calculate.mm_to_inch(data[0]['total_height'])) 
     prs.slide_width = Inches(calculate.mm_to_inch(sum_total_width_mm))
     blank_slide_layout = prs.slide_layouts[6]
     slide = prs.slides.add_slide(blank_slide_layout)   
