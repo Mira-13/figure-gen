@@ -1,7 +1,7 @@
 import pyexr
-import util
 import numpy as np
-from app import generator
+import generator
+import generator.util
 
 # generate test images
 blue = np.tile([0.2,0.3,0.9], (64, 64, 1))
@@ -11,8 +11,8 @@ pyexr.write("yellow.exr", yellow)
 
 # load the two images
 images = [
-    util.image.lin_to_srgb(pyexr.read("blue.exr")),
-    util.image.lin_to_srgb(pyexr.read("yellow.exr"))
+    generator.util.image.lin_to_srgb(pyexr.read("blue.exr")),
+    generator.util.image.lin_to_srgb(pyexr.read("yellow.exr"))
 ]
 
 elements = [ # rows
@@ -72,4 +72,4 @@ modules = [
 ]
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=28., backend='pptx')
+    generator.horizontal_figure(modules, width_cm=28., backend='pptx', out_dir=".")

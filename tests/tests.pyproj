@@ -6,7 +6,7 @@
     <ProjectGuid>{c259aba0-a5d6-4912-90a7-57904e1c4cc4}</ProjectGuid>
     <ProjectHome />
     <StartupFile>single_module.py</StartupFile>
-    <SearchPath />
+    <SearchPath>..\..\figuregenerator</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
@@ -33,13 +33,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="single_module.py" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\generator\generator.pyproj">
-      <Name>generator</Name>
-      <Project>{dd5dfec0-ea13-4b0d-88c9-5c91fe12712f}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="layout.json" />
