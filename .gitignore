@@ -16,6 +16,10 @@ images
 
 !tests/*
 
+# generated test results
+tests/gen_figure.pptx
+tests/gen_figure.pdf
+
 # Python compiled files
 __pycache__
 
