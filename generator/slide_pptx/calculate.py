@@ -121,7 +121,7 @@ def column_titles_pos(data, cur_column, direction, factor, offset_left_mm=0.0, o
     height = size_of(data['column_titles'], direction)[0]
 
     offset_top = offset_top_mm + data['padding']['top'] + sum(size_of(data['titles'], 'north'))
-    offset_left = offset_left_mm + data['padding']['left']
+    offset_left = offset_left_mm + data['padding']['left'] + sum(size_of(data['row_titles'], 'west'))
     offset_left += (data['column_space'] + data['element_config']['img_width']) *(cur_column - 1)
     if direction == 'south':
         offset_top += sum(size_of(data['column_titles'], 'north'))
