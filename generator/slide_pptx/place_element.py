@@ -76,11 +76,17 @@ def images_and_frames(slide, data, factor, offset_width_mm):
 def apply_text_properties(shape, text, fontsize, txt_color):
     '''
     Insert text into shape, set fontsize, and applies text color.
-    Default alignment is 'center'.
+    Default alignment is 'center' and all margins are set to 0
     '''
     text_frame = shape.text_frame
     p = text_frame.paragraphs[0]
     p.alignment = PP_ALIGN.CENTER
+
+    text_frame.margin_left = 0
+    text_frame.margin_top = 0
+    text_frame.margin_bottom = 0
+    text_frame.margin_right = 0
+
     run = p.add_run()
     run.text = text
 
