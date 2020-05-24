@@ -107,8 +107,8 @@ def add_text(slide, pos_top, pos_left, width_inch, height_inch, text, txt_rotati
     if txt_rotation == 90.0 or txt_rotation == -90.0:
         # The shape is rotated about its center. We want a rotation about the top left corner instead.
         # Since we only allow 90° rotations, we can correct for that with a simple translation
-        pos_top  += height_inch / 2. - width_inch / 2.
-        pos_left -= height_inch / 2. + width_inch / 2.
+        pos_top += height_inch / 2. - width_inch / 2.
+        pos_left -= height_inch / 2. - width_inch / 2.
         
         # swap height and width
         height_inch, width_inch = width_inch, height_inch
