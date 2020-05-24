@@ -102,7 +102,7 @@ def add_text(slide, pos_top, pos_left, width_inch, height_inch, text, txt_rotati
     Other rotation values are not supported, except for 0°. 
     '''
     if txt_rotation == 90.0 or txt_rotation == -90.0:
-        shape = create_rectangle(slide, pos_top, pos_left, height_inch, width_inch)
+        shape = create_rectangle(slide, pos_top + height_inch / 2. - width_inch / 2, pos_left - height_inch / 2 + width_inch / 2, height_inch, width_inch)
         shape.rotation = txt_rotation
     else:
         shape = create_rectangle(slide, pos_top, pos_left, width_inch, height_inch)
@@ -110,18 +110,52 @@ def add_text(slide, pos_top, pos_left, width_inch, height_inch, text, txt_rotati
     apply_text_properties(shape, text, fontsize_pt, txt_color)
 
 
-def titles(slide, data, factor, offset_left_mm):
+def titles(slide, data, factor, offset_left_mm, offset_top_mm=0.0):
     for direction in ['north', 'east', 'south', 'west']:
-        position, size = calculate.titles_pos_for_slide(data, direction, factor, offset_left_mm)
+        position, size = calculate.titles_pos_for_slide(data, direction, factor, offset_left_mm, offset_top_mm)
         if size[0] != 0.0 and size[1] != 0.0:
             title = data['titles'][direction]
             add_text(slide, position[0], position[1], size[0], size[1], title['content'], title['rotation'], title['fontsize'], title['text_color'], title['background_color'])
             
-def place_row_titles(slide, data, factor):
-    pass # Todo
+def row_titles(slide, data, factor, offset_left_mm, offset_top_mm=0.0):
+    for direction in ['east', 'west']:
+        if calculate.padding_of(data['row_titles'], direction)[0] != 0.0:
+            bg_color_porperties = data['row_titles'][direction]['background_colors']
+            if bg_color_porperties is None:
+                single_bg_color = bg_color_porperties # None
+            elif not isinstance(bg_color_porperties[0], list): # = if first element is number(int or float) and not list
+                single_bg_color = bg_color_porperties
+            else:
+                single_bg_color = None
 
-def place_col_titles(slide, data, factor):
-    pass #Todo
+            for cur_row in range(1, data['num_rows']+1):
+                position, size = calculate.row_titles_pos_for_slide(data, cur_row, direction, factor, offset_left_mm, offset_top_mm)
+                r_title = data['row_titles'][direction]
+                if single_bg_color is None and bg_color_porperties is not None:
+                    bg_color = r_title['background_colors'][cur_row-1]
+                else:
+                    bg_color = single_bg_color
+                add_text(slide, position[0], position[1], size[0], size[1], r_title['content'][cur_row-1], r_title['rotation'], r_title['fontsize'], r_title['text_color'], bg_color)
+
+def col_titles(slide, data, factor, offset_left_mm, offset_top_mm=0.0):
+    for direction in ['north', 'south']:
+        if calculate.padding_of(data['column_titles'], direction)[0] != 0.0:
+            bg_color_porperties = data['column_titles'][direction]['background_colors']
+            if bg_color_porperties is None:
+                single_bg_color = bg_color_porperties # None
+            elif not isinstance(bg_color_porperties[0], list): # = if first element is number(int or float) and not list
+                single_bg_color = bg_color_porperties
+            else:
+                single_bg_color = None
+
+            for cur_row in range(1, data['num_columns']+1):
+                position, size = calculate.column_titles_pos_for_slide(data, cur_row, direction, factor, offset_left_mm, offset_top_mm)
+                r_title = data['column_titles'][direction]
+                if single_bg_color is None and bg_color_porperties is not None:
+                    bg_color = r_title['background_colors'][cur_row-1]
+                else:
+                    bg_color = single_bg_color
+                add_text(slide, position[0], position[1], size[0], size[1], r_title['content'][cur_row-1], r_title['rotation'], r_title['fontsize'], r_title['text_color'], bg_color)
 
 
 

@@ -19,6 +19,7 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="default_layouts.py" />
     <Compile Include="html\make_html.py">
       <SubType>Code</SubType>
     </Compile>

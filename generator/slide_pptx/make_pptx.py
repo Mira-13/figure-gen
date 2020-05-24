@@ -38,6 +38,8 @@ def combine(data, to_path, delete_gen_files=True):
     for d in data:
         place_element.images_and_frames(slide, d, width_scaling, cur_width_mm)
         place_element.titles(slide, d, width_scaling, cur_width_mm)
+        place_element.row_titles(slide, d, width_scaling, cur_width_mm)
+        place_element.col_titles(slide, d, width_scaling, cur_width_mm)
         cur_width_mm += d['total_width']
         
 

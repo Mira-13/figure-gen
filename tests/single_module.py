@@ -46,7 +46,7 @@ column_titles = {
 }
 
 row_titles = {
-    "east": { 
+    "west": { 
         "text_color": [0,0,0],
         "background_colors": [255, 255, 255],
         "content": [ "Awesome pictures" ]

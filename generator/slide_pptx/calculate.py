@@ -1,12 +1,16 @@
 import json
 
+class Error(Exception):
+    def __init__(self, message):
+        self.message = message
+
 def mm_to_inch(x):
     return x * 0.0393701 
 
-def width_factor(slide_cm_width, figure_cm_width):
-    slide_inch = mm_to_inch(slide_cm_width*10.)
-    figure_inch = mm_to_inch(figure_cm_width*10.)
-    return slide_inch / figure_inch
+#def width_scaling(slide_cm_width, figure_cm_width):
+#    slide_inch = mm_to_inch(slide_cm_width*10.)
+#    figure_inch = mm_to_inch(figure_cm_width*10.)
+#    return slide_inch / figure_inch
 
 def img_size_inches(data, factor):
     w = data['element_config']['img_width']
@@ -17,14 +21,14 @@ def padding_of(data_part, direction):
     try:
         data_part[direction]
     except:
-        raise "Incorrect usage of 'padding_of' function. First and second argument are not combineable."
+        raise Error("Incorrect usage of 'padding_of' function. First and second argument are not combineable.")
 
     if direction == 'north' or direction == 'south':
         return get_padding(data_part[direction]['height'], data_part[direction]['offset'])
     elif direction == 'east' or direction == 'west':
         return get_padding(data_part[direction]['width'], data_part[direction]['offset'])
     else:
-        raise "Error: Invalid direction value: " + direction +". (slide_pptx module)"
+        raise Error("Error: Invalid direction value: " + direction +". (slide_pptx module)")
 
 def get_padding(space, offset):
     if space == 0.0:
@@ -52,9 +56,10 @@ def titles_pos_for_slide(data, direction, factor, offset_left_mm=0.0, offset_top
     offset_top = offset_top_mm + data['padding']['top']
 
     if direction == 'north' or direction == 'south':
-        offset_left += sum(padding_of(data['titles'], 'west')) + sum(padding_of(data['row_titles'], 'west'))
         width = data['element_config']['img_width'] * data['num_columns'] + data['column_space']*(data['num_columns'] - 1)
         height = padding_of(data['titles'], direction)[0]
+
+        offset_left += sum(padding_of(data['titles'], 'west')) + sum(padding_of(data['row_titles'], 'west'))
         if direction == 'south':
             offset_top += data['padding']['top'] + sum(padding_of(data['titles'], 'north')) + sum(padding_of(data['column_titles'], 'north'))
             offset_top += (data['row_space']*(data['num_rows'] - 1)) + data['element_config']['img_height'] * data['num_rows']
@@ -65,9 +70,10 @@ def titles_pos_for_slide(data, direction, factor, offset_left_mm=0.0, offset_top
         return position, size 
 
     elif direction == 'east' or direction == 'west':
-        offset_top += sum(padding_of(data['titles'], 'north'))
         height = data['element_config']['img_height'] * data['num_rows'] + data['row_space']*(data['num_rows'] - 1)
         width = padding_of(data['titles'], direction)[0]
+
+        offset_top += sum(padding_of(data['titles'], 'north'))
         if direction == 'east':
             offset_left += sum(padding_of(data['titles'], 'west')) + sum(padding_of(data['row_titles'], 'west'))
             offset_left += (data['column_space']*(data['num_columns'] - 1)) + data['element_config']['img_width'] * data['num_columns']
@@ -78,10 +84,50 @@ def titles_pos_for_slide(data, direction, factor, offset_left_mm=0.0, offset_top
         return position, size
     
     else:
-        raise "Error: Invalid direction value: " + direction +". (slide_pptx module)"
+        raise Error("Error: Invalid direction value: " + direction +". (slide_pptx module)")
 
-def row_titles_pos_for_slide(data, direction, factor):
-    pass # TODO
 
-def column_titles_pos_for_slide(data, direction, factor):
-    pass # TODO
+
+def row_titles_pos_for_slide(data, cur_row, direction, factor, offset_left_mm=0.0, offset_top_mm=0.0):
+    '''
+    Note: this does not include element captions, yet. Because it was never really used in tikz or elsewhere.
+    '''
+    if not(direction == 'east' or direction == 'west'):
+        raise Error("Error: Invalid direction value for row titles: " + direction +". Expected 'east' or 'west'.")
+
+    width = padding_of(data['row_titles'], direction)[0]
+    height = data['element_config']['img_height']
+
+    offset_left = offset_left_mm + data['padding']['left'] + sum(padding_of(data['titles'], 'west'))
+    offset_top = offset_top_mm + data['padding']['top'] + sum(padding_of(data['titles'], 'north')) + sum(padding_of(data['column_titles'], 'north'))
+    offset_top += (data['row_space'] + data['element_config']['img_height']) * (cur_row - 1)
+    if direction == 'east':
+        offset_left += sum(padding_of(data['row_titles'], 'west')) 
+        offset_left += (data['column_space']*(data['num_columns'] - 1)) + data['element_config']['img_width'] * data['num_columns']
+        offset_left += padding_of(data['row_titles'], 'east')[1]
+
+    position = [mm_to_inch(offset_top) * factor, mm_to_inch(offset_left) * factor]
+    size = [mm_to_inch(width) * factor, mm_to_inch(height) * factor]
+    return position, size
+
+def column_titles_pos_for_slide(data, cur_column, direction, factor, offset_left_mm=0.0, offset_top_mm=0.0):
+    '''
+    Note: this does not include element captions, yet. Because it was never really used in tikz or elsewhere.
+    '''
+    if not(direction == 'north' or direction == 'south'):
+        raise "Error: Invalid direction value for column titles: " + direction +". Expected 'north' or 'south'."
+
+    width = data['element_config']['img_width']
+    height = padding_of(data['column_titles'], direction)[0]
+
+    offset_top = offset_top_mm + data['padding']['top'] + sum(padding_of(data['titles'], 'north'))
+    offset_left = offset_left_mm + data['padding']['left']
+    offset_left += (data['column_space'] + data['element_config']['img_width']) *(cur_column - 1)
+    if direction == 'south':
+        offset_top += sum(padding_of(data['column_titles'], 'north'))
+        offset_top += (data['row_space']*(data['num_rows'] - 1)) + data['element_config']['img_height'] * data['num_rows']
+        offset_top += padding_of(data['column_titles'], 'south')[1]
+
+    position = [mm_to_inch(offset_top) * factor, mm_to_inch(offset_left) * factor]
+    size = [mm_to_inch(width) * factor, mm_to_inch(height) * factor]
+    return position, size

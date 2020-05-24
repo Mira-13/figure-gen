@@ -166,6 +166,7 @@ def align_modules(modules, width):
         modules[0]["total_width"] = width
         if modules[0]["type"] == "grid":
             calculate.resize_to_match_total_width(modules[0])
+            modules[0]['total_height'] = calculate.get_total_height(modules[0])
         elif modules[0]['type'] == 'plot':
             modules[0]['total_height'] = width / modules[0]['width_to_height_aspect_ratio']
         else:

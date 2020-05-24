@@ -99,7 +99,7 @@ layouts = {
                 "fontsize": 7,
                 "line_space": 1.2,
                 "text_color": [ 0, 0, 0 ],
-                "background_color": None
+                "background_colors": None
             },
             "east": {
                 "width": 0.0,
@@ -108,7 +108,7 @@ layouts = {
                 "fontsize": 7,
                 "line_space": 1.2,
                 "text_color": [ 0, 0, 0 ],
-                "background_color": None
+                "background_colors": None
             }
         },
         "column_titles": {
@@ -119,7 +119,7 @@ layouts = {
                 "fontsize": 7,
                 "line_space": 1.2,
                 "text_color": [ 0, 0, 0 ],
-                "background_color": None
+                "background_colors": None
             },
             "south": {
                 "height": 0.0,
@@ -128,7 +128,7 @@ layouts = {
                 "fontsize": 7,
                 "line_space": 1.2,
                 "text_color": [ 0, 0, 0 ],
-                "background_color": None
+                "background_colors": None
             }
         }
     },
