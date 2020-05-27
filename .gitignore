@@ -15,6 +15,7 @@ images
 *.pptx
 
 !tests/*
+!figure_generator_layout.pptx
 
 # generated test results
 tests/gen_figure.pptx
