@@ -139,4 +139,4 @@ def generate(module_data, to_path, pdf_filename):
     place_marker(ax, module_data['markers'])
 
     path = os.path.join(to_path, pdf_filename).replace('\\','/')
-    plt.savefig(path, pad_inches=0.0)
+    plt.savefig(path, pad_inches=0.0, dpi=500)

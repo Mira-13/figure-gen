@@ -7,11 +7,6 @@ class Error(Exception):
 def mm_to_inch(x):
     return x * 0.0393701 
 
-#def width_scaling(slide_cm_width, figure_cm_width):
-#    slide_inch = mm_to_inch(slide_cm_width*10.)
-#    figure_inch = mm_to_inch(figure_cm_width*10.)
-#    return slide_inch / figure_inch
-
 def img_size_inches(data, factor):
     w = data['element_config']['img_width']
     h = data['element_config']['img_height']

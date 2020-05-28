@@ -23,14 +23,17 @@
     <Compile Include="html\make_html.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="html\__init__.py" />
     <Compile Include="logic\create_figure.py" />
     <Compile Include="logic\create_plot.py" />
     <Compile Include="generator.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="logic\__init__.py" />
     <Compile Include="mplot\make_plot.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="mplot\__init__.py" />
     <Compile Include="slide_pptx\calculate.py">
       <SubType>Code</SubType>
     </Compile>

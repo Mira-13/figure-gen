@@ -4,8 +4,6 @@
   "titles.north.height": 8,
   "row_titles.east.width": 8,
   "row_titles.west.width": 2,
-  "column_titles.north.height": 5,
-  "column_titles.south.height": 4,
 
   "column_space": 1,
   "row_space": 2

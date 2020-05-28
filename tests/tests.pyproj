@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{c259aba0-a5d6-4912-90a7-57904e1c4cc4}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>multi_module.py</StartupFile>
+    <StartupFile>inner_text_module.py</StartupFile>
     <SearchPath>..\..\figuregenerator</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -20,6 +20,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="comparison_module.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="inner_text_module.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="matplot_module.py">

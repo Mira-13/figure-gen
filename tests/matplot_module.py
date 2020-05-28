@@ -27,13 +27,13 @@ axis_labels = {
 axis_properties = {
     "x": {
         "range": [1, 65],
-        "ticks": [ 3, 20, 50],
+        "ticks": [ 2, 10, 20],
         "use_log_scale": True,
         "use_scientific_notations": False
     },
     "y": {
         "range": [10, 105],
-        "ticks": [ 10, 50, 80],
+        "ticks": [ 10, 30, 50],
         "use_log_scale": True,
         "use_scientific_notations": False
     }
@@ -68,4 +68,4 @@ modules = [
 ]
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=18., backend='tikz', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=5., backend='pptx', out_dir=".")

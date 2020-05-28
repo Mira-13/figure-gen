@@ -13,8 +13,7 @@ from . import default_layouts
 backends = {
     "tikz": make_tex,
     "pptx": make_pptx,
-    "html": make_html,
-    "sdl2": None
+    "html": make_html
 }
 
 def overwrite(name: list, val, layout: dict):
@@ -63,6 +62,11 @@ def merge_data_into_layout(data, layout):
         for col in range(num_cols):
             elem = layout["elements_content"][row][col]
             data_elem = data["elements"][row][col]
+            
+            try:
+                elem["label"] = data_elem["label"]
+            except KeyError:
+                pass
 
             # copy captions, if set            
             for d in directions:

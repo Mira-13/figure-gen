@@ -1,5 +1,6 @@
 import os
 import json
+from ..mplot import make_plot
 from pptx import Presentation
 from pptx.util import Inches
 from . import place_element, calculate
@@ -35,13 +36,19 @@ def combine(data, to_path, delete_gen_files=True):
 
     # generate content
     cur_width_mm = 0
+    idx = 0
     for d in data:
-        place_element.images_and_frames(slide, d, width_scaling, cur_width_mm)
-        place_element.titles(slide, d, width_scaling, cur_width_mm)
-        place_element.row_titles(slide, d, width_scaling, cur_width_mm)
-        place_element.col_titles(slide, d, width_scaling, cur_width_mm)
+        if d['type'] == 'plot':
+            filename = os.path.join(to_path, f"plot{idx}.png")
+            make_plot.generate(d, to_path, f"plot{idx}.png")
+            place_element.add_image(slide, filename, calculate.mm_to_inch(d['total_width']), 0, calculate.mm_to_inch(cur_width_mm))
+            idx += 1
+        else:
+            place_element.images_and_frames(slide, d, width_scaling, cur_width_mm)
+            place_element.titles(slide, d, width_scaling, cur_width_mm)
+            place_element.row_titles(slide, d, width_scaling, cur_width_mm)
+            place_element.col_titles(slide, d, width_scaling, cur_width_mm)
         cur_width_mm += d['total_width']
-        
 
     # save
     path_file = os.path.join(to_path, 'gen_figure.pptx')

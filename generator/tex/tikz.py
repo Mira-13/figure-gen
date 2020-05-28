@@ -34,14 +34,19 @@ def is_horizontal(position):
 def is_vertical(position):
     return not is_horizontal(position)
 
+_opposite_map = {
+    'west': 'east',
+    'east': 'west',
+    'north': 'south',
+    'south': 'north',
+    'north east': 'south west',
+    'south west': 'north east',
+    'south east': 'north west',
+    'north west': 'south east'
+}
+
 def opposite(position):
-    if position=='west':
-        return 'east'
-    if position=='east':
-        return 'west'
-    if position=='north':
-        return 'south'
-    return 'north'
+    return _opposite_map[position]
 
 def load_nth_color(color_list, num, idx):
     import numpy as np
@@ -115,6 +120,13 @@ def gen_text_node(width, height, text, parent_name, fontsize, position='center',
     paddedtext = text.replace("\n", "\\strut\\\\")
     paddedtext += "\\strut"
 
+    if alignment == "left":
+        alignment = "raggedright"
+    elif alignment == "right":
+        alignment = "raggedleft"
+    elif alignment != "centering":
+        raise ValueError("alignment")
+
     node = '\\node[anchor='+ anchor +', minimum width='+ str(width) +'mm, minimum height='+ str(height) +'mm, rotate='+str(rotation)+\
         ', '+ txt_color +'inner sep=0, outer sep=0] at ('+parent_name+'.'+position+') \n'
     node_content = '{\\begin{minipage}[c]['+str(height)+'mm]{'+str(width)+'mm} '+ fontsize + ' \\selectfont \\'+alignment+' \n'+paddedtext+'\n\\end{minipage}};\n'
@@ -156,7 +168,7 @@ def gen_node_east(width, height, name, parent_name, offset, offset_name, content
     return gen_node_helper('east', 'west', **locals())
 
 def gen_node_helper(position, anchor, width, height, name, parent_name, offset, offset_name, content, fontsize, alignment='centering', 
-                    rotate_text=0, background_color=None, text_color=None):
+                    rotate_text=0, background_color=None, text_color=None, inset=False):
     space_node = ''
     if offset > 0.0: # offset node
         if offset_name is None:
@@ -167,6 +179,9 @@ def gen_node_helper(position, anchor, width, height, name, parent_name, offset, 
             space_node = gen_plain_node(width=offset, height=0.0, name=offset_name, parent_name=parent_name, position=position, anchor=anchor)
 
         parent_name = offset_name
+
+    if inset is True: # The node is inside a previous one, flip the reference position
+        position = opposite(position)
 
     # container node
     bg_color=''
@@ -181,6 +196,38 @@ def gen_node_helper(position, anchor, width, height, name, parent_name, offset, 
                                            rotation=rotate_text, text_color=text_color)
 
     return space_node + container_node + content_node
+
+def get_box_anchor_and_position(alignment):
+    if alignment == 'left':
+        txt_box_pos = 'east'
+        txt_box_anchor = 'east'
+    elif alignment == 'right':
+        txt_box_pos = 'west'
+        txt_box_anchor = 'west'
+    else:
+        txt_box_pos = 'center'
+        txt_box_anchor = 'center'
+    return txt_box_pos, txt_box_anchor
+
+def gen_label_helper(position, anchor, width, height, name, parent_name, text_offset, content, fontsize, alignment='centering', 
+                    background_color=None, text_color=None, inset=False):
+    if inset is True: # The node is inside a previous one, flip the reference position
+        position = opposite(position)
+
+    # container node
+    bg_color=''
+    if background_color is not None:
+        bg_color='fill='+gen_tikZ_rgb255(background_color)+', '
+    container_node = gen_plain_node(width, height, name=name, parent_name=parent_name, position=position, anchor=anchor, additional_params=bg_color)
+
+    # text/content node
+    content_node = ''
+    if content != '':
+        pos1, anch1 =get_box_anchor_and_position(alignment)
+        content_node = gen_text_node(width-text_offset, height, content, parent_name=name, position=pos1, anchor=anch1, fontsize=fontsize, alignment=alignment, 
+                                           rotation=0, text_color=text_color)
+
+    return container_node + content_node + '\n'
 ### END helper node functions ###
 
 
@@ -442,6 +489,79 @@ def gen_marker_nodes(inset_configs, parent_name, parent_width_px, parent_height_
 
     return marker_nodes
 
+def gen_label(label_config, parent_name):
+    l_content = ''
+    p_name_split = parent_name.split('-')
+
+    try:
+        top_center = label_config['top_center']
+    except:
+        top_center = None
+    try:
+        top_left = label_config['top_left']
+    except:
+        top_left = None
+    try:
+        top_right = label_config['top_right']
+    except:
+        top_right = None
+    
+    try:
+        bottom_center = label_config['bottom_center']
+    except:
+        bottom_center = None
+    try:
+        bottom_left = label_config['bottom_left']
+    except:
+        bottom_left = None
+    try:
+        bottom_right = label_config['bottom_right']
+    except:
+        bottom_right = None
+
+    if top_center is not None:
+        node_name = 'label-top-center-' + p_name_split[-2] + '-' + p_name_split[-1]
+        l_content += gen_node_helper('north', 'north', top_center['width_mm'], top_center['height_mm'], node_name, parent_name, top_center['offset'], 
+                                     None, top_center['text'], gen_LaTeX_fontsize(top_center['fontsize'], top_center['line_space']), 'centering', 0, 
+                                     top_center['background_color'], top_center['text_color'], inset=True)
+    if top_left is not None:
+        node_name = 'label-top-left-' + p_name_split[-2] + '-' + p_name_split[-1]
+        offset_name = node_name +'-space'
+        l_content += gen_plain_node(top_left['offset_width'], top_left['offset_height'], offset_name, parent_name, position='north west', anchor='north west', additional_params='')
+        l_content += gen_label_helper('north west', 'north west', top_left['width_mm'], top_left['height_mm'], node_name, offset_name, top_left['offset_text'], 
+                                      top_left['text'], gen_LaTeX_fontsize(top_left['fontsize'], top_left['line_space']), 'left', 
+                                      top_left['background_color'], top_left['text_color'], inset=True)
+    if top_right is not None:
+        node_name = 'label-top-right-' + p_name_split[-2] + '-' + p_name_split[-1]
+        offset_name = node_name +'-space'
+        l_content += gen_plain_node(top_right['offset_width'], top_right['offset_height'], offset_name, parent_name, position='north east', anchor='north east', additional_params='')
+        l_content += gen_label_helper('north east', 'north east', top_right['width_mm'], top_right['height_mm'], node_name, offset_name, top_right['offset_text'], 
+                                      top_right['text'], gen_LaTeX_fontsize(top_right['fontsize'], top_right['line_space']), 'right', 
+                                      top_right['background_color'], top_right['text_color'], inset=True)
+    
+    if bottom_center is not None:
+        node_name = 'label-bottom-center-' + p_name_split[-2] + '-' + p_name_split[-1]
+        l_content += gen_node_helper('south', 'south', bottom_center['width_mm'], bottom_center['height_mm'], node_name, parent_name, bottom_center['offset'], 
+                                     None, bottom_center['text'], gen_LaTeX_fontsize(bottom_center['fontsize'], bottom_center['line_space']), 'centering', 0, 
+                                     bottom_center['background_color'], bottom_center['text_color'], inset=True)
+    if bottom_left is not None:
+        node_name = 'label-bottom-left-' + p_name_split[-2] + '-' + p_name_split[-1]
+        offset_name = node_name +'-space'
+        l_content += gen_plain_node(bottom_left['offset_width'], bottom_left['offset_height'], offset_name, parent_name, position='south west', anchor='south west', additional_params='')
+        l_content += gen_label_helper('south west', 'south west', bottom_left['width_mm'], bottom_left['height_mm'], node_name, offset_name, bottom_left['offset_text'], 
+                                      bottom_left['text'], gen_LaTeX_fontsize(bottom_left['fontsize'], bottom_left['line_space']), 'left', 
+                                      bottom_left['background_color'], bottom_left['text_color'], inset=True)
+    if bottom_right is not None:
+        node_name = 'label-bottom-right-' + p_name_split[-2] + '-' + p_name_split[-1]
+        offset_name = node_name +'-space'
+        l_content += gen_plain_node(bottom_right['offset_width'], bottom_right['offset_height'], offset_name, parent_name, position='south east', anchor='south east', additional_params='')
+        l_content += gen_label_helper('south east', 'south east', bottom_right['width_mm'], bottom_right['height_mm'], node_name, offset_name, bottom_right['offset_text'], 
+                                      bottom_right['text'], gen_LaTeX_fontsize(bottom_right['fontsize'], bottom_right['line_space']), 'right', 
+                                      bottom_right['background_color'], bottom_right['text_color'], inset=True)
+
+
+    return l_content +'\n'
+
 def gen_one_img_block(img_width_px, img_height_px, element_config, element_content, row, column, row_spacing, column_spacing, str_appendix, txt_align='centering'):
     '''
     A image block can contain up to 5 'content' nodes: the image node itself with the image and 4 nodes, which are in 
@@ -524,6 +644,9 @@ def gen_one_img_block(img_width_px, img_height_px, element_config, element_conte
     if marker_specs != '':
         tikz_content += gen_marker_nodes(inset_configs=element_content['marker'], parent_name='img-'+append, parent_width_px=img_width_px,
                                     parent_height_px=img_height_px, parent_width=img_width, parent_height=img_height)
+    label_specs = read_optional(element_content, 'label', default='')
+    if label_specs != '':
+        tikz_content += gen_label(element_content['label'], parent_name='img-'+append)
 
     return tikz_content + '\n'
     

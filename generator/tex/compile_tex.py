@@ -22,7 +22,7 @@ def copy_pdf_file(tmp_folder_path, to_path, tex_filename, pdf_filename):
     try:
         os.remove(new_pathfile)
     except:
-        print("File already deleted or did not exist in the first place ", new_pathfile)
+        pass
 
     # get file and copy into other path
     copy(old_pathfile, new_pathfile)
