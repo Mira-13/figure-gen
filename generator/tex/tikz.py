@@ -168,7 +168,7 @@ def gen_node_east(width, height, name, parent_name, offset, offset_name, content
     return gen_node_helper('east', 'west', **locals())
 
 def gen_node_helper(position, anchor, width, height, name, parent_name, offset, offset_name, content, fontsize, alignment='centering', 
-                    rotate_text=0, background_color=None, text_color=None, inset=False):
+                    rotate_text=0, background_color=None, text_color=None):
     space_node = ''
     if offset > 0.0: # offset node
         if offset_name is None:
@@ -179,9 +179,6 @@ def gen_node_helper(position, anchor, width, height, name, parent_name, offset, 
             space_node = gen_plain_node(width=offset, height=0.0, name=offset_name, parent_name=parent_name, position=position, anchor=anchor)
 
         parent_name = offset_name
-
-    if inset is True: # The node is inside a previous one, flip the reference position
-        position = opposite(position)
 
     # container node
     bg_color=''
@@ -209,10 +206,10 @@ def get_box_anchor_and_position(alignment):
         txt_box_anchor = 'center'
     return txt_box_pos, txt_box_anchor
 
-def gen_label_helper(position, anchor, width, height, name, parent_name, text_offset, content, fontsize, alignment='centering', 
-                    background_color=None, text_color=None, inset=False):
-    if inset is True: # The node is inside a previous one, flip the reference position
-        position = opposite(position)
+def gen_label_helper(position, width, height, name, parent_name, text_offset, content, fontsize, alignment='centering', 
+                    background_color=None, text_color=None):
+    anchor = position
+    position = opposite(position)
 
     # container node
     bg_color=''
@@ -518,9 +515,9 @@ def make_label(dir, cfg, name, parent_name):
 
     result = ""
     result += gen_plain_node(offset_w, offset_h, offset_name, parent_name, dir, dir)
-    result += gen_label_helper(dir, dir, cfg['width_mm'], cfg['height_mm'], node_name, offset_name, cfg['padding_mm'], 
-                                    cfg['text'], gen_LaTeX_fontsize(cfg['fontsize'], cfg['line_space']), alignment, 
-                                    cfg['background_color'], cfg['text_color'], inset=True)
+    result += gen_label_helper(dir, cfg['width_mm'], cfg['height_mm'], node_name, offset_name, cfg['padding_mm'], 
+                               cfg['text'], gen_LaTeX_fontsize(cfg['fontsize'], cfg['line_space']), alignment, 
+                               cfg['background_color'], cfg['text_color'])
     return result
 
 def gen_label(label_config, parent_name):
