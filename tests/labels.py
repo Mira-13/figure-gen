@@ -28,10 +28,8 @@ elements = [ # rows
                     "background_color": [200, 200, 200],
                     "width_mm": 15.,
                     "height_mm": 5.,
-                    "offset": 2.2,
-                    "offset_width": 5.2,
-                    "offset_height": 2.0,
-                    "offset_text": 1.0
+                    "offset_mm": [5.2, 2.0],
+                    "padding_mm": 1.0
                 },
                 "bottom_right": {
                     "text": "hi label",
@@ -41,10 +39,8 @@ elements = [ # rows
                     "background_color": [200, 200, 200],
                     "width_mm": 15.,
                     "height_mm": 5.,
-                    "offset": 2.2,
-                    "offset_width": 5.2,
-                    "offset_height": 2.0,
-                    "offset_text": 1.0
+                    "offset_mm": [2.2, 1.0],
+                    "padding_mm": 1.0
                 },
                 "bottom_center": {
                     "text": "hi label",
@@ -54,10 +50,8 @@ elements = [ # rows
                     "background_color": [200, 200, 200],
                     "width_mm": 15.,
                     "height_mm": 5.,
-                    "offset": 2.2,
-                    "offset_width": 5.2,
-                    "offset_height": 2.0,
-                    "offset_text": 1.0
+                    "offset_mm": 2.2,
+                    "padding_mm": 1.0
                 }
             }
         },
