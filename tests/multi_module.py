@@ -86,7 +86,7 @@ m3 = {
 }
 
 modules = [
-    #copy.deepcopy(single_module.modules[0]),
+    copy.deepcopy(single_module.modules[0]),
     m2,
     m3
 ]

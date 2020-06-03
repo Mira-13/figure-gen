@@ -42,7 +42,7 @@ elements = [ # rows
                     "offset_mm": [2.2, 1.0],
                     "padding_mm": 1.0
                 },
-                "bottom_center": {
+                "top_center": {
                     "text": "hi label",
                     "fontsize": 5,
                     "line_space": 1.2,
@@ -101,4 +101,4 @@ modules = [
 ]
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=18., backend='tikz', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=18., backend='pptx', out_dir=".")

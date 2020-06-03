@@ -9,7 +9,8 @@ from . import place_element, calculate
 in PPTX format we 
  - ignore background colors
  - ignore element captions (north/east/south/west content of each img) as we didn't even use them once before
- - do not support 'dashed' frames - if a frame is 'dashed' the frame in pptx will ne normal (but still has a frame)
+ - do not support 'dashed' frames - if a frame is 'dashed' the frame in pptx will be normal (but still has a frame)
+ - only support text rotation by 0° and +-90°
 ''' 
     
 def generate(module_data, to_path, index, delete_gen_files=True):
@@ -44,7 +45,7 @@ def combine(data, to_path, delete_gen_files=True):
             place_element.add_image(slide, filename, calculate.mm_to_inch(d['total_width']), 0, calculate.mm_to_inch(cur_width_mm))
             idx += 1
         else:
-            place_element.images_and_frames(slide, d, width_scaling, cur_width_mm)
+            place_element.images_and_frames_and_labels(slide, d, width_scaling, cur_width_mm)
             place_element.titles(slide, d, width_scaling, cur_width_mm)
             place_element.row_titles(slide, d, width_scaling, cur_width_mm)
             place_element.col_titles(slide, d, width_scaling, cur_width_mm)

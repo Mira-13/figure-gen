@@ -20,6 +20,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="default_layouts.py" />
+    <Compile Include="html\html_element.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="html\make_html.py">
       <SubType>Code</SubType>
     </Compile>
