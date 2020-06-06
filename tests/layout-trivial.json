@@ -1,0 +1,10 @@
+{
+  "padding.right": 0,
+  "padding.top": 0,
+  "titles.north.height": 8,
+  "titles.south.height": 8,
+  "titles.west.width": 7,
+  "titles.east.width": 7,
+  "titles.west.rotation": -90,
+  "column_space": 1
+}

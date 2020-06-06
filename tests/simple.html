@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style type="text/css">
+        .module {
+            position: absolute;
+        }
+
+        .title-container {
+            /*Absolute position and size on the page*/
+            position: absolute;
+
+            /*Remove margins*/            
+            margin-top: 0;
+            margin-bottom: 0;
+
+            /*Center the text paragraph*/
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .title-content {
+            /*Remove margins*/
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .element {
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- width: 28cm -->
+    <!-- height: 7.77cm -->
+
+    <!-- title north: 0.8 cm -->
+    <!-- 6.98cm x 13.95 cm -->
+    <!-- column space: 1mm -->
+
+
+    <!-- Module 1 -->
+    <div class="module" style="top: 0; left: 0cm; width: 28cm; height: 7.77cm;">
+        <div class="title-container" style="top: 0; left: 0; width: 28cm; height: 0.8cm;">
+            <p class="title-content">North Title</p>
+        </div>
+
+        <img class="element" style="top: 0.8cm; left: 0cm; height: 6.98cm; width: 13.95cm;" src="blue.png" />
+        <img class="element" style="top: 0.8cm; left: 14.05cm; height: 6.98cm; width: 13.95cm;" src="yellow.png" />
+
+        <div class="title-container" style="top: 7.77cm; left: 0; width: 28cm; height: 0.8cm;">
+            <p class="title-content">South Title</p>
+        </div>
+
+        <div class="title-container" style="top: 0cm; left: 28cm; width: 0.8cm; height: 7.77cm; transform: rotate(-90deg);">
+            <p class="title-content">East Title</p>
+        </div>
+    </div>
+</body>
+</html>
