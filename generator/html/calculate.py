@@ -4,6 +4,9 @@ class Error(Exception):
     def __init__(self, message):
         self.message = message
 
+def pt_to_mm(x):
+    return x * 0.352778
+
 def size_of(data_part, direction):
     try:
         data_part[direction]

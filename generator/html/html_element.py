@@ -5,20 +5,68 @@ def gen_module_unit_mm(width, height, offset_top=0, offset_left=0):
     m = '<div class="module" style="top: '+str(offset_top)+'mm; left: '+str(offset_left)+'mm; width: '+str(width)+'mm; height: '+str(height)+'mm;">'
     return m + '\n'
 
-def _gen_border(element):
-    # TODO
+def _gen_border(element, width, height, pos_top, pos_left):
     try:
         frame = element['frame']
     except:
         return ''
-    border_content = 'border="'+str(frame['thickness_pt'])+'pt '+frame['color']+'"'
-    return border_content
+    lw_pt = frame['line_width']
+    lw_mm = calculate.pt_to_mm(lw_pt)
+    result = '<div class="element" style="top: '+str(pos_top)+'mm; left: '+str(pos_left)+'mm; '
+    result +='width: '+str(width - lw_mm*2.)+'mm; height: '+str(height - lw_mm*2.)+'mm; '
+    result += 'border: '+str(lw_pt)+'pt solid '+css_color(frame['color'])+'"></div>' + '\n'
+    return result
 
 def _gen_image(element, width, height, pos_top, pos_left):
     img_block = '<img class="element" style="top: '+str(pos_top)+'mm; left: '+str(pos_left)+'mm; height: '+str(height)+'mm; width: '+str(width)+'mm;"' 
     src = ' src="'+element['filename']+'"'
-    border = ' ' #'+_gen_border(element)
-    return img_block + src + border + '/>' +'\n'
+    return img_block + src + '/>' +'\n'
+
+def _gen_label(img_pos_top, img_pos_left, img_width, img_height, cfg, label_pos):
+    try:
+        cfg = cfg[label_pos]
+    except KeyError:
+        return ''
+                
+    alignment = label_pos.split('_')[-1]
+    is_top = (label_pos.split('_')[0] == 'top')
+       
+    rect_width, rect_height = cfg['width_mm'], cfg['height_mm']
+
+    # determine the correct offsets depending on wether it is in the corner or center
+    if alignment == 'center':
+        offset_w, offset_h = 0, cfg['offset_mm']
+    else:
+        offset_w = cfg['offset_mm'][0]
+        offset_h = cfg['offset_mm'][1]
+
+    # determine pos_top of rectangle
+    if is_top:
+        pos_top = img_pos_top + offset_h
+    else:
+        pos_top = img_pos_top + img_height - rect_height - offset_h
+
+    # determine pos_left of rectangle based on alignment
+    if alignment == 'center':
+        pos_left = img_pos_left + (img_width * 1/2.) - (rect_width * 1/2.)
+    elif alignment == 'left':
+        pos_left = img_pos_left + offset_w
+    else: # right
+        pos_left = img_pos_left + img_width - rect_width - offset_w
+
+    result = _title_container((pos_top, pos_left), (rect_width, rect_height), rotation=0, bg_color=cfg['background_color'], alignment=alignment)
+    result += _title_content(cfg['text'], cfg['fontsize'], cfg['text_color'], cfg['padding_mm'], alignment)
+    return result
+
+def _gen_labels(img_width, img_height, img_pos_top, img_pos_left, cfg):
+    if cfg is None:
+        return ''
+
+    result = ''
+    for label_pos in ['top_center', 'top_left', 'top_right', 'bottom_center', 'bottom_left', 'bottom_right']:
+        result += _gen_label(img_pos_top, img_pos_left, img_width, img_height, cfg, label_pos)
+    return result
+
 
 def gen_images(data):
     images = ''
@@ -31,12 +79,18 @@ def gen_images(data):
         for element in row:
             pos_top, pos_left = calculate.img_pos(data, col_idx, row_idx)
             images += _gen_image(element, width, height, pos_top, pos_left)
+            images += _gen_border(element, width, height, pos_top, pos_left)
+            try:
+                label_cfg = element['label']
+            except:
+                label_cfg = None
+            images += _gen_labels(width, height, pos_top, pos_left, label_cfg)
             col_idx += 1
         row_idx += 1
 
     return images
 
-def _title_container(position, size, rotation=0, bg_color=None):
+def _title_container(position, size, rotation=0, bg_color=None, alignment='center'):
     color = ''
     if bg_color is not None:
         color += 'background-color: ' + css_color(bg_color)
@@ -54,13 +108,21 @@ def _title_container(position, size, rotation=0, bg_color=None):
         container = '<div class="title-container" style="top: '+str(pos_top)+'mm; left: '+str(pos_left)+'mm;'
         container +=' width: '+str(width)+'mm; height: '+str(height)+'mm; transform: rotate('+str(rotation)+'deg);'
         container += color + '">' + '\n'
-    else:
+    else: 
+        # only in this case we consider alignment and padding
+        align = ''
+        if alignment is not None and alignment != 'center':
+            if alignment == 'left':
+                align = 'justify-content: flex-start; '
+            else:
+                align = 'justify-content: flex-end; '
+
         container = '<div class="title-container" style="top: '+str(position[0])+'mm; left: '+str(position[1])+'mm;'
-        container +=' width: '+str(size[0])+'mm; height: '+str(size[1])+'mm;'
+        container +=' width: '+str(size[0])+'mm; height: '+str(size[1])+'mm;' + align
         container += color + '">' + '\n'
     return container
 
-def _title_content(txt_content, fontsize_pt, txt_color=None):
+def _title_content(txt_content, fontsize_pt, txt_color=None, padding=None, alignment='center'):
     if txt_content == '':
         return ''
 
@@ -68,9 +130,20 @@ def _title_content(txt_content, fontsize_pt, txt_color=None):
     if txt_color is not None and txt_color != [0,0,0]:
         color += 'color: '+ css_color(txt_color)+'; '
 
-    font_size = 'font-size: ' + str(fontsize_pt) + 'pt;' # is pt possible?
-    result = '<p class="title-content" style="'+ color + font_size +'">'
-    result += txt_content +'</p>' + '\n' + '</div>' + '\n'
+    txt_pad = ''
+    if padding is not None and padding != 0.0:
+        txt_pad = '<p style="width: '+str(padding)+'mm"></p>' + '\n'
+
+    font_size = 'font-size: ' + str(fontsize_pt) + 'pt;'
+
+    result = ''
+    if alignment=='left':
+        result += txt_pad
+    result += '<p class="title-content" style="'+ color + font_size +'">' + txt_content +'</p>' + '\n'
+    if alignment=='right':
+        result += txt_pad
+    result += '</div>' + '\n'
+
     return result
 
 def gen_titles(data):
