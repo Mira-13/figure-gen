@@ -39,10 +39,12 @@ def _add_frame_on_top(slide, pos_top, pos_left, width_inch, height_inch, color, 
         - no background color, 
         - no text
     '''
-    shape = create_rectangle(slide, pos_top, pos_left, width_inch, height_inch)
+    t_inch = calculate.pt_to_inch(thickness_pt)
+    shape = create_rectangle(slide, pos_top + t_inch/2. , pos_left + t_inch/2, width_inch - t_inch, height_inch - t_inch)
 
     shape.line.color.rgb = RGBColor(color[0], color[1], color[2])
     shape.line.width = Pt(thickness_pt)
+    #shape.line.join_type = 'Miter' # Removes rounded edges, but is not supported, yet (sadly) 
     shape.fill.background()
 
 def _apply_text_alignment(paragraph, alignment):

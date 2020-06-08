@@ -5,7 +5,10 @@ class Error(Exception):
         self.message = message
 
 def mm_to_inch(x):
-    return x * 0.0393701 
+    return x * 0.0393701
+
+def pt_to_inch(x):
+    return x * 0.0138889
 
 def relative_position(img_width_px, img_height_px, img_used_width, img_used_height):
     width_factor = img_used_width * 1/img_width_px 

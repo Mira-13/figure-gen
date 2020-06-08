@@ -217,7 +217,7 @@ def align_modules(modules, width):
 def png_export(img_raw, filename):
     imageio.imwrite(filename, img_raw)
 
-def export_raw_img_to_png(module):
+def export_raw_img_to_png(module, module_idx):
     if module['type'] != 'grid':
         return
 
@@ -236,13 +236,13 @@ def export_raw_img_to_png(module):
             if is_multi:
                 for i in range(len(elem["filename"])):
                     img_raw = elem["filename"][i]["image"]
-                    filename = 'image-'+str(row+1)+'-'+str(col+1) + '-' + str(i+1) +'.png'
+                    filename = 'image-'+str(row+1)+'-'+str(col+1) + '-' + str(i+1) + '-' + str(module_idx+1)+'.png'
                     file_path = os.path.join(path, filename)
                     png_export(img_raw, file_path)
                     elem["filename"][i]["image"] = file_path
             else:
                 img_raw = elem["filename"]
-                filename = 'image-'+str(row+1)+'-'+str(col+1)+'.png'
+                filename = 'image-'+str(row+1)+'-'+str(col+1) + '-' + str(module_idx+1)+'.png'
                 file_path = os.path.join(path, filename)
                 png_export(img_raw, file_path)
                 elem["filename"] = file_path
@@ -267,7 +267,7 @@ def horizontal_figure(modules, width_cm: float, backend, out_dir):
     generated_data = []
     for i in range(len(modules)):
         if merged_data[i]['type'] != 'plot':
-            export_raw_img_to_png(merged_data[i])
+            export_raw_img_to_png(merged_data[i], module_idx=i)
         generated_data.append(backends[backend].generate(merged_data[i], to_path=out_dir, index=i))
 
     backends[backend].combine(generated_data, to_path=out_dir)
