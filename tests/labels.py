@@ -61,7 +61,7 @@ elements = [ # rows
                 "north": "North Caption",
                 "south": "Yellow"
             },
-            "frame": { "line_width": 1.0, "color": [50,230,10] }
+            "frame": { "line_width": 1.0, "color": [50,30,210] }
         },
     ] # end first row
 ]
@@ -101,4 +101,4 @@ modules = [
 ]
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=18., backend='pptx', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=18., backend='html', out_dir=".")

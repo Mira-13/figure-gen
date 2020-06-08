@@ -459,7 +459,7 @@ def draw_rectangle_on_img(parent_name, crop_num, parent_width_factor, parent_hei
                                  name='inset'+str(crop_num)+'-offset-'+parent_name, parent_name=parent_name, 
     position= "north west", anchor="north west", additional_params='')
 
-    draw_params = 'draw='+str(gen_tikZ_rgb255(color))+', line width='+str(line_width)+'mm, '
+    draw_params = 'draw='+str(gen_tikZ_rgb255(color))+', line width='+str(line_width)+'pt, '
     if dashed:
         draw_params = draw_params + 'dashed, '
 

@@ -10,7 +10,7 @@ elem2 = [ # rows
             "crop_marker": {
                 "line_width": 1.0, "dashed": False, 
                 "list": [
-                    { "pos": [32,32], "size": [15,10], "color": [242, 113, 250] }
+                    { "pos": [32,12], "size": [15,10], "color": [242, 113, 250] }
                 ]
             }
         },
@@ -29,7 +29,7 @@ elem2 = [ # rows
             "crop_marker": {
                 "line_width": 1.0, "dashed": True, 
                 "list": [
-                    { "pos": [32,32], "size": [15,10], "color": [242, 113, 250] }
+                    { "pos": [32,12], "size": [15,10], "color": [242, 113, 250] }
                 ]
             }
         },

@@ -7,6 +7,11 @@ class Error(Exception):
 def pt_to_mm(x):
     return x * 0.352778
 
+def relative_position(img_width_px, img_height_px, img_used_width, img_used_height):
+    width_factor = img_used_width * 1/img_width_px 
+    height_factor = img_used_height * 1/img_height_px
+    return width_factor, height_factor
+
 def size_of(data_part, direction):
     try:
         data_part[direction]

@@ -22,7 +22,8 @@ elements = [ # rows
             "crop_marker": {
                 "line_width": 1.0, "dashed": False, 
                 "list": [
-                    { "pos": [32,32], "size": [15,10], "color": [242, 113, 250] }
+                    { "pos": [32,12], "size": [15,10], "color": [242, 113, 250] },
+                    { "pos": [1,1], "size": [15,10], "color": [50,230,10] }
                 ]
             }
         },
@@ -32,7 +33,7 @@ elements = [ # rows
                 "north": "North Caption",
                 "south": "Yellow"
             },
-            "frame": { "line_width": 1.0, "color": [50,230,10] },
+            "frame": { "line_width": 5.0, "color": [50,230,10] },
         },
     ] # end first row
 ]

@@ -7,6 +7,11 @@ class Error(Exception):
 def mm_to_inch(x):
     return x * 0.0393701 
 
+def relative_position(img_width_px, img_height_px, img_used_width, img_used_height):
+    width_factor = img_used_width * 1/img_width_px 
+    height_factor = img_used_height * 1/img_height_px
+    return width_factor, height_factor
+
 def img_size_inches(data, factor):
     w = data['element_config']['img_width']
     h = data['element_config']['img_height']
