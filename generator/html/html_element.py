@@ -5,17 +5,20 @@ def gen_module_unit_mm(width, height, offset_top=0, offset_left=0):
     m = '<div class="module" style="top: '+str(offset_top)+'mm; left: '+str(offset_left)+'mm; width: '+str(width)+'mm; height: '+str(height)+'mm;">'
     return m + '\n'
 
+def _gen_rectangle(pos_top, pos_left, width, height, line_width_pt, color):
+    lw_mm = calculate.pt_to_mm(line_width_pt)
+    result = '<div class="element" style="top: '+str(pos_top)+'mm; left: '+str(pos_left)+'mm; '
+    result +='width: '+str(width - lw_mm*2.)+'mm; height: '+str(height - lw_mm*2.)+'mm; '
+    result += 'border: '+str(line_width_pt)+'pt solid '+css_color(color)+'"></div>' + '\n'
+    return result
+
 def _gen_border(element, width, height, pos_top, pos_left):
     try:
         frame = element['frame']
     except:
         return ''
-    lw_pt = frame['line_width']
-    lw_mm = calculate.pt_to_mm(lw_pt)
-    result = '<div class="element" style="top: '+str(pos_top)+'mm; left: '+str(pos_left)+'mm; '
-    result +='width: '+str(width - lw_mm*2.)+'mm; height: '+str(height - lw_mm*2.)+'mm; '
-    result += 'border: '+str(lw_pt)+'pt solid '+css_color(frame['color'])+'"></div>' + '\n'
-    return result
+
+    return _gen_rectangle(pos_top, pos_left, width, height, frame['line_width'], frame['color'])
 
 def _gen_image(element, width, height, pos_top, pos_left):
     img_block = '<img class="element" style="top: '+str(pos_top)+'mm; left: '+str(pos_left)+'mm; height: '+str(height)+'mm; width: '+str(width)+'mm;"' 
@@ -58,15 +61,30 @@ def _gen_label(img_pos_top, img_pos_left, img_width, img_height, cfg, label_pos)
     result += _title_content(cfg['text'], cfg['fontsize'], cfg['text_color'], cfg['padding_mm'], alignment)
     return result
 
-def _gen_labels(img_width, img_height, img_pos_top, img_pos_left, cfg):
-    if cfg is None:
+def _gen_labels(element, img_width, img_height, img_pos_top, img_pos_left):
+    try:
+        cfg = element['label']
+    except:
         return ''
-
+        
     result = ''
     for label_pos in ['top_center', 'top_left', 'top_right', 'bottom_center', 'bottom_left', 'bottom_right']:
         result += _gen_label(img_pos_top, img_pos_left, img_width, img_height, cfg, label_pos)
     return result
 
+def _gen_markers(element, img_pos_top, img_pos_left):
+    try:
+        markers = element['marker']
+    except:
+        return ''
+
+    result = ''
+    if markers['line_width'] > 0.0 and markers['list']!=[]: # only draw if line width reasonable and list not empty
+        for m in markers['list']:
+            result += _gen_rectangle(pos_top = img_pos_top + m['pos'][0], pos_left = img_pos_left + m['pos'][1], 
+                                     width = m['size'][0], height = m['size'][1], 
+                                     line_width_pt = markers['line_width'], color = m['color'])
+    return result
 
 def gen_images(data):
     images = ''
@@ -80,11 +98,8 @@ def gen_images(data):
             pos_top, pos_left = calculate.img_pos(data, col_idx, row_idx)
             images += _gen_image(element, width, height, pos_top, pos_left)
             images += _gen_border(element, width, height, pos_top, pos_left)
-            try:
-                label_cfg = element['label']
-            except:
-                label_cfg = None
-            images += _gen_labels(width, height, pos_top, pos_left, label_cfg)
+            images += _gen_labels(element, width, height, pos_top, pos_left)
+            images += _gen_markers(element, pos_top, pos_left)
             col_idx += 1
         row_idx += 1
 
