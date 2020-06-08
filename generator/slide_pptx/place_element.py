@@ -109,7 +109,7 @@ def add_text(slide, pos_top, pos_left, width_inch, height_inch, text, txt_rotati
         height_inch, width_inch = width_inch, height_inch
 
         shape = create_rectangle(slide, pos_top, pos_left, width_inch, height_inch)
-        shape.rotation = txt_rotation
+        shape.rotation = -txt_rotation # tikz rotation is counter-clockwise, pptx clockwise (we switch in pptx)
     else:
         shape = create_rectangle(slide, pos_top, pos_left, width_inch, height_inch)
     _apply_fill_color(shape, bg_color)
