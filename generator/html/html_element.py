@@ -154,12 +154,14 @@ def _title_content(txt_content, fontsize_pt, txt_color=None, padding=None, align
     if padding is not None and padding != 0.0:
         txt_pad = '<p style="width: '+str(padding)+'mm"></p>' + '\n'
 
+    txt_align = 'text-align: ' + alignment +'; '
+
     font_size = 'font-size: ' + str(fontsize_pt) + 'pt;'
 
     result = ''
     if alignment=='left':
         result += txt_pad
-    result += '<p class="title-content" style="'+ color + font_size +'">' + txt_content +'</p>' + '\n'
+    result += '<p class="title-content" style="'+ txt_align + color + font_size +'">' + txt_content.replace('\n', '<br/>') +'</p>' + '\n'
     if alignment=='right':
         result += txt_pad
     result += '</div>' + '\n'

@@ -67,11 +67,17 @@ def set_labels(fig, ax, data, pad): #fontsize_pt, xlabel, xrotation, ylabel, yro
     # coordinates in percentage of the figure main body size!
     ax.yaxis.set_label_coords(-(pad - lwY) / width, 1)
 
+def mplot_color(rgb_list):
+    r,g,b = rgb_list[0] / 255., rgb_list[1] / 255., rgb_list[2] / 255.
+    return (r,g,b)
 
 def plot_lines(ax, data): #error_path, methods, linewidth_pt, has_xscale_log=True, has_yscale_log=True
+    i = 0
     for d in data['data']:
-        #x, y =  d['x'], d['y']#load_error(error_path, m)
-        ax.plot(d[0], d[1], linewidth=data['plot_config']['plot_linewidth_pt']) # m['label'], **plot_style(m, linewidth_pt))
+        linewidth = data['plot_config']['plot_linewidth_pt']
+        color = mplot_color(data['plot_color'][i])
+        ax.plot(d[0], d[1], linewidth=linewidth, color=color) 
+        i += 1
 
 def apply_axes_properties_and_labels(fig, ax, data):
     ax.set_xlim(data['axis_properties']['x']['range'][0], data['axis_properties']['x']['range'][1])

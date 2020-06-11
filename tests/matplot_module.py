@@ -13,6 +13,11 @@ data = [
     (seconds, errors_1), (seconds, errors_2)
 ]
 
+plot_color = [
+    [30, 180, 202],
+    [170, 40, 20]
+]
+
 axis_labels = {
     "x": {
         "text": "Time [s]",
@@ -60,6 +65,7 @@ modules = [
     { 
         "type": "plot",
         "data": data,
+        "plot_color": plot_color,
         "axis_labels": axis_labels,
         "axis_properties": axis_properties,
         "markers": markers,
@@ -68,4 +74,4 @@ modules = [
 ]
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=5., backend='pptx', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=11., backend='html', out_dir=".")

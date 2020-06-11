@@ -6,7 +6,7 @@ import generator.util
 elem2 = [ # rows
     [ # first row
         {
-            "image": single_module.images[0],
+            "image": single_module.images[1],
             "crop_marker": {
                 "line_width": 1.0, "dashed": False, 
                 "list": [
@@ -15,7 +15,7 @@ elem2 = [ # rows
             }
         },
         {
-            "image": single_module.images[1],
+            "image": single_module.images[0],
             "captions": {
                 "north": "North Caption",
                 "south": "Yellow"
@@ -93,3 +93,5 @@ modules = [
 
 if __name__ == "__main__":
     generator.horizontal_figure(modules, width_cm=18., backend='pptx', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=18., backend='tikz', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=18., backend='html', out_dir=".")

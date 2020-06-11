@@ -23,7 +23,13 @@
     <Compile Include="html\calculate.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="html\chartjs.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="html\html_element.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="html\html_plot.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="html\make_html.py">

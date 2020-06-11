@@ -41,6 +41,7 @@ def modify_default_layout(layout_filename: str, type: str):
 def merge_plot_data_into_layout(data, layout):
     layout['type'] = data['type']
     layout["data"] = data['data']
+    layout["plot_color"] = data['plot_color']
     layout["axis_labels"] = data['axis_labels']
     layout["axis_properties"] = data['axis_properties']
     layout["markers"] = data['markers']
