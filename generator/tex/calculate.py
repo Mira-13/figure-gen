@@ -1,5 +1,8 @@
 import json
 
+def pt_to_mm(x):
+    return x * 0.352778
+
 # helper
 def get_space_type(position):
     if position == 'east' or position == 'west':
@@ -34,6 +37,20 @@ def sum_col_title_spacing(data, position):
 # END helper
 
 # CALCULATIONS FOR HEIGHTS AND WIDTHS
+def relative_position(img_width_px, img_height_px, img_used_width, img_used_height):
+    width_factor = img_used_width * 1/img_width_px 
+    height_factor = img_used_height * 1/img_height_px
+    return width_factor, height_factor
+
+def get_h_offset_for_title(title_offset, caption_config, row_config):
+    offset = title_offset
+    if caption_config['width']!=0.0:
+        offset += caption_config['width'] + caption_config['offset']
+    if row_config['width']!=0.0:
+        offset += row_config['width'] + row_config['offset']
+
+    return offset
+
 def get_min_width(data):
     '''
     Minimum width is the sum of all fixed space/padding based on the json-config file, including titles, offsets, paddings, etc.

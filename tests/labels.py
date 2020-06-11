@@ -21,7 +21,7 @@ elements = [ # rows
             "image": images[0],
             "label": {
                 "bottom_left": {
-                    "text": "hi label",
+                    "text": "hi\nlabel",
                     "fontsize": 5,
                     "line_space": 1.2,
                     "text_color": [0,0,0],
@@ -101,4 +101,5 @@ modules = [
 ]
 
 if __name__ == "__main__":
+    generator.horizontal_figure(modules, width_cm=18., backend='pptx', out_dir=".")
     generator.horizontal_figure(modules, width_cm=18., backend='html', out_dir=".")

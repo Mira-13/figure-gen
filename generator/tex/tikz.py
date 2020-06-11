@@ -1,23 +1,6 @@
 import json
 from . import calculate
 
-# Calculations
-def get_h_offset_for_title(title_offset, caption_config, row_config):
-    offset = title_offset
-    if caption_config['width']!=0.0:
-        offset += caption_config['width'] + caption_config['offset']
-    if row_config['width']!=0.0:
-        offset += row_config['width'] + row_config['offset']
-
-    return offset
-
-def calculate_relative_position(img_width_px, img_height_px, img_used_width, img_used_height):
-    width_factor = img_used_width * 1/img_width_px 
-    height_factor = img_used_height * 1/img_height_px
-    return width_factor, height_factor
-# END Calculations
-
-
 # BEGIN minor utitities for TIKZ generation
 def read_optional(data, key, default=None):
     try:
@@ -71,13 +54,13 @@ def gen_tikZ_frame(rgb_list, line_width):
 def gen_tikZ_rgb255(rgb_list):
     return '{rgb,255:red,'+str(rgb_list[0])+';green,'+str(rgb_list[1])+';blue,'+str(rgb_list[2])+'}'
 
-def gen_frame_specs(element_content):
-    try:
-        if element_content['frame']['line_width'] == 0.0:
-            return ''
-        return gen_tikZ_frame(element_content['frame']['color'], element_content['frame']['line_width'])
-    except: # no frame
-        return ''
+#def gen_frame_specs(element_content):
+#    try:
+#        if element_content['frame']['line_width'] == 0.0:
+#            return ''
+#        return gen_tikZ_frame(element_content['frame']['color'], element_content['frame']['line_width'])
+#    except: # no frame
+#        return ''
 
 def gen_LaTeX_fontsize(fontsize, line_space):
     line_space = float(fontsize) * line_space
@@ -136,7 +119,7 @@ def gen_text_node(width, height, text, parent_name, fontsize, position='center',
 
 def gen_img_node(width, height, img_path, name, parent_name=None, position=None, anchor='center', additional_params=None):
     '''
-    Creates a node that contains an image. No cropping will be done to the image: The image can distorted, if the width/height ratio is not fitted proberly. 
+    Creates a node that contains an image. No cropping will be done to the image: The image can be distorted, if the width/height ratio is not fitted proberly. 
     addtional params: e.g. 'draw=blue, line width=0.3mm, ' If you want an RGB color, there are functions provided that generates Tikz-friendly 'code'.
     '''
     pos = '(0,0)' 
@@ -151,6 +134,21 @@ def gen_img_node(width, height, img_path, name, parent_name=None, position=None,
 
     return '\\node[anchor='+ anchor +', '+ additional_params +' minimum width='+ str(width) +'mm, minimum height='+ str(height) +\
             'mm, inner sep = 0, outer sep = 0] ('+ name +') at '+ pos +' {\\includegraphics[width='+str(width)+'mm, height='+str(height)+'mm]{'+ img_path +'}}; \n'
+
+def gen_frame_node(parent_width, parent_height, parent_name, color, linewidth):
+    '''
+    Because frames in tikz ignore borders per default, we sometimes have incorrect 'total_width' and 'total_height'. To prevent that, we draw frames on top of an
+    existing node and take the linewidth into account, so that frames do not overlap with other elements or even worse, goes 'beyond the total width and height' 
+    of the figure.
+    '''
+    if color == None or linewidth == 0:
+        return ''
+    frame_prop = gen_tikZ_frame(color, linewidth)
+    linewidth_mm = calculate.pt_to_mm(linewidth)
+    width = parent_width - linewidth_mm
+    height = parent_height - linewidth_mm
+    name = parent_name.replace('img', 'frame')
+    return gen_plain_node(width, height, name, parent_name, position='center', anchor='center', additional_params=frame_prop)
 ### END generating basic nodes ###
 
 
@@ -421,11 +419,11 @@ def add_big_titles(data, str_appendix=''):
                                                     column_config=data['column_titles']['south'], str_appendix=str_appendix)
 
     # vertical
-    offset_west_title = get_h_offset_for_title(title_offset=data['titles']['west']['offset'], caption_config=data['element_config']['captions']['west'], 
+    offset_west_title = calculate.get_h_offset_for_title(title_offset=data['titles']['west']['offset'], caption_config=data['element_config']['captions']['west'], 
                                                      row_config=data['row_titles']['west'])
     title_nodes += gen_vertical_figure_title('west', num_columns=data['num_columns'], height=body_height, title_config=data['titles']['west'], 
                                                   title_offset=offset_west_title, column_north_config=data['column_titles']['north'], str_appendix=str_appendix)
-    offset_east_title = get_h_offset_for_title(title_offset=data['titles']['east']['offset'], caption_config=data['element_config']['captions']['east'], 
+    offset_east_title = calculate.get_h_offset_for_title(title_offset=data['titles']['east']['offset'], caption_config=data['element_config']['captions']['east'], 
                                                      row_config=data['row_titles']['east'])
     title_nodes += gen_vertical_figure_title('east', num_columns=data['num_columns'], height=body_height, title_config=data['titles']['east'],
                                                   title_offset=offset_east_title, column_north_config=data['column_titles']['north'], str_appendix=str_appendix)
@@ -477,7 +475,7 @@ def gen_marker_nodes(inset_configs, parent_name, parent_width_px, parent_height_
             crop_num += 1
             inset_pos = inset['pos']
             inset_size = inset['size']
-            width_factor, height_factor = calculate_relative_position(parent_width_px, parent_height_px, parent_width, parent_height)
+            width_factor, height_factor = calculate.relative_position(parent_width_px, parent_height_px, parent_width, parent_height)
             marker_nodes += draw_rectangle_on_img(parent_name=parent_name, crop_num=crop_num, 
                                                  parent_width_factor=width_factor, parent_height_factor=height_factor,
                                                  pos_x1=inset_pos[0], pos_y1=inset_pos[1], 
@@ -541,9 +539,6 @@ def gen_one_img_block(img_width_px, img_height_px, element_config, element_conte
     content directly around the img.
     '''
     img_width, img_height = element_config['img_width'], element_config['img_height']
-    frame_specs = read_optional(element_content, 'frame', default='')
-    if frame_specs != '':
-        frame_specs = gen_frame_specs(element_content)
     
     north_config = element_config['captions']['north']
     south_config = element_config['captions']['south']
@@ -577,7 +572,7 @@ def gen_one_img_block(img_width_px, img_height_px, element_config, element_conte
             parent_name='north-space-'+append
 
         tikz_content += gen_img_node(img_width, img_height, name='img-'+append, parent_name=parent_name, position='south', anchor='north', 
-                                    img_path=element_content['filename'], additional_params=frame_specs)
+                                    img_path=element_content['filename'], additional_params='')
         tikz_content += gen_node_west(west_config['width'], img_height, name='west-field-'+append, parent_name='img-'+append, offset=west_config['offset'], offset_name=None, 
                                   content=element_content['west'], fontsize=gen_LaTeX_fontsize(west_config['fontsize'], west_config['line_space']), 
                                   alignment=txt_align, rotate_text=west_config['rotation'], background_color=None, text_color=west_config['text_color'])
@@ -595,7 +590,7 @@ def gen_one_img_block(img_width_px, img_height_px, element_config, element_conte
             parent_name='west-space-'+append
 
         tikz_content += gen_img_node(img_width, img_height, name='img-'+append, parent_name=parent_name, position='east', anchor='west', 
-                                     img_path=element_content['filename'], additional_params=frame_specs)
+                                     img_path=element_content['filename'], additional_params='')
         tikz_content += gen_node_north(img_width, height=north_config['height'], name='north-field-'+append, parent_name='img-'+append, offset=north_config['offset'], 
                                        offset_name=None, content=element_content['north'], fontsize=gen_LaTeX_fontsize(north_config['fontsize'], north_config['line_space']), 
                                        alignment=txt_align, rotate_text=north_config['rotation'], background_color=None, text_color=north_config['text_color'])
@@ -616,6 +611,10 @@ def gen_one_img_block(img_width_px, img_height_px, element_config, element_conte
     label_specs = read_optional(element_content, 'label', default='')
     if label_specs != '':
         tikz_content += gen_label(element_content['label'], parent_name='img-'+append)
+
+    frame_specs = read_optional(element_content, 'frame', default='')
+    if frame_specs != '':
+        tikz_content += gen_frame_node(img_width, img_height, parent_name='img-'+append, color=frame_specs['color'], linewidth=frame_specs['line_width'])
 
     return tikz_content + '\n'
     

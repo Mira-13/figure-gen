@@ -55,7 +55,7 @@ row_titles = {
 }
 
 titles = {
-    "north": "North Title",
+    "north": "North\nTitle",
     "south": "South Title",
     "east": "East Title",
     "west": "West Title"
@@ -73,4 +73,6 @@ modules = [
 ]
 
 if __name__ == "__main__":
+    generator.horizontal_figure(modules, width_cm=28., backend='tikz', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=28., backend='pptx', out_dir=".")
     generator.horizontal_figure(modules, width_cm=28., backend='html', out_dir=".")
