@@ -204,7 +204,7 @@ def _row_col_titles(data, direction, title_properties, num, pos_fn):
 
                 if t['content'][i] != '':
                     result += _title_content(t['content'][i], t['fontsize'], t['text_color'])
-                result += '</div>' + '\n'
+                result += '\n'
     return result
 
 def gen_row_titles(data):

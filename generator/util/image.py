@@ -2,6 +2,10 @@ import numpy as np
 import math
 import scipy.ndimage
 
+class Error(Exception):
+    def __init__(self, message):
+        self.message = message
+
 def lin_to_srgb(rgba):
     """
     Linear to sRGB conversion of n-d numpy array:
@@ -24,6 +28,23 @@ def average_color_channels(img):
 
 def zoom(img, scale=20):
     return scipy.ndimage.zoom(img, (scale, scale, 1), order=0)
+
+def crop(img, crop_args):
+    '''
+    crop_args: list of 4 elements: left, top, width, height.
+    '''
+    left, top = crop_args[0], crop_args[1]
+    width, height = crop_args[2], crop_args[3]
+
+    # check if out of bounds
+    img_width = img.shape[1]
+    img_height = img.shape[0]
+    if img_width < left + width:
+        raise Error("Incorrect usage of 'crop' function. Crop is out of bounds: image width < left offset + crop width.")
+    if img_height < top + height:
+        raise Error("Incorrect usage of 'crop' function. Crop is out of bounds: image height < top offset + crop height.")
+
+    return img[top:top+height,left:left+width,:]
 
 def scale_and_convert_rgb(rgb_list, scale=255):
     r = round(rgb_list[0] * 1/scale, 2)
