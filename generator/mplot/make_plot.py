@@ -79,9 +79,21 @@ def plot_lines(ax, data): #error_path, methods, linewidth_pt, has_xscale_log=Tru
         ax.plot(d[0], d[1], linewidth=linewidth, color=color) 
         i += 1
 
+def _apply_axis_range(ax, axis, data):
+    try:
+        axis_range = data['axis_properties'][axis]['range'][0], data['axis_properties'][axis]['range'][1]
+    except:
+        axis_range = None
+
+    if axis_range is not None:
+        if axis == 'x':
+            ax.set_xlim(axis_range)
+        else:
+            ax.set_ylim(axis_range)
+
 def apply_axes_properties_and_labels(fig, ax, data):
-    ax.set_xlim(data['axis_properties']['x']['range'][0], data['axis_properties']['x']['range'][1])
-    ax.set_ylim(data['axis_properties']['y']['range'][0], data['axis_properties']['y']['range'][1])
+    _apply_axis_range(ax, 'x', data)
+    _apply_axis_range(ax, 'y', data)
 
     if data['axis_properties']['x']['use_log_scale']:
         ax.set_xscale('log')

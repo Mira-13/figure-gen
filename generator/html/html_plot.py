@@ -58,8 +58,8 @@ var myChart = new Chart(ctx, {
                 },
 			    display: true,
                 type: '__x_scale__',
-                min: __x_min_value__,
-                max: __x_max_value__,
+                __x_min_value__
+                __x_max_value__
                 ticks: {
                     source: 'data',
                     fontSize: __fontsize__,
@@ -89,8 +89,8 @@ var myChart = new Chart(ctx, {
                     borderWidth: 1,
                     lineWidth: 0.5
                 },
-                min: __y_min_value__,
-                max: __y_max_value__,
+                __y_min_value__
+                __y_max_value__
 				display: true,
 				type: '__y_scale__',
                 ticks: {
@@ -157,8 +157,15 @@ def check_for_axis_label(module_data, axis):
         return 'false'
     return 'true'
 
-def get_axis_range(module_data, axis):
-    return module_data['axis_properties'][axis]['range']
+def get_axis_range(module_data, axis, is_min):
+    try:
+        range = module_data['axis_properties'][axis]['range']
+    except:
+        return '' # no specs = do nothing
+
+    if is_min:
+        return 'min: ' + str(range[0]) + ','
+    return 'max: ' + str(range[1]) + ','
 
 def axis_type(module_data, axis):
     if module_data['axis_properties'][axis]['use_log_scale']:
@@ -176,10 +183,10 @@ def create_replacement_table(module_data, module_idx):
         "__y_label__": get_label(module_data, 'y'),
         "__has_y_label__": check_for_axis_label(module_data, 'y'),
         "__fontsize__": str(module_data['plot_config']['font']['fontsize_pt']),
-        "__x_min_value__": str(get_axis_range(module_data, 'x')[0]),
-        "__x_max_value__": str(get_axis_range(module_data, 'x')[1]),
-        "__y_min_value__": str(get_axis_range(module_data, 'y')[0]),
-        "__y_max_value__": str(get_axis_range(module_data, 'y')[1]),
+        "__x_min_value__": get_axis_range(module_data, 'x', is_min=True),
+        "__x_max_value__": get_axis_range(module_data, 'x', is_min=False),
+        "__y_min_value__": get_axis_range(module_data, 'y', is_min=True),
+        "__y_max_value__": get_axis_range(module_data, 'y', is_min=False),
         "__x_visible_ticks_condition__": tick_condition(module_data, 'x'),
         "__y_visible_ticks_condition__": tick_condition(module_data, 'y'),
     }
