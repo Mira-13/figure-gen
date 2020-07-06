@@ -40,12 +40,5 @@
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="layout-trivial.json">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="layout.json" />
-    <Content Include="plot_layout.json" />
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
