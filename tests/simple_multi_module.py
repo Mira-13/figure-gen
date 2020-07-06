@@ -37,21 +37,43 @@ grid_2x2 = [ # rows
 ]
 
 m_right = { 
+    "type": "grid",
     "elements": grid_2x2, 
     "row_titles": {}, 
     "column_titles": {}, 
     "titles": {}, 
-    "layout": "layout.json",
-    "type": "grid" 
+    "layout": {
+      "padding.right": 0.1,
+      "padding.top": 0.5,
+      "titles.north.height": 8,
+      "titles.north.background_color": [ 29, 60, 100 ],
+      "titles.north.text_color": [ 255, 255, 250 ],
+      "column_titles.north.width": 4,
+      "column_titles.north.offset": 2,
+
+      "column_space": 1,
+      "row_space": 2
+    }
 }
 
-m_left = { 
+m_left = {
+    "type": "grid",
     "elements": grid, 
     "row_titles": {}, 
     "column_titles": {}, 
     "titles": {}, 
-    "layout": "layout.json",
-    "type": "grid"
+    "layout": {
+      "padding.right": 0.1,
+      "padding.top": 0.5,
+      "titles.north.height": 8,
+      "titles.north.background_color": [ 29, 60, 100 ],
+      "titles.north.text_color": [ 255, 255, 250 ],
+      "column_titles.north.width": 4,
+      "column_titles.north.offset": 2,
+
+      "column_space": 1,
+      "row_space": 2
+    }
 }
 
 modules = [
@@ -60,4 +82,6 @@ modules = [
 ]
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=18., backend='tikz', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=28., backend='tikz', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=28., backend='pptx', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=28., backend='html', out_dir=".")

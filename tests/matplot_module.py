@@ -69,9 +69,14 @@ modules = [
         "axis_labels": axis_labels,
         "axis_properties": axis_properties,
         "markers": markers,
-        "layout": "plot_layout.json"
+        "layout": {
+          "width_to_height_aspect_ratio": 1.0,
+          "plot_config.font.font_family": "serif"
+        }
     }
 ]
 
 if __name__ == "__main__":
+    generator.horizontal_figure(modules, width_cm=11., backend='tikz', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=11., backend='pptx', out_dir=".")
     generator.horizontal_figure(modules, width_cm=11., backend='html', out_dir=".")

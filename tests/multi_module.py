@@ -73,7 +73,18 @@ m2 = {
     "row_titles": row_titles, 
     "column_titles": column_titles, 
     "titles": titles, 
-    "layout": "layout.json" 
+    "layout": {
+      "padding.right": 0.1,
+      "padding.top": 0.5,
+      "titles.north.height": 8,
+      "titles.north.background_color": [ 29, 60, 100 ],
+      "titles.north.text_color": [ 255, 255, 250 ],
+      "column_titles.north.width": 4,
+      "column_titles.north.offset": 2,
+
+      "column_space": 1,
+      "row_space": 2
+    }
 }
 
 m3 = {
@@ -82,7 +93,18 @@ m3 = {
     "row_titles": row_titles, 
     "column_titles": column_titles, 
     "titles": titles, 
-    "layout": "layout.json" 
+    "layout": {
+      "padding.right": 0.1,
+      "padding.top": 0.5,
+      "titles.north.height": 8,
+      "titles.north.background_color": [ 29, 60, 100 ],
+      "titles.north.text_color": [ 255, 255, 250 ],
+      "column_titles.north.width": 4,
+      "column_titles.north.offset": 2,
+
+      "column_space": 1,
+      "row_space": 2
+    }
 }
 
 modules = [

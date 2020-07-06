@@ -6,13 +6,13 @@ import generator.util
 # generate test images
 blue = np.tile([0.2,0.3,0.9], (32, 64, 1))
 yellow = np.tile([0.9,0.8,0.2], (32, 64, 1))
-pyexr.write("blue.exr", blue)
-pyexr.write("yellow.exr", yellow)
+pyexr.write("images//blue.exr", blue)
+pyexr.write("images//yellow.exr", yellow)
 
 # load the two images
 images = [
-    generator.util.image.lin_to_srgb(pyexr.read("blue.exr")),
-    generator.util.image.lin_to_srgb(pyexr.read("yellow.exr"))
+    generator.util.image.lin_to_srgb(pyexr.read("images//blue.exr")),
+    generator.util.image.lin_to_srgb(pyexr.read("images//yellow.exr"))
 ]
 
 elements = [ # rows
@@ -68,7 +68,18 @@ modules = [
         "row_titles": row_titles, 
         "column_titles": column_titles, 
         "titles": titles, 
-        "layout": "layout.json" 
+        "layout": {
+          "padding.right": 0.1,
+          "padding.top": 0.5,
+          "titles.north.height": 8,
+          "titles.north.background_color": [ 29, 60, 100 ],
+          "titles.north.text_color": [ 255, 255, 250 ],
+          "column_titles.north.width": 4,
+          "column_titles.north.offset": 2,
+
+          "column_space": 1,
+          "row_space": 2
+        }
     }
 ]
 

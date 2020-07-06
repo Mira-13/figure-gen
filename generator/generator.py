@@ -27,16 +27,24 @@ def replace_option(name: str, val, layout: dict):
     path = name.split(sep='.')
     overwrite(path, val, layout)
 
-def modify_default_layout(layout_filename: str, type: str):
-    with open(layout_filename) as json_file:
-        user = json.load(json_file)
-    
+def modify_default_layout(user: dict, type: str):
     default = copy.deepcopy(default_layouts.layouts[type])
 
     for key,val in user.items():
         replace_option(key, val, default)
 
     return default
+
+#def modify_default_layout2(layout_filename: str, type: str):
+#    with open(layout_filename) as json_file:
+#        user = json.load(json_file)
+    
+#    default = copy.deepcopy(default_layouts.layouts[type])
+
+#    for key,val in user.items():
+#        replace_option(key, val, default)
+
+#    return default
 
 def merge_plot_data_into_layout(data, layout):
     layout['type'] = data['type']
