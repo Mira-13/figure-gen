@@ -5,12 +5,28 @@ import pyexr
 import json
 import numpy as np
 
-# load the two images
-scene = 'bookshelf'
-seconds = 120
+idx = 3
+scene = ['bookshelf', 'glossy-kitchen', 'pool', 'veach-door'] #'bookshelf'
+seconds = [120, 90, 60, 60] #120
 baseline = 2
 method_list = ['path', 'upsmcmc', 'radiance', 'full', None]
 method_titles = ['PT', 'VCM+MLT', 'M\\\"uller et al.', 'Ours', 'Reference']
+xticks = [
+    [3, 20, s] for s in seconds
+    ]
+vline_positions = [
+    (28.32, 28.78),
+    (19.92, 20.23),
+    (11.44, 11.17),
+    (13.97, 18.62)
+    ]
+# left, top, width, height
+crops = [
+    [[369, 191, 40, 30], [238, 108, 40, 30]],
+    [[100, 120, 40, 30], [212, 325, 40, 30]],
+    [[400, 120, 40, 30], [595, 81, 40, 30]],
+    [[246, 268, 40, 30], [504, 65, 40, 30]]
+]
 
 def get_image(scene, seconds, method=None, crop_args=None):
     if method is None:
@@ -25,18 +41,15 @@ def get_image(scene, seconds, method=None, crop_args=None):
         img = generator.util.image.zoom(img)
     return generator.util.image.lin_to_srgb(img)
 
-# left, top, width, height
-crops = [
-    [369, 191, 40, 30], 
-    [238, 108, 40, 30]
-]
-
-images_crop1 = [
-    get_image(scene=scene, seconds=seconds, method=method, crop_args=crops[0]) for method in method_list
-]
-images_crop2 = [
-    get_image(scene=scene, seconds=seconds, method=method, crop_args=crops[1]) for method in method_list
-]
+def get_image_crops(scene, seconds, method_list, crop_args_list):
+    '''
+    crop_args_list: list of [left, top, width, height]
+    '''
+    return  [ 
+                [ 
+                    get_image(scene, seconds, method, crop_args) for method in method_list
+                ] for crop_args in crop_args_list
+            ]
 
 def get_error(scene, method, seconds, metric='MRSE*'):
     p = os.path.join('errors', scene, scene+'__'+method+'.json')
@@ -46,9 +59,10 @@ def get_error(scene, method, seconds, metric='MRSE*'):
     error = data['data'][idx][metric]
     return round(error, 8)
 
-def get_captions(errors, method_titles, baseline, seconds):
+def get_captions(scene, method_titles, baseline, seconds):
     i = 0
     captions = []
+    errors = [ get_error(scene, method, seconds) for method in method_list[:-1] ]
 
     for method in method_titles[:-1]:
         relMSE = round(errors[i], 3)
@@ -63,72 +77,11 @@ def get_captions(errors, method_titles, baseline, seconds):
         i+=1
 
     captions.append('Reference'+'\n'+'relMSE ('+str(seconds)+'s)')
+
     return captions
 
-errors = [
-    get_error(scene=scene, method=method, seconds=seconds) for method in method_list[:-1]
-]
-errors_string = [
-    str(e) for e in errors
-]
-errors_string.append('--')
-
-captions = get_captions(errors, method_titles, baseline, seconds)
-
-g_elements = [ # rows
-    [ # first row
-        {
-            "image": images_crop1[0],
-        },
-        {
-            "image": images_crop1[1],
-        },
-        {
-            "image": images_crop1[2],
-        },
-        {
-            "image": images_crop1[3],
-        },
-        {
-            "image": images_crop1[4],
-        },
-    ], # end first row
-    [
-        {
-            "image": images_crop2[0],
-        },
-        {
-            "image": images_crop2[1],
-        },
-        {
-            "image": images_crop2[2],
-        },
-        {
-            "image": images_crop2[3],
-        },
-        {
-            "image": images_crop2[4],
-        },    
-    ]
-]
-
-ref_elements = [ # rows
-    [ # first row
-        {
-            "image": get_image(scene, seconds, method=None, crop_args=None),
-            "crop_marker": {
-                "line_width": .2, "dashed": False, 
-                "list": [
-                    { "pos": [crops[0][0],crops[0][1]], "size": [crops[0][2],crops[0][3]], "color": [242, 113, 0] },
-                    { "pos": [crops[1][0],crops[1][1],1], "size": [crops[1][2],crops[1][3]], "color": [242, 113, 0] }
-                ]
-            }
-        }
-    ] # end first row
-]
-
-g_column_titles = {
-    "south": { 
+def get_content(scene, method_titles, baseline, seconds):
+    return { 
         "text_color": [0,0,0],
         "background_colors": [ 
             [232, 181, 88],
@@ -137,13 +90,45 @@ g_column_titles = {
             [181, 63, 106], 
             [255, 255, 255]
         ],
-        "content": captions
+        "content": get_captions(scene, method_titles, baseline, seconds)
     }
+
+def get_grid_elements(scene, seconds, method_list, crop_args):
+    image_crops = get_image_crops(scene, seconds, method_list, crop_args)
+    return [ 
+        [ 
+            {
+                "image": img,
+            } for img in imgs 
+        ] for imgs in image_crops
+    ]
+
+def get_ref_element(scene, seconds, crop_args):
+    '''
+    crop_args: [[left, top, width, height], 
+                [left, top, width, height]]
+    '''
+    return [ # rows
+            [ # first row
+                {
+                    "image": get_image(scene, seconds, method=None, crop_args=None),
+                    "crop_marker": {
+                        "line_width": 0.6, "dashed": False, 
+                        "list": [
+                                { "pos": [crop[0], crop[1]], "size": [crop[2], crop[3]], "color": [242, 113, 0] } for crop in crop_args
+                            ]
+                    }
+                }
+            ] # end first row
+           ]
+
+g_column_titles = {
+    "south": get_content(scene[idx], method_titles, baseline, seconds[idx])
 }
 
 titles = {
     "north": "",
-    "south": scene.title(),
+    "south": scene[idx].replace('-',' ').title(),
     "east": "",
     "west": ""
 }
@@ -169,9 +154,11 @@ def load_error(scene, method, metric='MRSE*', clip=True):
     
     return (ddx, ddy)
 
-data = [
-    load_error(scene=scene, method=method, metric='MRSE*', clip=True) for method in method_list[:-1]
-]
+def get_plot_data(scene, method_list):
+    return [
+        load_error(scene, method, metric='MRSE*', clip=True) for method in method_list[:-1]
+    ]
+
 
 plot_color = [ 
     [232, 181, 88],
@@ -191,19 +178,38 @@ axis_labels = {
     }
 }
 
-axis_properties = {
-    "x": {
-        "range": [2.5, 800],
-        "ticks": [3, 20, 120],
-        "use_log_scale": True,
-        "use_scientific_notations": False
-    },
-    "y": {
-        "ticks": [0.01, 0.1, 1.0],
-        "use_log_scale": True,
-        "use_scientific_notations": False
+def get_axis_properties(xticks):
+    return {
+        "x": {
+            "range": [2.5, 800],
+            "ticks": xticks,
+            "use_log_scale": True,
+            "use_scientific_notations": False
+        },
+        "y": {
+            "ticks": [0.01, 0.1, 1.0],
+            "use_log_scale": True,
+            "use_scientific_notations": False
+        }
     }
-}
+
+def get_vertical_lines(position_tupel):
+    return {
+        "vertical_lines": [
+            {
+                "pos": position_tupel[0],
+                "color": [94, 163, 188],
+                "linestyle": (0,(4,6)),
+                "linewidth_pt": 0.6,
+            },
+            {
+                "pos": position_tupel[1],
+                "color": [181, 63, 106],
+                "linestyle": (-5,(4,6)),
+                "linewidth_pt": 0.6,
+            }
+        ]
+    }
 
 markers = {
     "vertical_lines": [
@@ -222,12 +228,10 @@ markers = {
     ]
 }
 
-############################
-
 modules = [
     { 
         "type": "grid",
-        "elements": ref_elements, 
+        "elements": get_ref_element(scene[idx], seconds[idx], crops[idx]), 
         "row_titles": {}, 
         "column_titles": {}, 
         "titles": titles, 
@@ -241,7 +245,7 @@ modules = [
     },
     { 
         "type": "grid",
-        "elements": g_elements, 
+        "elements": get_grid_elements(scene[idx], seconds[idx], method_list, crops[idx]), 
         "row_titles": {}, 
         "column_titles": g_column_titles, 
         "titles": titles, 
@@ -259,11 +263,11 @@ modules = [
     },
     { 
         "type": "plot",
-        "data": data,
+        "data": get_plot_data(scene[idx], method_list),
         "plot_color": plot_color,
         "axis_labels": axis_labels,
-        "axis_properties": axis_properties,
-        "markers": markers,
+        "axis_properties": get_axis_properties(xticks=xticks[idx]),
+        "markers": get_vertical_lines(vline_positions[idx]),
         "layout": {}
     }
 ]
