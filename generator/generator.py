@@ -40,17 +40,6 @@ def modify_default_layout(user: dict, type: str):
 
     return default
 
-#def modify_default_layout2(layout_filename: str, type: str):
-#    with open(layout_filename) as json_file:
-#        user = json.load(json_file)
-    
-#    default = copy.deepcopy(default_layouts.layouts[type])
-
-#    for key,val in user.items():
-#        replace_option(key, val, default)
-
-#    return default
-
 def merge_plot_data_into_layout(data, layout):
     layout['type'] = data['type']
     layout["data"] = data['data']
