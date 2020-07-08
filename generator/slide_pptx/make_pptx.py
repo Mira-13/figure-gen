@@ -26,13 +26,15 @@ def combine(data, to_path, delete_gen_files=True):
     for d in data:
         sum_total_width_mm += d['total_width']
 
-    if data[0]['total_height'] < 25.4: # mm
-        raise Error("Error in pptx-backend: computed height is less than the minimum of 2,54cm. Please add a padding to north or south to prevent this issue.")
-
     #create slide
     prs = Presentation()
     if True:
-        prs.slide_height = Inches(calculate.mm_to_inch(data[0]['total_height'])) 
+        figure_height = data[0]['total_height']
+        if figure_height < 25.4: # mm
+            figure_height = 25.4
+            print("Warning: pptx computed height is less than the minimum of 2,54cm. The slide heights will be set on 2,54cm.")
+        prs.slide_height = Inches(calculate.mm_to_inch(figure_height)) 
+        
         prs.slide_width = Inches(calculate.mm_to_inch(sum_total_width_mm))
         width_scaling = 1
     else:
