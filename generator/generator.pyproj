@@ -36,12 +36,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="html\__init__.py" />
-    <Compile Include="logic\create_figure.py" />
-    <Compile Include="logic\create_plot.py" />
     <Compile Include="generator.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="logic\__init__.py" />
     <Compile Include="mplot\make_plot.py">
       <SubType>Code</SubType>
     </Compile>
@@ -68,7 +65,6 @@
     <Compile Include="util\__init__.py" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="logic" />
     <Folder Include="html\" />
     <Folder Include="mplot\" />
     <Folder Include="slide_pptx\" />
