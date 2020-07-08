@@ -3,18 +3,23 @@ import numpy
 import os
 import copy
 import imageio
+#from skimage import img_as_ubyte
 
 from .tex import make_tex, calculate, combine_pdfs
 from .slide_pptx import make_pptx
 from .html import make_html
 from . import default_layouts
-#from .pptx import make_pptx
 
 backends = {
     "tikz": make_tex,
     "pptx": make_pptx,
     "html": make_html
 }
+
+def png_export(img_raw, filename):
+    # TODO supress annoying warning: Lossy conversion from float32 to uint8 .. 
+    imageio.imwrite(filename, img_raw)
+    #io.imsave(os.path.join(filename,"%d_predict.png"%i),img_as_ubyte(img_raw))
 
 def overwrite(name: list, val, layout: dict):
     if len(name) == 1:
@@ -222,9 +227,6 @@ def align_modules(modules, width):
             m['total_width'] = height * m['width_to_height_aspect_ratio']
         else:
             pass
-
-def png_export(img_raw, filename):
-    imageio.imwrite(filename, img_raw)
 
 def export_raw_img_to_png(module, module_idx):
     if module['type'] != 'grid':
