@@ -12,6 +12,10 @@ in PPTX format we
  - do not support 'dashed' frames - if a frame is 'dashed' the frame in pptx will be normal (but still has a frame)
  - only support text rotation by 0° and +-90°
 ''' 
+
+class Error(Exception):
+    def __init__(self, message):
+        self.message = message
     
 def generate(module_data, to_path, index, delete_gen_files=True):
     return module_data
@@ -21,6 +25,9 @@ def combine(data, to_path, delete_gen_files=True):
     sum_total_width_mm = 0
     for d in data:
         sum_total_width_mm += d['total_width']
+
+    if data[0]['total_height'] < 25.4: # mm
+        raise Error("Error in pptx-backend: computed height is less than the minimum of 2,54cm. Please add a padding to north or south to prevent this issue.")
 
     #create slide
     prs = Presentation()
