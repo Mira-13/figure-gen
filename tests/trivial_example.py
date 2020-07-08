@@ -47,8 +47,8 @@ modules = [
         "column_titles": column_titles, 
         "titles": titles, 
         "layout": {
-          "padding.right": 0,
-          "padding.top": 0,
+          "padding.east": 0,
+          "padding.north": 0,
           "titles.north.height": 8,
           "titles.south.height": 8,
           "titles.west.width": 7,

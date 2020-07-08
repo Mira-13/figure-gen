@@ -236,8 +236,8 @@ modules = [
         "column_titles": {}, 
         "titles": titles, 
         "layout": {
-              "padding.right": 0.5,
-              "padding.bottom": 0.1,
+              "padding.east": 0.5,
+              "padding.south": 0.1,
               "titles.south.height": 7,
               "titles.south.offset": 0.5,
               "titles.south.fontsize": 7
@@ -250,9 +250,8 @@ modules = [
         "column_titles": g_column_titles, 
         "titles": titles, 
         "layout": {
-              "padding.right": 0.5,
-              "padding.bottom": 0.1,
-              "padding.top": 0.0,
+              "padding.east": 0.5,
+              "padding.south": 0.1,
               "column_titles.south.height": 7,
               "column_titles.south.offset": 0.5,
               "column_titles.south.fontsize": 7,

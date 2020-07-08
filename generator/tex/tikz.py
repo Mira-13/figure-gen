@@ -281,13 +281,13 @@ def gen_space_helper(margin, parent_name, position):
     return gen_node_helper(position, opposite(position), width, height, name, parent_name, offset=0.0, offset_name=None, content='', fontsize='')
 
 def add_all_outer_paddings(data, str_appendix=''):
-    padding_nodes = add_outer_horizontal_padding(margin=data['padding']['left'], position='west', num_columns=data['num_columns'], 
+    padding_nodes = add_outer_horizontal_padding(margin=data['padding']['west'], position='west', num_columns=data['num_columns'], 
                                     has_title=(data['titles']['west']['width']!=0.0), has_row_field=(data['row_titles']['west']['width']!=0.0), str_appendix=str_appendix)
-    padding_nodes += add_outer_horizontal_padding(margin=data['padding']['right'], position='east', num_columns=data['num_columns'], 
+    padding_nodes += add_outer_horizontal_padding(margin=data['padding']['east'], position='east', num_columns=data['num_columns'], 
                                     has_title=(data['titles']['east']['width']!=0.0), has_row_field=(data['row_titles']['east']['width']!=0.0), str_appendix=str_appendix)
-    padding_nodes += add_outer_vertical_padding(margin=data['padding']['top'], position='north', num_rows=data['num_rows'], 
+    padding_nodes += add_outer_vertical_padding(margin=data['padding']['north'], position='north', num_rows=data['num_rows'], 
                                     has_title=(data['titles']['north']['height']!=0.0), has_column_field=(data['column_titles']['north']['height']!=0.0), str_appendix=str_appendix)
-    padding_nodes += add_outer_vertical_padding(margin=data['padding']['bottom'], position='south', num_rows=data['num_rows'], 
+    padding_nodes += add_outer_vertical_padding(margin=data['padding']['south'], position='south', num_rows=data['num_rows'], 
                                     has_title=(data['titles']['south']['height']!=0.0), has_column_field=(data['column_titles']['south']['height']!=0.0), str_appendix=str_appendix)
     return padding_nodes
 ### END space/padding nodes ###

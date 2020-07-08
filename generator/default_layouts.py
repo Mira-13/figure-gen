@@ -8,10 +8,10 @@ layouts = {
         "column_space": 0.8,
 
         "padding": {
-            "top": 0.0,
-            "left": 0.0,
-            "right": 0.0,
-            "bottom": 0.0
+            "north": 0.0,
+            "west": 0.0,
+            "east": 0.0,
+            "south": 0.0
         },
 
         "element_config": {

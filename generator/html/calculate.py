@@ -42,16 +42,16 @@ def img_pos(data, column, row):
     col_title_top = sum(size_of(data['column_titles'], 'north'))
     row_title_left = sum(size_of(data['row_titles'], 'west'))
 
-    top = data['padding']['top'] + title_top + col_title_top + (data['row_space'] + data['element_config']['img_height'])*(row-1)
-    left =  data['padding']['left'] + title_left + row_title_left + (data['column_space'] + data['element_config']['img_width'])*(column-1)
+    top = data['padding']['north'] + title_top + col_title_top + (data['row_space'] + data['element_config']['img_height'])*(row-1)
+    left =  data['padding']['west'] + title_left + row_title_left + (data['column_space'] + data['element_config']['img_width'])*(column-1)
     return top, left
 
 def titles_pos_and_size(data, direction):
     '''
     Note: this does not include element captions, yet. Because it was never really used in tikz or elsewhere.
     '''
-    offset_left = data['padding']['left']
-    offset_top =  data['padding']['top']
+    offset_left = data['padding']['west']
+    offset_top =  data['padding']['north']
 
     if direction == 'north' or direction == 'south':
         width = data['element_config']['img_width'] * data['num_columns'] + data['column_space']*(data['num_columns'] - 1)
@@ -59,7 +59,7 @@ def titles_pos_and_size(data, direction):
 
         offset_left += sum(size_of(data['titles'], 'west')) + sum(size_of(data['row_titles'], 'west'))
         if direction == 'south':
-            offset_top += data['padding']['top'] + sum(size_of(data['titles'], 'north')) + sum(size_of(data['column_titles'], 'north'))
+            offset_top += data['padding']['north'] + sum(size_of(data['titles'], 'north')) + sum(size_of(data['column_titles'], 'north'))
             offset_top += (data['row_space']*(data['num_rows'] - 1)) + data['element_config']['img_height'] * data['num_rows']
             offset_top += sum(size_of(data['column_titles'], 'south')) + size_of(data['titles'], 'south')[1]
        
@@ -94,8 +94,8 @@ def row_titles_pos(data, cur_row, direction):
     width = size_of(data['row_titles'], direction)[0]
     height = data['element_config']['img_height']
 
-    offset_left = data['padding']['left'] + sum(size_of(data['titles'], 'west'))
-    offset_top = data['padding']['top'] + sum(size_of(data['titles'], 'north')) + sum(size_of(data['column_titles'], 'north'))
+    offset_left = data['padding']['west'] + sum(size_of(data['titles'], 'west'))
+    offset_top = data['padding']['north'] + sum(size_of(data['titles'], 'north')) + sum(size_of(data['column_titles'], 'north'))
     offset_top += (data['row_space'] + data['element_config']['img_height']) * (cur_row - 1)
     if direction == 'east':
         offset_left += sum(size_of(data['row_titles'], 'west')) 
@@ -116,8 +116,8 @@ def column_titles_pos(data, cur_column, direction):
     width = data['element_config']['img_width']
     height = size_of(data['column_titles'], direction)[0]
 
-    offset_top = data['padding']['top'] + sum(size_of(data['titles'], 'north'))
-    offset_left = data['padding']['left'] + sum(size_of(data['row_titles'], 'west'))
+    offset_top = data['padding']['north'] + sum(size_of(data['titles'], 'north'))
+    offset_left = data['padding']['west'] + sum(size_of(data['row_titles'], 'west'))
     offset_left += (data['column_space'] + data['element_config']['img_width']) *(cur_column - 1)
     if direction == 'south':
         offset_top += sum(size_of(data['column_titles'], 'north'))

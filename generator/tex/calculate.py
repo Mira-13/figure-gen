@@ -59,8 +59,8 @@ def get_min_width(data):
     num_cols = data['num_columns']
 
     min_width = data['column_space'] * (num_cols - 1)# + (muliplied by num -1)
-    min_width += data['padding']['left']
-    min_width += data['padding']['right']
+    min_width += data['padding']['west']
+    min_width += data['padding']['east']
     min_width += sum_caption_spacing(data, 'east', num_cols)
     min_width += sum_caption_spacing(data, 'west', num_cols)
     min_width += sum_title_spacing(data, 'east')
@@ -78,8 +78,8 @@ def get_min_height(data):
     num_rows = data['num_rows']
 
     min_height = data['row_space'] * (num_rows -1)
-    min_height += data['padding']['top']
-    min_height += data['padding']['bottom']
+    min_height += data['padding']['north']
+    min_height += data['padding']['south']
     min_height += sum_caption_spacing(data, 'north', num_rows)
     min_height += sum_caption_spacing(data, 'south', num_rows)
     min_height += sum_title_spacing(data, 'north')
@@ -144,7 +144,7 @@ def get_total_width(data):
     total_width += sum_title_spacing(data, 'east')
     total_width += sum_title_spacing(data, 'west')
     
-    total_width += data['padding']['left'] + data['padding']['right']
+    total_width += data['padding']['west'] + data['padding']['east']
     return total_width 
 
 def get_total_height(data):
@@ -162,7 +162,7 @@ def get_total_height(data):
     total_height += sum_title_spacing(data, 'north')
     total_height += sum_title_spacing(data, 'south')
     
-    total_height += data['padding']['top'] + data['padding']['bottom']
+    total_height += data['padding']['north'] + data['padding']['south']
     return total_height
 
 def get_vertical_figure_title_height(data):
@@ -274,12 +274,12 @@ def get_height_paddings_with_titles(data):
     
     height_alignments = {
         'top': {
-            'padding': data['padding']['top'],
+            'padding': data['padding']['north'],
             'title+offset': sum_title_spacing(data, 'north'),
             'captions+offset': captions_with_offset_top
         },
         'bottom': {
-            'padding': data['padding']['bottom'],
+            'padding': data['padding']['south'],
             'title+offset': sum_title_spacing(data, 'south'),
             'captions+offset': captions_with_offset_bottom
         }
@@ -288,8 +288,8 @@ def get_height_paddings_with_titles(data):
 # END CALCULATIONS
 
 def align_heights(data_to_be_aligned, data):
-    data_to_be_aligned['padding']['top'] = data['padding']['top']
-    data_to_be_aligned['padding']['bottom'] = data['padding']['bottom']
+    data_to_be_aligned['padding']['north'] = data['padding']['north']
+    data_to_be_aligned['padding']['south'] = data['padding']['south']
 
     data_to_be_aligned['titles']['north']['height'] = data['titles']['north']['height']
     data_to_be_aligned['titles']['north']['offset'] = data['titles']['north']['offset']

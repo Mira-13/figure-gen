@@ -63,8 +63,8 @@ m_left = {
     "column_titles": {}, 
     "titles": {}, 
     "layout": {
-      "padding.right": 0.1,
-      "padding.top": 0.5,
+      "padding.east": 0.1,
+      "padding.north": 0.5,
       "titles.north.height": 8,
       "titles.north.background_color": [ 29, 60, 100 ],
       "titles.north.text_color": [ 255, 255, 250 ],
