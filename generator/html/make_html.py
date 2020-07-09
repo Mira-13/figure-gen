@@ -73,7 +73,7 @@ def combine(data, to_path, delete_gen_files=False):
 
     html_code += '\n' + '</div></body></html>'
 
-    with open(os.path.join(to_path, 'gen_html.html'), "w") as file:
+    with open(os.path.join(to_path, 'gen_figure.html'), "w") as file:
         file.write(html_code)
 
     chartjs.emit(to_path)

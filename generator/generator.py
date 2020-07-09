@@ -3,6 +3,7 @@ import numpy
 import os
 import copy
 import imageio
+import shutil
 #from skimage import img_as_ubyte
 
 from .tex import make_tex, calculate, combine_pdfs
@@ -247,16 +248,33 @@ def export_raw_img_to_png(module, module_idx):
                 png_export(img_raw, file_path)
                 elem["filename"] = file_path
 
-def horizontal_figure(modules, width_cm: float, backend, out_dir):
+def get_out_dir_and_backend(filename):
+    # Select the correct backend based on the filename
+    extension = os.path.splitext(filename)[1].lower()
+    if extension == ".pptx":
+        backend = 'pptx'
+    elif extension == ".html":
+        backend = 'html'
+    elif extension == ".pdf":
+        backend = 'tikz'
+    else:
+        raise ValueError(f"Could not derive backend from filename '{filename}'")
+    out_dir = os.path.dirname(filename)
+    return out_dir, backend, extension
+
+def horizontal_figure(modules, width_cm: float, filename):
     """ 
     Creates a figure by putting modules next to each other, from left to right.
     Aligns the height of the given modules such that they fit the given total width.
 
     Args:
         modules: a list of dictionaries, one for each module
-        backend: can be one of: 'tikz', 'pptx', 'html', 'sdl2'
+        backend: can be one of: 'tikz', 'pptx', 'html'
         out_dir: path to the folder that will contain the generated figure and data
     """
+
+    out_dir, backend, extension = get_out_dir_and_backend(filename)
+
     layouts = []
     for m in modules:
         layouts.append(modify_default_layout(m['layout'], m['type']))
@@ -271,4 +289,8 @@ def horizontal_figure(modules, width_cm: float, backend, out_dir):
         generated_data.append(backends[backend].generate(merged_data[i], to_path=out_dir, index=i))
 
     backends[backend].combine(generated_data, to_path=out_dir)
+
+    tempfile = os.path.join(out_dir, f"gen_figure{extension}")
+    shutil.copy(tempfile, filename)
+    os.remove(tempfile)
         
