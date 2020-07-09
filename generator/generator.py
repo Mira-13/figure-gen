@@ -189,7 +189,7 @@ def align_modules(modules, width):
         elif m["type"] == "plot":
             a = 1 / m['width_to_height_aspect_ratio']
         else:
-            raise "unsupported module type '" + module_data['type'] + "'"
+            raise "unsupported module type '" + m['type'] + "'"
         sum_inverse_aspect_ratios += 1/a
         inverse_aspect_ratios.append(1/a)
 
