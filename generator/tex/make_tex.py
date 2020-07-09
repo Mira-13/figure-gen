@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from . import tikz
 from . import calculate
@@ -12,8 +13,8 @@ def gen_content(data, str_appendix=''):
     A str_appendix is recommended if this script is used to combine the generated tikz code with another set of generated tikz code:
     Allowing to merge two or multiple generated tikz is somewhat in progress and I am not sure if and when this will be completely supported.
     '''
-    # img/element blocks 
-    # Usually an img/block consists only of an image node (with or without frames) and some paddings between other image nodes. 
+    # img/element blocks
+    # Usually an img/block consists only of an image node (with or without frames) and some paddings between other image nodes.
     # However, it can also contain a complex subset of nodes (caption titles on each side) - if so desired.
     content = tikz.gen_all_image_blocks(data, str_appendix)
 
@@ -25,7 +26,7 @@ def gen_content(data, str_appendix=''):
 
     # outer spacing
     content += tikz.add_all_outer_paddings(data, str_appendix)
-    
+
     # write into json height and width. # CAREFUL: NOT frames included if frame line width > paddings
     data['total_height'] = calculate.get_total_height(data)
     data['total_width'] = calculate.get_total_width(data)
@@ -42,7 +43,7 @@ def write_into_tex_file(path, body_content, file_name, background_color=[255,255
     header = documenttype + packages + font_packages + beginnig
     ending = '\n\\end{tikzpicture}\n\\end{document}'
     whole_content = header + body_content + ending
-    
+
     f = open(os.path.join(path, file_name), 'w')
     f.write(whole_content)
     f.close()
@@ -77,5 +78,10 @@ def generate(module_data, to_path, index, delete_gen_files=True):
 
     return pdf_filename
 
-def combine(data, to_path, delete_gen_files=True):
+def combine(data, filename, delete_gen_files=True):
+    to_path = os.path.dirname(filename)
     combine_pdfs.make_pdf(to_path, delete_gen_files=delete_gen_files)
+
+    tempfile = os.path.join(to_path, "gen_figure.pdf")
+    shutil.copy(tempfile, filename)
+    os.remove(tempfile)

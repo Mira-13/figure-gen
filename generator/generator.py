@@ -217,11 +217,10 @@ def align_modules(modules, width):
         else:
             pass
 
-def export_raw_img_to_png(module, module_idx):
+def export_raw_img_to_png(module, module_idx, path):
     if module['type'] != 'grid':
         return
 
-    path = os.path.join(os.path.dirname(__file__))
     for row in range(module["num_rows"]):
         for col in range(module["num_columns"]):
             elem = module["elements_content"][row][col]
@@ -281,14 +280,19 @@ def horizontal_figure(modules, width_cm: float, filename):
     merged_data = merge(modules, layouts)
     align_modules(merged_data, width_cm*10.)
 
+    # All .pngs for a "/a/b/figure.pdf" are in a folder "/a/b/figure_images"
+    image_path, _ = os.path.splitext(filename)
+    image_path += "_images"
+    if not os.path.exists(image_path):
+        os.makedirs(image_path)
+
+    # Export all .png images
     generated_data = []
     for i in range(len(modules)):
         if merged_data[i]['type'] != 'plot':
-            export_raw_img_to_png(merged_data[i], module_idx=i)
+            export_raw_img_to_png(merged_data[i], module_idx=i, path=image_path)
         generated_data.append(backends[backend].generate(merged_data[i], to_path=out_dir, index=i))
 
-    backends[backend].combine(generated_data, to_path=out_dir)
+    backends[backend].combine(generated_data, filename)
 
-    tempfile = os.path.join(out_dir, f"gen_figure{extension}")
-    shutil.copy(tempfile, filename)
-    os.remove(tempfile)
+    # TODO delete the image folder iff the backend is tikz and the .tex files are deleted, too

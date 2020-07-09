@@ -1,4 +1,4 @@
-import json
+import os
 from . import calculate
 
 def gen_module_unit_mm(width, height, offset_top=0, offset_left=0):
@@ -20,9 +20,9 @@ def _gen_border(element, width, height, pos_top, pos_left):
 
     return _gen_rectangle(pos_top, pos_left, width, height, frame['line_width'], frame['color'])
 
-def _gen_image(element, width, height, pos_top, pos_left):
-    img_block = '<img class="element" style="top: '+str(pos_top)+'mm; left: '+str(pos_left)+'mm; height: '+str(height)+'mm; width: '+str(width)+'mm;"' 
-    src = ' src="'+element['filename']+'"'
+def _gen_image(element, width, height, pos_top, pos_left, to_path):
+    img_block = '<img class="element" style="top: '+str(pos_top)+'mm; left: '+str(pos_left)+'mm; height: '+str(height)+'mm; width: '+str(width)+'mm;"'
+    src = ' src="' + os.path.relpath(element['filename'], to_path) + '"'
     return img_block + src + '/>' +'\n'
 
 def _gen_label(img_pos_top, img_pos_left, img_width, img_height, cfg, label_pos):
@@ -30,10 +30,10 @@ def _gen_label(img_pos_top, img_pos_left, img_width, img_height, cfg, label_pos)
         cfg = cfg[label_pos]
     except KeyError:
         return ''
-                
+
     alignment = label_pos.split('_')[-1]
     is_top = (label_pos.split('_')[0] == 'top')
-       
+
     rect_width, rect_height = cfg['width_mm'], cfg['height_mm']
 
     # determine the correct offsets depending on wether it is in the corner or center
@@ -66,7 +66,7 @@ def _gen_labels(element, img_width, img_height, img_pos_top, img_pos_left):
         cfg = element['label']
     except:
         return ''
-        
+
     result = ''
     for label_pos in ['top_center', 'top_left', 'top_right', 'bottom_center', 'bottom_left', 'bottom_right']:
         result += _gen_label(img_pos_top, img_pos_left, img_width, img_height, cfg, label_pos)
@@ -86,12 +86,12 @@ def _gen_markers(element, img_pos_top, img_pos_left, img_width_px, img_height_px
         for m in markers['list']:
             pos_top = img_pos_top + (m['pos'][1] * h_scale)
             pos_left = img_pos_left + (m['pos'][0] * w_scale)
-            result += _gen_rectangle(pos_top, pos_left, 
-                                     width = m['size'][0] * w_scale, height = m['size'][1] * h_scale, 
+            result += _gen_rectangle(pos_top, pos_left,
+                                     width = m['size'][0] * w_scale, height = m['size'][1] * h_scale,
                                      line_width_pt = markers['line_width'], color = m['color'])
     return result
 
-def gen_images(data):
+def gen_images(data, to_path):
     images = ''
     width = data['element_config']['img_width']
     height = data['element_config']['img_height']
@@ -101,7 +101,7 @@ def gen_images(data):
         col_idx = 1
         for element in row:
             pos_top, pos_left = calculate.img_pos(data, col_idx, row_idx)
-            images += _gen_image(element, width, height, pos_top, pos_left)
+            images += _gen_image(element, width, height, pos_top, pos_left, to_path)
             images += _gen_border(element, width, height, pos_top, pos_left)
             images += _gen_labels(element, width, height, pos_top, pos_left)
             images += _gen_markers(element, pos_top, pos_left, data['img_width_px'], data['img_height_px'], width, height)
@@ -121,14 +121,14 @@ def _title_container(position, size, rotation=0, bg_color=None, alignment='cente
         # Since we only allow 90° rotations, we can correct for that with a simple translation
         pos_top = position[0] + height / 2. - width / 2.
         pos_left = position[1] - height / 2. + width / 2.
-        
+
         # swap height and width
         height, width = width, height
 
         container = '<div class="title-container" style="top: '+str(pos_top)+'mm; left: '+str(pos_left)+'mm;'
         container +=' width: '+str(width)+'mm; height: '+str(height)+'mm; transform: rotate('+str(-rotation)+'deg);'
         container += color + '">' + '\n'
-    else: 
+    else:
         # only in this case we consider alignment and padding
         align = ''
         if alignment is not None and alignment != 'center':
@@ -210,7 +210,7 @@ def _row_col_titles(data, direction, title_properties, num, pos_fn):
 def gen_row_titles(data):
     result = ''
     for direction in ['east', 'west']:
-        def pos_fn (idx): 
+        def pos_fn (idx):
             return calculate.row_titles_pos(data, idx + 1, direction)
         result += _row_col_titles(data, direction, data['row_titles'], data['num_rows'], pos_fn) + '\n'
     return result
@@ -218,7 +218,7 @@ def gen_row_titles(data):
 def gen_column_titles(data):
     result = ''
     for direction in ['north', 'south']:
-        def pos_fn (idx): 
+        def pos_fn (idx):
             return calculate.column_titles_pos(data, idx + 1, direction)
         result += _row_col_titles(data, direction, data['column_titles'], data['num_columns'], pos_fn) + '\n'
     return result
