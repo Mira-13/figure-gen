@@ -18,9 +18,8 @@ backends = {
 }
 
 def png_export(img_raw, filename):
-    # TODO supress annoying warning: Lossy conversion from float32 to uint8 .. 
-    imageio.imwrite(filename, img_raw)
-    #io.imsave(os.path.join(filename,"%d_predict.png"%i),img_as_ubyte(img_raw))
+    clipped = numpy.clip(0, 255, img_raw * 255).astype('uint8')
+    imageio.imwrite(filename, clipped)
 
 def overwrite(name: list, val, layout: dict):
     if len(name) == 1:
@@ -66,20 +65,20 @@ def merge_data_into_layout(data, layout):
         for col in range(num_cols):
             elem = layout["elements_content"][row][col]
             data_elem = data["elements"][row][col]
-            
+
             try:
                 elem["label"] = data_elem["label"]
             except KeyError:
                 pass
 
-            # copy captions, if set            
+            # copy captions, if set
             for d in directions:
                 try:
                     caption = data_elem["captions"][d]
                 except:
                     caption = ""
                 elem[d] = caption
-    
+
             # add frame from user (optional, default: no frame)
             try:
                 frame = data_elem["frame"]
@@ -204,7 +203,7 @@ def align_modules(modules, width):
             w_fix = 0
             h_fix = 0
         sum_fixed_deltas += w_fix - h_fix * inverse_aspect_ratios[i]
-        i += 1 
+        i += 1
 
     height = (width - sum_fixed_deltas) / sum_inverse_aspect_ratios
 
@@ -263,7 +262,7 @@ def get_out_dir_and_backend(filename):
     return out_dir, backend, extension
 
 def horizontal_figure(modules, width_cm: float, filename):
-    """ 
+    """
     Creates a figure by putting modules next to each other, from left to right.
     Aligns the height of the given modules such that they fit the given total width.
 
@@ -293,4 +292,3 @@ def horizontal_figure(modules, width_cm: float, filename):
     tempfile = os.path.join(out_dir, f"gen_figure{extension}")
     shutil.copy(tempfile, filename)
     os.remove(tempfile)
-        
