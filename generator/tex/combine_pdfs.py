@@ -37,7 +37,7 @@ def create_tex_file(content, path, filename):
 
 def delete_files(path, files):
     for f in files:
-        os.remove(os.path.join(path, f))
+        os.remove(f)
 
 def make_pdf(path, search_for_filenames='gen_pdf*.pdf', list_packages=[], delete_gen_files=True):
     files = get_files(path, search_for_filenames)
