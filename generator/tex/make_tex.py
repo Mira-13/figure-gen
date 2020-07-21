@@ -35,12 +35,22 @@ def gen_content(data, str_appendix=''):
 
     return content
 
+def begin_tikz_document(background_color):
+    beginnig = '\\usetikzlibrary{backgrounds} \n'
+    beginnig += '\\begin{document}\n'
+    beginnig += '\\tikzstyle{background rectangle}=[fill='+ tikz.gen_tikZ_rgb255(background_color) + '] \n'
+    beginnig += '\\begin{tikzpicture}[show background rectangle,inner frame sep=0pt]\n\n'
+    return beginnig
+
+def create_header(background_color):
+    header = combine_pdfs.documentclass()
+    # used package 'libertine', but maybe let the user decide which font-family he wants
+    header += combine_pdfs.use_packages(["{comment}", "{amsmath}", "{tikz}", "[T1]{fontenc}", "{libertine}"]) 
+    header += begin_tikz_document(background_color)
+    return header
+
 def write_into_tex_file(path, body_content, file_name, background_color=[255,255,255]):
-    documenttype = '\\documentclass[varwidth=500cm, border=0pt]{standalone}\n'
-    packages = '\\usepackage[utf8]{inputenc} \n\\usepackage{comment} \n\\usepackage{amsmath} \n\\usepackage{graphicx} \n\\usepackage{tikz}\n'
-    font_packages = '\\usepackage[T1]{fontenc} \n\\usepackage{libertine}\n'
-    beginnig ='\\usetikzlibrary{backgrounds} \n\\begin{document} \n\\tikzstyle{background rectangle}=[fill='+ tikz.gen_tikZ_rgb255(background_color) + '] \n\\begin{tikzpicture}[show background rectangle,inner frame sep=0pt]\n\n'
-    header = documenttype + packages + font_packages + beginnig
+    header = create_header(background_color)
     ending = '\n\\end{tikzpicture}\n\\end{document}'
     whole_content = header + body_content + ending
 

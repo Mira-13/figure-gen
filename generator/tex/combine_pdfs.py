@@ -2,13 +2,17 @@ import glob
 import os
 from . import compile_tex
 
-def create_header(list_packages):
-    documentclass = "\\documentclass[varwidth=500cm, border=0pt]{standalone}\n"
+def documentclass():
+    return "\\documentclass[varwidth=500cm, border=0pt]{standalone}\n"
+
+def use_packages(list_packages):
     packages = ["{graphicx}", "[utf8]{inputenc}"]
     packages.extend(list_packages)
     usepackages = [r"\usepackage" + p + "\n" for p in packages]
-    header = documentclass + ''.join(usepackages) + '\\begin{document}\n'
-    return header 
+    return ''.join(usepackages)
+
+def begin_document():
+    return '\\begin{document}\n'
 
 def include_graphics(path, files):
     code = ['\includegraphics[]{' + f.replace('\\', '/') + '}%' for f in files]
@@ -20,10 +24,11 @@ def end_document():
     return '\end{document}'
 
 def create_tex_content(path, files, list_packages):
-    header = create_header(list_packages)
+    header = documentclass() + use_packages(list_packages)
+    beginning = begin_document()
     body = include_graphics(path, files)
     ending = end_document()
-    return header + body + ending
+    return header + beginning + body + ending
 
 def get_files(path, search_for_filenames):
     pattern = os.path.join(path, search_for_filenames)
