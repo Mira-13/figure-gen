@@ -2,6 +2,24 @@ import json
 from . import calculate
 
 # BEGIN minor utitities for TIKZ generation
+def text_umlaut_replacement():
+    return {
+        "ü": '\\\"u',
+        "ö": '\\\"o',
+        "ä": '\\\"a',
+        "Ü": '\\\"U',
+        "Ö": '\\\"O',
+        "Ä": '\\\"A',
+    }
+def replace_all_umlaute(text):
+    table = text_umlaut_replacement()
+
+    result = text
+    for (placeholder, value) in table.items():
+        result = result.replace(placeholder, value)
+
+    return result
+
 def read_optional(data, key, default=None):
     try:
         return data[key]
@@ -98,10 +116,12 @@ def gen_text_node(width, height, text, parent_name, fontsize, position='center',
     txt_color=''
     if text_color is not None and text_color!=[0,0,0]:
         txt_color='text='+gen_tikZ_rgb255(text_color)+', '
-
+    
+    paddedtext = replace_all_umlaute(text)
     # ensure that all lines are of equal height
-    paddedtext = text.replace("\n", "\\strut\\\\")
+    paddedtext = paddedtext.replace("\n", "\\strut\\\\")
     paddedtext += "\\strut"
+    
 
     if alignment == "left":
         alignment = "raggedright"
