@@ -10,7 +10,7 @@ in PPTX format we
  - ignore background colors
  - ignore element captions (north/east/south/west content of each img) as we didn't even use them once before
  - do not support 'dashed' frames - if a frame is 'dashed' the frame in pptx will be normal (but still has a frame)
- - only support text rotation by 0° and +-90°
+ - only support text rotation by 0° and +-90° (this is a limitation of python-pptx)
 '''
 
 class Error(Exception):
@@ -19,6 +19,22 @@ class Error(Exception):
 
 def generate(module_data, to_path, index, delete_gen_files=True):
     return module_data
+
+def place_modules(data, to_path, slide):
+    cur_width_mm = 0
+    idx = 0
+    for d in data:
+        if d['type'] == 'plot':
+            plot_png = os.path.join(to_path, f"plot{idx}.png")
+            make_plot.generate(d, to_path, f"plot{idx}.png")
+            place_element.add_image(slide, plot_png, calculate.mm_to_inch(d['total_width']), 0, calculate.mm_to_inch(cur_width_mm))
+            idx += 1
+        else:
+            place_element.images_and_frames_and_labels(slide, d, 1, cur_width_mm)
+            place_element.titles(slide, d, 1, cur_width_mm)
+            place_element.row_titles(slide, d, 1, cur_width_mm)
+            place_element.col_titles(slide, d, 1, cur_width_mm)
+        cur_width_mm += d['total_width']
 
 def combine(data, filename, delete_gen_files=True):
     to_path = os.path.dirname(filename)
@@ -37,25 +53,11 @@ def combine(data, filename, delete_gen_files=True):
     prs.slide_height = Inches(calculate.mm_to_inch(figure_height))
 
     prs.slide_width = Inches(calculate.mm_to_inch(sum_total_width_mm))
-    width_scaling = 1
     blank_slide_layout = prs.slide_layouts[6]
     slide = prs.slides.add_slide(blank_slide_layout)
 
-    # generate content
-    cur_width_mm = 0
-    idx = 0
-    for d in data:
-        if d['type'] == 'plot':
-            filename = os.path.join(to_path, f"plot{idx}.png")
-            make_plot.generate(d, to_path, f"plot{idx}.png")
-            place_element.add_image(slide, filename, calculate.mm_to_inch(d['total_width']), 0, calculate.mm_to_inch(cur_width_mm))
-            idx += 1
-        else:
-            place_element.images_and_frames_and_labels(slide, d, width_scaling, cur_width_mm)
-            place_element.titles(slide, d, width_scaling, cur_width_mm)
-            place_element.row_titles(slide, d, width_scaling, cur_width_mm)
-            place_element.col_titles(slide, d, width_scaling, cur_width_mm)
-        cur_width_mm += d['total_width']
+    # place modules and their corresponding elements
+    place_modules(data, to_path, slide)
 
     # save
     prs.save(filename)

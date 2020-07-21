@@ -5,7 +5,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{dd5dfec0-ea13-4b0d-88c9-5c91fe12712f}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>__main__.py</StartupFile>
+    <StartupFile>
+    </StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -60,7 +61,6 @@
     <Compile Include="tex\tikz.py" />
     <Compile Include="tex\__init__.py" />
     <Compile Include="__init__.py" />
-    <Compile Include="__main__.py" />
     <Compile Include="util\image.py" />
     <Compile Include="util\__init__.py" />
   </ItemGroup>
