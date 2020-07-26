@@ -114,6 +114,6 @@ modules = [
 ]
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=18., backend='pptx', out_dir=".")
-    generator.horizontal_figure(modules, width_cm=18., backend='tikz', out_dir=".")
-    generator.horizontal_figure(modules, width_cm=18., backend='html', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=18., filename='multimodule_test.pdf')
+    generator.horizontal_figure(modules, width_cm=18., filename='multimodule_test.pptx')
+    generator.horizontal_figure(modules, width_cm=18., filename='multimodule_test.html')

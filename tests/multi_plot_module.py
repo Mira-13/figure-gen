@@ -12,6 +12,6 @@ combined_modules = some_modules
 combined_modules.append(plot_module)
 
 if __name__ == "__main__":
-    generator.horizontal_figure(combined_modules, width_cm=18., backend='pptx', out_dir=".")
-    generator.horizontal_figure(combined_modules, width_cm=18., backend='tikz', out_dir=".")
-    generator.horizontal_figure(combined_modules, width_cm=18., backend='html', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=18., filename='multiplot_test.pdf')
+    generator.horizontal_figure(modules, width_cm=18., filename='multiplot_test.pptx')
+    generator.horizontal_figure(modules, width_cm=18., filename='multiplot_test.html')

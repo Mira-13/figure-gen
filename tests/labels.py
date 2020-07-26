@@ -25,7 +25,7 @@ elements = [ # rows
                     "fontsize": 5,
                     "line_space": 1.2,
                     "text_color": [0,0,0],
-                    "background_color": [200, 200, 200],
+                    "background_color": None,
                     "width_mm": 15.,
                     "height_mm": 5.,
                     "offset_mm": [5.2, 2.0],
@@ -112,6 +112,6 @@ modules = [
 ]
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=18., backend='tikz', out_dir=".")
-    generator.horizontal_figure(modules, width_cm=18., backend='pptx', out_dir=".")
-    generator.horizontal_figure(modules, width_cm=18., backend='html', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=18., filename='label_test.pdf')
+    generator.horizontal_figure(modules, width_cm=18., filename='label_test.pptx')
+    generator.horizontal_figure(modules, width_cm=18., filename='label_test.html')

@@ -5,12 +5,12 @@ import pyexr
 import json
 import numpy as np
 
-idx = 3
+idx = 2
 scene = ['bookshelf', 'glossy-kitchen', 'pool', 'veach-door'] #'bookshelf'
 seconds = [120, 90, 60, 60] #120
 baseline = 2
 method_list = ['path', 'upsmcmc', 'radiance', 'full', None]
-method_titles = ['PT', 'VCM+MLT', 'M\\\"uller et al.', 'Ours', 'Reference']
+method_titles = ['PT', 'VCM+MLT', 'Müller et al.', 'Ours', 'Reference'] # LaTeX 'M\\\"uller et al.'
 xticks = [
     [3, 20, s] for s in seconds
     ]
@@ -240,7 +240,7 @@ modules = [
               "padding.south": 0.1,
               "titles.south.height": 7,
               "titles.south.offset": 0.5,
-              "titles.south.fontsize": 7
+              "titles.south.fontsize": 8
         }
     },
     { 
@@ -254,7 +254,7 @@ modules = [
               "padding.south": 0.1,
               "column_titles.south.height": 7,
               "column_titles.south.offset": 0.5,
-              "column_titles.south.fontsize": 7,
+              "column_titles.south.fontsize": 8,
 
               "column_space": 0.8,
               "row_space": 0.8
@@ -267,11 +267,11 @@ modules = [
         "axis_labels": axis_labels,
         "axis_properties": get_axis_properties(xticks=xticks[idx]),
         "markers": get_vertical_lines(vline_positions[idx]),
-        "layout": {}
+        "layout": {"width_to_height_aspect_ratio": 1.15}
     }
 ]
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=18., backend='tikz', out_dir=".")
-    generator.horizontal_figure(modules, width_cm=18., backend='pptx', out_dir=".")
-    generator.horizontal_figure(modules, width_cm=18., backend='html', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=25., filename='siggraph2020/'+scene[idx]+'.pdf')
+    generator.horizontal_figure(modules, width_cm=25., filename='siggraph2020/'+scene[idx]+'.pptx')
+    generator.horizontal_figure(modules, width_cm=25., filename='siggraph2020/'+scene[idx]+'.html')

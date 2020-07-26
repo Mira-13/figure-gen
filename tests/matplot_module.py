@@ -77,6 +77,6 @@ modules = [
 ]
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=11., backend='tikz', out_dir=".")
-    generator.horizontal_figure(modules, width_cm=11., backend='pptx', out_dir=".")
-    generator.horizontal_figure(modules, width_cm=11., backend='html', out_dir=".")
+    generator.horizontal_figure(modules, width_cm=11., filename='matplot_test.pdf')
+    generator.horizontal_figure(modules, width_cm=11., filename='matplot_test.pptx')
+    generator.horizontal_figure(modules, width_cm=11., filename='matplot_test.html')
