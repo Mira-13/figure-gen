@@ -250,3 +250,22 @@ def col_titles(slide, data, factor, offset_left_mm, offset_top_mm=0.0):
             return calculate.column_titles_pos(data, idx + 1, direction, factor, offset_left_mm, offset_top_mm)
         _row_col_titles(slide, data, direction, data['column_titles'], data['num_columns'], pos_fn)
 
+def south_captions(slide, data, factor, offset_left_mm, offset_top_mm=0.0):
+    '''
+    #new feature: allow south captions (below) each image.
+    For now, we ignore the background-color for those captions.
+    '''
+    capt_prop = data['element_config']['captions']['south']
+    size = calculate.img_size_inches(data, factor)[0], calculate.mm_to_inch(capt_prop['height']) * factor
+    if size[0] == 0.0:
+        return
+    
+    rowIndex = 1
+    for row in data['elements_content']:
+        colIndex = 1
+        for elem in row:
+            position = calculate.south_caption_pos(data, colIndex, rowIndex, factor, offset_left_mm, offset_top_mm)
+            txt_content = elem['captions']['south']
+            add_text(slide, *position, *size, txt_content, capt_prop['rotation'], capt_prop['fontsize'], capt_prop['text_color']) 
+            colIndex += 1
+        rowIndex += 1

@@ -460,14 +460,13 @@ def gen_all_image_blocks(data, str_appendix=''):
     rowIndex = 1
     for row in data['elements_content']:
         colIndex = 1
-        if rowIndex<=data['num_rows']:
-            for elem in row:
-                if colIndex<=data['num_columns']:
-                    content += gen_one_img_block(data['img_width_px'], data['img_height_px'], element_config=data['element_config'], 
-                                                element_content=elem, row=rowIndex, column=colIndex, row_spacing=data['row_space'],
-                                                column_spacing=data['column_space'], str_appendix=str_appendix)
-                    colIndex += 1
-            rowIndex += 1
+        for elem in row:
+            if colIndex<=data['num_columns']:
+                content += gen_one_img_block(data['img_width_px'], data['img_height_px'], element_config=data['element_config'], 
+                                            element_content=elem, row=rowIndex, column=colIndex, row_spacing=data['row_space'],
+                                            column_spacing=data['column_space'], str_appendix=str_appendix)
+                colIndex += 1
+        rowIndex += 1
     return content
 
 def draw_rectangle_on_img(parent_name, crop_num, parent_width_factor, parent_height_factor,
@@ -559,7 +558,8 @@ def gen_one_img_block(img_width_px, img_height_px, element_config, element_conte
     content directly around the img.
     '''
     img_width, img_height = element_config['img_width'], element_config['img_height']
-    
+    e_c = element_content['captions']
+
     north_config = element_config['captions']['north']
     south_config = element_config['captions']['south']
     east_config = element_config['captions']['east']
@@ -575,13 +575,13 @@ def gen_one_img_block(img_width_px, img_height_px, element_config, element_conte
 
         if row == 1: #create starting node
             tikz_content += gen_plain_node(img_width, north_config['height'], name='north-field-'+append)
-            if element_content['north']!='':
-                tikz_content += gen_text_node(img_width, north_config['height'], element_content['north'], parent_name='north-field-'+append, position='center', 
+            if e_c['north']!='':
+                tikz_content += gen_text_node(img_width, north_config['height'], e_c['north'], parent_name='north-field-'+append, position='center', 
                                                   anchor='center', fontsize=gen_LaTeX_fontsize(north_config['fontsize'], north_config['line_space']), 
                                                   alignment=txt_align, rotation=north_config['rotation'], text_color=north_config['text_color'])
         else: #coming from top, meaning, we create a new row with corresponding spacing
             tikz_content += gen_node_south(img_width, north_config['height'], name='north-field-'+append, parent_name='south-field-'+str(row-1)+'-'+str(column), 
-                                        offset=row_spacing, offset_name='row-space-'+str(row-1)+'-'+str(row), content=element_content['north'], 
+                                        offset=row_spacing, offset_name='row-space-'+str(row-1)+'-'+str(row), content=e_c['north'], 
                                         fontsize=gen_LaTeX_fontsize(north_config['fontsize'], north_config['line_space']), 
                                         alignment=txt_align, rotate_text=north_config['rotation'], background_color=None, text_color=north_config['text_color'])
 
@@ -594,12 +594,12 @@ def gen_one_img_block(img_width_px, img_height_px, element_config, element_conte
         tikz_content += gen_img_node(img_width, img_height, name='img-'+append, parent_name=parent_name, position='south', anchor='north', 
                                     img_path=element_content['filename'], additional_params='')
         tikz_content += gen_node_west(west_config['width'], img_height, name='west-field-'+append, parent_name='img-'+append, offset=west_config['offset'], offset_name=None, 
-                                  content=element_content['west'], fontsize=gen_LaTeX_fontsize(west_config['fontsize'], west_config['line_space']), 
+                                  content=e_c['west'], fontsize=gen_LaTeX_fontsize(west_config['fontsize'], west_config['line_space']), 
                                   alignment=txt_align, rotate_text=west_config['rotation'], background_color=None, text_color=west_config['text_color'])
     
     else: # creating img block from left 
         tikz_content += gen_node_east(west_config['width'], img_height, name='west-field-'+append, parent_name='east-field-'+str(row)+'-'+str(column-1), offset=column_spacing, 
-                                  offset_name='column-space-'+str(row)+'-'+str(column-1)+'-'+str(column), content=element_content['west'], 
+                                  offset_name='column-space-'+str(row)+'-'+str(column-1)+'-'+str(column), content=e_c['west'], 
                                   fontsize=gen_LaTeX_fontsize(west_config['fontsize'], west_config['line_space']), 
                                   alignment=txt_align, rotate_text=west_config['rotation'], background_color=None, text_color=west_config['text_color'])
 
@@ -612,16 +612,16 @@ def gen_one_img_block(img_width_px, img_height_px, element_config, element_conte
         tikz_content += gen_img_node(img_width, img_height, name='img-'+append, parent_name=parent_name, position='east', anchor='west', 
                                      img_path=element_content['filename'], additional_params='')
         tikz_content += gen_node_north(img_width, height=north_config['height'], name='north-field-'+append, parent_name='img-'+append, offset=north_config['offset'], 
-                                       offset_name=None, content=element_content['north'], fontsize=gen_LaTeX_fontsize(north_config['fontsize'], north_config['line_space']), 
+                                       offset_name=None, content=e_c['north'], fontsize=gen_LaTeX_fontsize(north_config['fontsize'], north_config['line_space']), 
                                        alignment=txt_align, rotate_text=north_config['rotation'], background_color=None, text_color=north_config['text_color'])
     
     #creating east and south nodes are independent of where the parent node was connected
     tikz_content += gen_node_east(east_config['width'], img_height, name='east-field-'+append, parent_name='img-'+append, offset=east_config['offset'], offset_name=None, 
-                              content=element_content['east'], fontsize=gen_LaTeX_fontsize(east_config['fontsize'],east_config['line_space']), alignment=txt_align, 
+                              content=e_c['east'], fontsize=gen_LaTeX_fontsize(east_config['fontsize'],east_config['line_space']), alignment=txt_align, 
                               rotate_text=east_config['rotation'], background_color=None, text_color=east_config['text_color'])
 
     tikz_content += gen_node_south(img_width, height=south_config['height'], name='south-field-'+append, parent_name='img-'+append, offset=south_config['offset'], 
-                                offset_name=None, content=element_content['south'], fontsize=gen_LaTeX_fontsize(south_config['fontsize'],south_config['line_space']), 
+                                offset_name=None, content=e_c['south'], fontsize=gen_LaTeX_fontsize(south_config['fontsize'],south_config['line_space']), 
                                 alignment=txt_align, rotate_text=south_config['rotation'], background_color=None, text_color=south_config['text_color'])
 
     marker_specs = read_optional(element_content, 'marker', default='')

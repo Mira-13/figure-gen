@@ -36,6 +36,7 @@ def html_header_and_styles():
 def gen_grid_content(module_data, to_path):
     body = ''
     body += html_element.gen_images(module_data, to_path)
+    body += html_element.gen_south_captions(module_data)
     body += html_element.gen_titles(module_data)
     body += html_element.gen_row_titles(module_data)
     body += html_element.gen_column_titles(module_data)

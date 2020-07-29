@@ -72,13 +72,14 @@ def merge_data_into_layout(data, layout):
                 pass
 
             # copy captions, if set
+            elem["captions"] = {}
             for d in directions:
                 try:
                     caption = data_elem["captions"][d]
                 except:
                     caption = ""
-                elem[d] = caption
-
+                elem["captions"][d] = caption
+            
             # add frame from user (optional, default: no frame)
             try:
                 frame = data_elem["frame"]

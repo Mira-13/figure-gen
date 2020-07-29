@@ -8,7 +8,7 @@ from . import place_element, calculate
 '''
 in PPTX format we
  - ignore background colors
- - ignore element captions (north/east/south/west content of each img) as we didn't even use them once before
+ - For now, allow ONLY south captions for each img: we ignore element captions of north/east/west content of each img as we didn't even use them once before
  - do not support 'dashed' frames - if a frame is 'dashed' the frame in pptx will be normal (but still has a frame)
  - only support text rotation by 0° and +-90° (this is a limitation of python-pptx)
 '''
@@ -34,6 +34,7 @@ def place_modules(data, to_path, slide):
             place_element.titles(slide, d, 1, cur_width_mm)
             place_element.row_titles(slide, d, 1, cur_width_mm)
             place_element.col_titles(slide, d, 1, cur_width_mm)
+            place_element.south_captions(slide, d, 1, cur_width_mm)
         cur_width_mm += d['total_width']
 
 def combine(data, filename, delete_gen_files=True):

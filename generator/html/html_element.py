@@ -199,7 +199,6 @@ def _row_col_titles(data, direction, title_properties, num, pos_fn):
         for i in range(num):
             pos, size = pos_fn(i)
             if size[0] != 0.0 and size[1] != 0.0:
-                #result += add_text(t['fontsize'], t['text_color'] + '\n'
                 result += _title_container(pos, size, t['rotation'], bg_colors[i])
 
                 if t['content'][i] != '':
@@ -221,4 +220,29 @@ def gen_column_titles(data):
         def pos_fn (idx):
             return calculate.column_titles_pos(data, idx + 1, direction)
         result += _row_col_titles(data, direction, data['column_titles'], data['num_columns'], pos_fn) + '\n'
+    return result
+
+def gen_south_captions(data):
+    '''
+    South caption: each image can have it's own caption below the image.
+    '''
+    result = ''
+    capt_prop = data['element_config']['captions']['south']
+    size = data['element_config']['img_width'], capt_prop['height'] 
+    if size[0] == 0.0:
+        return result
+    
+    rowIndex = 1
+    for row in data['elements_content']:
+        colIndex = 1
+        for elem in row:
+            pos = calculate.south_caption_pos(data, colIndex, rowIndex)
+            txt_content = elem['captions']['south']
+            if txt_content != '':
+                result += _title_container(pos, size, capt_prop['rotation'], None)
+                result += _title_content(txt_content, capt_prop['fontsize'], capt_prop['text_color'])
+            result += '\n'
+
+            colIndex += 1
+        rowIndex += 1
     return result
