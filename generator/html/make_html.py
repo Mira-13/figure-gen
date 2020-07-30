@@ -74,7 +74,7 @@ def combine(data, filename, delete_gen_files=False):
         offset_left += module['total_width']
         module_index += 1
 
-    html_code += '\n' + '</div></body></html>'
+    html_code += '\n' + '</body></html>'
 
     with open(filename, "w") as file:
         file.write(html_code)
