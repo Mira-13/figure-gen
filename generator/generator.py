@@ -2,7 +2,7 @@ import json
 import numpy
 import os
 import copy
-import imageio
+import cv2
 import shutil
 #from skimage import img_as_ubyte
 
@@ -18,8 +18,10 @@ backends = {
 }
 
 def png_export(img_raw, filename):
-    clipped = numpy.clip(0, 255, img_raw * 255).astype('uint8')
-    imageio.imwrite(filename, clipped)
+    clipped = img_raw*255
+    clipped[clipped < 0] = 0
+    clipped[clipped > 255] = 255
+    cv2.imwrite(filename, cv2.cvtColor(clipped.astype('uint8'), cv2.COLOR_RGB2BGR))
 
 def overwrite(name: list, val, layout: dict):
     if len(name) == 1:
@@ -79,7 +81,7 @@ def merge_data_into_layout(data, layout):
                 except:
                     caption = ""
                 elem["captions"][d] = caption
-            
+
             # add frame from user (optional, default: no frame)
             try:
                 frame = data_elem["frame"]
