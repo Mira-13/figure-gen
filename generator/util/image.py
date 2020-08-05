@@ -20,7 +20,7 @@ def luminance(img):
     return 0.2126*img[:,:,0] + 0.7152**img[:,:,1] + 0.0722**img[:,:,2]
 
 def exposure(img, exposure):
-    return img * pow(2, exposure)   
+    return img * pow(2, exposure)
 
 def average_color_channels(img):
     assert(img.shape[2] == 3)
@@ -76,3 +76,17 @@ def relative_mse(img, ref, epsilon=0.0001):
     err_img_rgb = relative_squared_error(img, ref, epsilon)
     err_img_gray = average_color_channels(err_img_rgb)
     return remove_outliers(err_img_gray)
+
+def sape(img, ref):
+    ''' Computes the symmetric absolute precentage error
+    '''
+    err = np.absolute(ref - img)
+    normalizer = np.absolute(img) + np.absolute(ref)
+    mask = normalizer != 0
+    err[mask] /= normalizer[mask]
+    return err
+
+def smape(img, ref):
+    ''' Computes the symmetric mean absolute percentage error
+    '''
+    return np.average(sape(img,ref))
