@@ -15,75 +15,56 @@ images = [
     generator.util.image.lin_to_srgb(pyexr.read("images//yellow.exr"))
 ]
 
-elements = [ # rows
-    [ # first row
-        {
-            "image": images[0],
-            "crop_marker": {
-                "line_width": 1.0, "dashed": False, 
-                "list": [
-                    { "pos": [32,12], "size": [15,10], "color": [242, 113, 250] },
-                    { "pos": [1,1], "size": [15,10], "color": [50,230,10] }
-                ]
-            }
-        },
-        {
-            "image": images[1],
-            "captions": {
-                "north": "North Caption",
-                "south": "Yellow"
-            },
-            "frame": { "line_width": 5.0, "color": [50,230,10] },
-        },
-    ] # end first row
-]
+# ------ create 'empty' Grid with num_rows, num_cols ---------
+grid = generator.Grid(2, 3)
+layout = grid.get_layout()
+layout.set_padding(top=0.5, bottom=1.5)
 
-column_titles = {
-    "north": { 
-        "text_color": [0,0,0],
-        "background_colors": [[10, 10, 200], [255, 200, 10]],
-        "content": [ "Blue", "Yellow" ]
-    }
-}
+# fill grid with image data
+e1 = grid.get_element(0,0).set_image(images[0])
+e2 = grid.get_element(0,1).set_image(images[1])
+e3 = grid.get_element(0,2).set_image(images[0])
+e4 = grid.get_element(1,0).set_image(images[1])
+e5 = grid.get_element(1,1).set_image(images[0])
+e6 = grid.get_element(1,2).set_image(images[1])
 
-row_titles = {
-    "west": { 
-        "text_color": [0,0,0],
-        "background_colors": [30, 255, 255],
-        "content": [ "Awesome pictures" ]
-    }
-}
+# marker (default marker props)
+e1.set_marker([32,12], [15,10], [242, 113, 250])
+e1.set_marker([1,1], [15,10], [50,230,10])
 
-titles = {
-    "north": "North\nTitle",
-    "south": "South Title",
-    "east": "East Title",
-    "west": "West Title"
-}
+# frame
+e2.set_frame(linewidth=2., rgb=[50,230,10])
 
-modules = [
-    { 
-        "type": "grid",
-        "elements": elements, 
-        "row_titles": row_titles, 
-        "column_titles": column_titles, 
-        "titles": titles, 
-        "layout": {
-          "padding.east": 0.1,
-          "padding.north": 0.5,
-          "titles.north.height": 8,
-          "titles.north.background_color": [ 29, 60, 100 ],
-          "titles.north.text_color": [ 255, 255, 250 ],
-          "column_titles.north.width": 4,
-          "column_titles.north.offset": 2,
+# subtitles for specific elements
+e1.set_caption('hallo!')
+e2.set_caption('und')
+e3.set_caption('tschau!tschau!')
+e4.set_caption('hallo!')
+e5.set_caption('und')
+e6.set_caption('tschau!tschau!')
+layout.set_caption(height_mm=4.0, fontsize=9, txt_color=[33,113,12])
 
-          "column_space": 1,
-          "row_space": 2
-        }
-    }
-]
+# labels (2 examples, each element can have in total 6 labels on each valid position)
+e1.set_label("hey", pos='bottom_center', width_mm=6., height_mm=4.0, offset_mm=[1.0, 1.0], 
+                  fontsize=9, bg_color=[255,255,255])
+e1.set_label("hoh", pos='top_right', width_mm=6., height_mm=4.0, offset_mm=[1.0, 1.0], 
+                  fontsize=9, bg_color=[255,255,255])
+
+# grid specific titles
+grid.set_title('top', 'My Title')
+layout.set_title('top', 4., offset_mm=2.,fontsize=12, bg_color=[133,213,112])
+
+grid.set_title('left', 'My Title')
+layout.set_title('left', 4., offset_mm=2.,fontsize=12, bg_color=[133,213,112])
+
+# Row and column titles
+grid.set_row_titles('left', ['Row Title', 'are', 'The Best'])
+layout.set_row_titles('left', 10., offset_mm=1., fontsize=9, txt_rotation=0, bg_color=[[200, 180, 220],[133,213,112]])
+
+grid.set_col_titles('north', ['Col Titles', 'are', 'The Best'])
+#layout.set_col_titles('north', 10., offset_mm=1., fontsize=9, bg_color=[200, 180, 220])
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=28., filename='singlemodule_test.pdf')
-    generator.horizontal_figure(modules, width_cm=28., filename='singlemodule_test.pptx')
-    generator.horizontal_figure(modules, width_cm=28., filename='singlemodule_test.html')
+    generator.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.pdf')
+    generator.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.pptx')
+    generator.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.html')

@@ -1,116 +1,66 @@
 import copy
+import numpy as np
+import pyexr
 import single_module
 import generator
 import generator.util
 
-elem2 = [ # rows
-    [ # first row
-        {
-            "image": single_module.images[1],
-            "crop_marker": {
-                "line_width": 1.0, "dashed": False, 
-                "list": [
-                    { "pos": [32,12], "size": [15,10], "color": [242, 113, 250] }
-                ]
-            }
-        },
-        {
-            "image": single_module.images[0],
-            "captions": {
-                "north": "North Caption",
-                "south": "Yellow"
-            },
-            "frame": { "line_width": 1.0, "color": [50,230,10] },
-        },
-    ], # end first row
-    [ # second row
-        {
-            "image": single_module.images[0],
-            "crop_marker": {
-                "line_width": 1.0, "dashed": True, 
-                "list": [
-                    { "pos": [32,12], "size": [15,10], "color": [242, 113, 250] }
-                ]
-            }
-        },
-        {
-            "image": single_module.images[1],
-            "captions": {
-                "north": "North Caption",
-                "south": "Yellow"
-            },
-            "frame": { "line_width": 1.0, "color": [50,230,10] },
-        },
-    ], # end second row
+# generate test images
+blue = np.tile([0.2,0.3,0.9], (32, 64, 1))
+yellow = np.tile([0.9,0.8,0.2], (32, 64, 1))
+pyexr.write("images//blue.exr", blue)
+pyexr.write("images//yellow.exr", yellow)
+
+# load the two images
+images = [
+    generator.util.image.lin_to_srgb(pyexr.read("images//blue.exr")),
+    generator.util.image.lin_to_srgb(pyexr.read("images//yellow.exr"))
 ]
 
-column_titles = {
-    "south": { 
-        "text_color": [0,0,0],
-        "background_colors": [[10, 10, 200], [255, 200, 10]],
-        "content": [ "Blue", "Yellow" ]
-    }
-}
+# ---- Grid Module ----
+grid0 = generator.Grid(1, 1)
+grid0.get_layout().set_padding(right=0.5)
+e0 = grid0.get_element(0,0).set_image(images[1])
 
-row_titles = {
-    "east": { 
-        "text_color": [0,0,0],
-        "background_colors": [255, 255, 255],
-        "content": [ "Awesome pictures 1", "Awesome pictures 2" ]
-    }
-}
+# ---- Grid Module ----
+grid1 = generator.Grid(2, 2)
+layout1 = grid1.get_layout()
+layout1.set_padding(top=0.5, bottom=1.5, right=0.5)
 
-titles = {
-    "north": "North Title",
-    "south": "South Title",
-    "east": "East Title",
-    "west": "West Title"
-}
+e1_1 = grid1.get_element(0,0).set_image(images[1])
+e1_1.set_marker(pos=[32,12], size=[15,10], rgb=[242, 113, 250])
+e1_1.set_marker_properties(1.)
 
-m2 = { 
-    "type": "grid",
-    "elements": elem2, 
-    "row_titles": row_titles, 
-    "column_titles": column_titles, 
-    "titles": titles, 
-    "layout": {
-      "padding.right": 0.1,
-      "padding.top": 0.5,
-      "titles.north.height": 8,
-      "titles.north.background_color": [ 29, 60, 100 ],
-      "titles.north.text_color": [ 255, 255, 250 ],
-      "column_titles.north.width": 4,
-      "column_titles.north.offset": 2,
+e1_2 = grid1.get_element(0,1).set_image(images[0])
+e1_2.set_frame(1., [50,230,10])
+e1_2.set_caption('Yellow')
 
-      "column_space": 1,
-      "row_space": 2
-    }
-}
+e1_4 = grid1.get_element(1,1).set_image(images[1])
+e1_4.set_marker(pos=[32,12], size=[15,10], rgb=[242, 113, 250])
+e1_4.set_marker_properties(1.)
 
-m3 = {
-    "type": "grid",
-    "elements":[[{ "image": single_module.images[0]}]],
-    "row_titles": row_titles, 
-    "column_titles": column_titles, 
-    "titles": titles, 
-    "layout": {
-      "padding.east": 0.1,
-      "padding.north": 0.5,
-      "titles.north.height": 8,
-      "titles.north.background_color": [ 29, 60, 100 ],
-      "titles.north.text_color": [ 255, 255, 250 ],
-      "column_titles.north.width": 4,
-      "column_titles.north.offset": 2,
+e1_3 = grid1.get_element(1,0).set_image(images[0])
+e1_3.set_frame(1., [50,230,10])
+e1_3.set_caption('Yellow')
 
-      "column_space": 1,
-      "row_space": 2
-    }
-}
+grid1.set_col_titles('south', ['Blue', 'Yellow'])
+layout1.set_col_titles('south', field_size_mm=6.,bg_color=[[10, 10, 200], [255, 200, 10]])
 
+grid1.set_row_titles('east', ['Awesome Pic 1', 'Awesome Pic 2'])
+layout1.set_row_titles('east', field_size_mm=3. ,bg_color=[10, 10, 200])
+
+grid1.set_title('north', 'North Title')
+
+
+# ---- Grid Module ----
+grid2 = single_module.grid
+
+
+# ------ ALL ------
 modules = [
-    copy.deepcopy(single_module.modules[0]),
-    m2,
-    m3
+    grid0,
+    grid1,
+    grid2
 ]
 
 if __name__ == "__main__":

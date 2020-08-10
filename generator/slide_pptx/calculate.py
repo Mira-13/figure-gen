@@ -38,21 +38,6 @@ def _get_size(space, offset):
         return 0.0, 0.0
     return space, offset # TODO refactor: use named values (dict or class)
 
-#def south_caption_pos(data, column, row, factor, offset_left_mm=0.0, offset_top_mm=0.0):
-#    '''
-#    #new feature: allows south titles for each image element
-#    TODO remove code duplication (similarities with img_pos)
-#    '''
-#    title_top = sum(size_of(data['titles'], 'north'))
-#    title_left = sum(size_of(data['titles'], 'west'))
-#    col_title_top = sum(size_of(data['column_titles'], 'north'))
-#    row_title_left = sum(size_of(data['row_titles'], 'west'))
-#    img_south_capt = sum(size_of(data['element_config']['captions'], 'south')) * (row-1) #new
-#    top = offset_top_mm + data['padding']['north'] + title_top + col_title_top + (data['row_space'] + data['element_config']['img_height'])*(row-1) + img_south_capt #new
-#    top += 
-#    left = offset_left_mm + data['padding']['west'] + title_left + row_title_left + (data['column_space'] + data['element_config']['img_width'])*(column-1)
-#    return mm_to_inch(top) * factor, mm_to_inch(left) * factor
-
 def img_pos(data, column, row, factor, offset_left_mm=0.0, offset_top_mm=0.0):
     '''
     Note: this does not include element captions, yet. Because it was never really used in tikz or elsewhere.
@@ -96,9 +81,11 @@ def titles_pos(data, direction, factor, offset_left_mm=0.0, offset_top_mm=0.0):
 
     elif direction == 'east' or direction == 'west':
         height = data['element_config']['img_height'] * data['num_rows'] + data['row_space']*(data['num_rows'] - 1)
+        height += sum(size_of(data['element_config']['captions'], 'south')) * (data['num_rows'] -1) #new
         width = size_of(data['titles'], direction)[0]
 
         offset_top += sum(size_of(data['titles'], 'north'))
+        offset_top += sum(size_of(data['column_titles'], 'north'))
         if direction == 'east':
             offset_left += sum(size_of(data['titles'], 'west')) + sum(size_of(data['row_titles'], 'west'))
             offset_left += (data['column_space']*(data['num_columns'] - 1)) + data['element_config']['img_width'] * data['num_columns']
@@ -110,7 +97,6 @@ def titles_pos(data, direction, factor, offset_left_mm=0.0, offset_top_mm=0.0):
     
     else:
         raise Error("Error: Invalid direction value: " + direction +". (slide_pptx module)")
-
 
 
 def row_titles_pos(data, cur_row, direction, factor, offset_left_mm=0.0, offset_top_mm=0.0):
@@ -126,6 +112,7 @@ def row_titles_pos(data, cur_row, direction, factor, offset_left_mm=0.0, offset_
     offset_left = offset_left_mm + data['padding']['west'] + sum(size_of(data['titles'], 'west'))
     offset_top = offset_top_mm + data['padding']['north'] + sum(size_of(data['titles'], 'north')) + sum(size_of(data['column_titles'], 'north'))
     offset_top += (data['row_space'] + data['element_config']['img_height']) * (cur_row - 1)
+    offset_top += sum(size_of(data['element_config']['captions'], 'south')) * (cur_row-1) #new
     if direction == 'east':
         offset_left += sum(size_of(data['row_titles'], 'west')) 
         offset_left += (data['column_space']*(data['num_columns'] - 1)) + data['element_config']['img_width'] * data['num_columns']
@@ -147,8 +134,9 @@ def column_titles_pos(data, cur_column, direction, factor, offset_left_mm=0.0, o
     height = size_of(data['column_titles'], direction)[0]
 
     offset_top = offset_top_mm + data['padding']['north'] + sum(size_of(data['titles'], 'north'))
-    offset_left = offset_left_mm + data['padding']['west'] + sum(size_of(data['row_titles'], 'west'))
+    offset_left = offset_left_mm + data['padding']['west'] + sum(size_of(data['titles'], 'west'))
     offset_left += (data['column_space'] + data['element_config']['img_width']) *(cur_column - 1)
+    offset_left += sum(size_of(data['row_titles'], 'west'))
     if direction == 'south':
         offset_top += sum(size_of(data['element_config']['captions'], 'south')) * data['num_rows'] #new
         offset_top += sum(size_of(data['column_titles'], 'north'))

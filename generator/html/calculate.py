@@ -76,9 +76,11 @@ def titles_pos_and_size(data, direction):
 
     elif direction == 'east' or direction == 'west':
         height = data['element_config']['img_height'] * data['num_rows'] + data['row_space']*(data['num_rows'] - 1)
+        height += sum(size_of(data['element_config']['captions'], 'south')) * (data['num_rows'] -1) #new
         width = size_of(data['titles'], direction)[0]
 
         offset_top += sum(size_of(data['titles'], 'north'))
+        offset_top += sum(size_of(data['column_titles'], 'north'))
         if direction == 'east':
             offset_left += sum(size_of(data['titles'], 'west')) + sum(size_of(data['row_titles'], 'west'))
             offset_left += (data['column_space']*(data['num_columns'] - 1)) + data['element_config']['img_width'] * data['num_columns']
@@ -104,6 +106,7 @@ def row_titles_pos(data, cur_row, direction):
     offset_left = data['padding']['west'] + sum(size_of(data['titles'], 'west'))
     offset_top = data['padding']['north'] + sum(size_of(data['titles'], 'north')) + sum(size_of(data['column_titles'], 'north'))
     offset_top += (data['row_space'] + data['element_config']['img_height']) * (cur_row - 1)
+    offset_top += sum(size_of(data['element_config']['captions'], 'south')) * (cur_row-1) #new
     if direction == 'east':
         offset_left += sum(size_of(data['row_titles'], 'west')) 
         offset_left += (data['column_space']*(data['num_columns'] - 1)) + data['element_config']['img_width'] * data['num_columns']
@@ -124,8 +127,9 @@ def column_titles_pos(data, cur_column, direction):
     height = size_of(data['column_titles'], direction)[0]
 
     offset_top = data['padding']['north'] + sum(size_of(data['titles'], 'north'))
-    offset_left = data['padding']['west'] + sum(size_of(data['row_titles'], 'west'))
+    offset_left = data['padding']['west'] + sum(size_of(data['titles'], 'west'))
     offset_left += (data['column_space'] + data['element_config']['img_width']) *(cur_column - 1)
+    offset_left += sum(size_of(data['row_titles'], 'west'))
     if direction == 'south':
         offset_top += sum(size_of(data['element_config']['captions'], 'south')) * data['num_rows'] #new
         offset_top += sum(size_of(data['column_titles'], 'north'))

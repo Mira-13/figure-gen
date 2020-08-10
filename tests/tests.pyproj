@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{c259aba0-a5d6-4912-90a7-57904e1c4cc4}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>labels.py</StartupFile>
+    <StartupFile>single_module.py</StartupFile>
     <SearchPath>..\..\figuregenerator</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -19,12 +19,6 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="bookshelf.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="labels.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="matplot_module.py">
       <SubType>Code</SubType>
     </Compile>
@@ -32,13 +26,10 @@
     <Compile Include="multi_plot_module.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="simple_multi_module.py">
+    <Compile Include="siggraph_example.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="single_module.py" />
-    <Compile Include="trivial_example.py">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

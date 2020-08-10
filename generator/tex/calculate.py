@@ -116,7 +116,6 @@ def get_fixed_inner_width(data):
 def get_body_width(data):
     '''
     body means: all images and their spaces/padding inbetween the images.
-    Careful: Frames are not considered if frame line width > spaces/paddings! <--TODO 
     Not included are: column/row titles and titles as well as their corresping offsets.
     '''
     return get_fixed_inner_width(data) + data['num_columns'] * data['element_config']['img_width']
@@ -124,15 +123,14 @@ def get_body_width(data):
 def get_body_height(data):
     '''
     body means: all images and their spaces/padding inbetween the images.
-    Careful: Frames are not considered if frame line width > spaces/paddings! <--TODO  
     Not included are: column/row titles and titles as well as their corresping offsets.
     '''
     return get_fixed_inner_height(data) + data['num_rows'] * data['element_config']['img_height']
 
 def get_total_width(data):
     '''
-    Includes everything that takes up width: padding, images, captions, row/column titles, 
-    and all corresponding offsets
+    Includes everything that takes up width: padding, images, captions, row titles, 
+    east/west titles and all corresponding offsets
     '''
     total_width = get_body_width(data)
     total_width += sum_caption_spacing(data, 'east', 1) # add to inner body one more
@@ -149,8 +147,8 @@ def get_total_width(data):
 
 def get_total_height(data):
     '''
-    Includes everything that takes up height: padding, images, captions, row/column titles, 
-    and all corresponding offsets
+    Includes everything that takes up height: padding, images, captions, column titles, 
+    north/south titles and all corresponding offsets
     '''
     total_height = get_body_height(data)
     total_height += sum_caption_spacing(data, 'north', 1) # add to inner body one more

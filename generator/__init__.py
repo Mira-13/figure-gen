@@ -1,4 +1,4 @@
-__all__ = ['generator']
+__all__ = ['generator', 'implementation']
 
 # Import API functions
-from .generator import horizontal_figure
+from .generator import *

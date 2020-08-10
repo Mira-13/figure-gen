@@ -72,14 +72,6 @@ def gen_tikZ_frame(rgb_list, line_width):
 def gen_tikZ_rgb255(rgb_list):
     return '{rgb,255:red,'+str(rgb_list[0])+';green,'+str(rgb_list[1])+';blue,'+str(rgb_list[2])+'}'
 
-#def gen_frame_specs(element_content):
-#    try:
-#        if element_content['frame']['line_width'] == 0.0:
-#            return ''
-#        return gen_tikZ_frame(element_content['frame']['color'], element_content['frame']['line_width'])
-#    except: # no frame
-#        return ''
-
 def gen_LaTeX_fontsize(fontsize, line_space):
     line_space = float(fontsize) * line_space
     return '\\fontsize{'+str(fontsize)+'pt}{'+str(fontsize)+'pt}'
@@ -104,7 +96,7 @@ def gen_plain_node(width, height, name, parent_name = None, position = None, anc
 def gen_text_node(width, height, text, parent_name, fontsize, position='center', anchor='center', alignment='centering', rotation=0, text_color=None):
     '''
     Creates a node that contains text-based content. In case, the text does not fit in a box of given width and height, the text is 'clipped off'. 
-    This makes sure that the text-field has the correct width and height. Width or height can be changed in the json-config.
+    This makes sure that the text-field has the correct width and height. 
     '''
     begin_clipping = '\\begin{scope}\n\\clip ('+parent_name+'.south west) rectangle ('+parent_name+'.north east);\n'
     type_field = parent_name.split('-')[0]
@@ -339,6 +331,12 @@ def gen_horizontal_figure_title(position, num_rows, width, title_config, column_
                            rotate_text=title_config['rotation'], background_color=title_config['background_color'], text_color=title_config['text_color'])
 
 def gen_vertical_figure_title(position, num_columns, height, title_config, title_offset, column_north_config, str_appendix='', txt_alignment='centering'):
+    '''
+    Update: east/west titles start and end with the first and last image. The last 'south' captions, as well as column titles are not anymore included!
+    We still 'abuse' north-field as a parent, because this field does not do anything (not further supported).
+
+    Note: provided offset is already the calculated offset from the image (+ row titles) up to it's own offset
+    '''
     if str_appendix != '':
         str_appendix = '-' + str_appendix
     
@@ -353,8 +351,8 @@ def gen_vertical_figure_title(position, num_columns, height, title_config, title
         name='west-group-field'+ str_appendix +''
     parent_name = 'north-field'+ str_appendix +'-1-' + supplement
 
-    if column_north_config['height']!=0.0:
-        parent_name = 'north-column-field'+ str_appendix +'-' + supplement
+    #if column_north_config['height']!=0.0:
+    #    parent_name = 'north-column-field'+ str_appendix +'-' + supplement
 
     anchor = 'north '+opposite(position)
     position = 'north '+position
@@ -553,9 +551,10 @@ def gen_one_img_block(img_width_px, img_height_px, element_config, element_conte
     A image block can contain up to 5 'content' nodes: the image node itself with the image and 4 nodes, which are in 
     each direction around the image node (north, east, south, west). You can leave the 'direction' nodes empty, if you want to.
     Per default, the width of north/south nodes will be the (img) width. The same applies for the height of east/west nodes.
-    You can add a frame to the image. An example would look like this: frame_specs='draw=blue, line width=0.25mm, '. Be aware that you
-    should have the line width at a maximum of corresponding spacing to other 'content' nodes, else the frame might overlap with your other 
-    content directly around the img.
+    You can add a frame to the image. An example would look like this: frame_specs='draw=blue, line width=0.25mm, '.
+
+    TODO; this is one of the oldest and worst code written. Feature north/east and west captions are not supported in other backends. 
+    This is a reminder, that at some point I should rewrite this function into several smaller functions ...
     '''
     img_width, img_height = element_config['img_width'], element_config['img_height']
     e_c = element_content['captions']

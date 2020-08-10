@@ -1,265 +1,388 @@
-import json
-import numpy
-import os
-import copy
-import imageio
-import shutil
-#from skimage import img_as_ubyte
 
-from .tex import make_tex, calculate, combine_pdfs
-from .slide_pptx import make_pptx
-from .html import make_html
-from . import default_layouts
+from . import implementation
 
-backends = {
-    "tikz": make_tex,
-    "pptx": make_pptx,
-    "html": make_html
-}
+class Error(Exception):
+    def __init__(self, message):
+        self.message = message
 
-def png_export(img_raw, filename):
-    clipped = numpy.clip(0, 255, img_raw * 255).astype('uint8')
-    imageio.imwrite(filename, clipped)
+class Module:
+    pass
 
-def overwrite(name: list, val, layout: dict):
-    if len(name) == 1:
-        layout[name[0]] = val
-        return
-    overwrite(name[1:], val, layout[name[0]])
+def _transfer_position(position):
+        if position == 'top':
+            return 'north'
+        if position == 'bottom':
+            return 'south'
+        if position == 'left':
+            return 'west'
+        if position == 'right':
+            return 'east'
 
-def replace_option(name: str, val, layout: dict):
-    # first.second.third -> [ first, second, third ]
-    path = name.split(sep='.')
-    overwrite(path, val, layout)
+        if position in ['north', 'east', 'south', 'west']:
+            return position
+        
+        raise Error('Incorrect position. Try: "top"/"left"/... or "north"/"west"/...')
 
-def modify_default_layout(user: dict, type: str):
-    default = copy.deepcopy(default_layouts.layouts[type])
+def _is_north_or_south(pos):
+    if pos in ['north', 'south', 'top', 'bottom']:
+        return True
+    return False
 
-    for key,val in user.items():
-        replace_option(key, val, default)
+class LayoutView:
+    '''
+    This class is used to make changes in a 'Grid' layout to be more user friendly.
+    '''
 
-    return default
+    def __init__(self, grid):
+        self.layout = grid.data['layout']
 
-def merge_plot_data_into_layout(data, layout):
-    layout['type'] = data['type']
-    layout["data"] = data['data']
-    layout["plot_color"] = data['plot_color']
-    layout["axis_labels"] = data['axis_labels']
-    layout["axis_properties"] = data['axis_properties']
-    layout["markers"] = data['markers']
-    return layout
+    def get_set_props(self, name):
+        try:
+            val = self.layout[name]
+        except:
+            return None
+        return val
 
-def merge_data_into_layout(data, layout):
-    layout['type'] = data['type']
-    directions = ["north", "south", "east", "west"]
+    def set_padding(self, top=None, left=None, bottom=None, right=None, column=None, row=None):
+        '''
+        unit: mm (float) for top/left/bottom/right
+        '''
+        if top is not None:
+            self.layout['padding.north'] = top
+        if left is not None:
+            self.layout['padding.west'] = left
+        if bottom is not None:
+            self.layout['padding.south'] = bottom
+        if right is not None:
+            self.layout['padding.east'] = right
+        if column is not None:
+            self.layout['column_space'] = column
+        if row is not None:
+            self.layout['row_space'] = row
+        return self
 
-    num_rows = len(data["elements"])
-    num_cols = len(data["elements"][0])
-    layout['num_rows'] = num_rows
-    layout['num_columns'] = num_cols
+    def _set_text_properties(self, name, position, field_size_mm, 
+                             offset_mm=None, fontsize=None, txt_rotation=None, txt_color=None, line_space=None, bg_color=None):
+        '''
+        Internal function to avoid code dublication
+        '''
+        if _is_north_or_south(position):
+            self.layout[name + ".height"] = field_size_mm
+        else:
+            self.layout[name + ".width"] = field_size_mm
 
-    # initialize empty matrix for elements
-    layout["elements_content"] = [[{} for i in range(num_cols)] for i in range (num_rows)]
+        if offset_mm is not None:
+            self.layout[name +".offset"] = offset_mm
+        if txt_rotation is not None:
+            self.layout[name + ".rotation"] = txt_rotation
+        if fontsize is not None:
+            self.layout[name + ".fontsize"] = fontsize
+        if txt_color is not None:
+            self.layout[name + ".text_color"] = txt_color
+        if line_space is not None:
+            self.layout[name + ".line_space"] = line_space
+        if bg_color is not None:
+            if 'row_titles' in name.split('.') or 'column_titles' in name.split('.'):
+                self.layout[name + ".background_colors"] = bg_color
+            else:
+                self.layout[name + ".background_color"] = bg_color
+        return self
 
-    for row in range(num_rows):
-        for col in range(num_cols):
-            elem = layout["elements_content"][row][col]
-            data_elem = data["elements"][row][col]
+    def set_caption(self, height_mm, offset_mm=None, fontsize=None, txt_rotation=None, txt_color=None, line_space=None):
+        '''
+        Currently we support only the south caption for all backends, which is why if the user sets a caption, it will be the south caption.
+        In the future, this function could be a reference for north/east/west captions.
+        '''
+        name = "element_config.captions.south"
+        self._set_text_properties(name, 'south', height_mm, 
+                             offset_mm, fontsize, txt_rotation, txt_color, line_space, bg_color=None)
+        return self
 
+    def set_title(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None, txt_color=None, line_space=None, bg_color=None):
+        name = 'titles.' + _transfer_position(position)
+        self._set_text_properties(name, position, field_size_mm, 
+                             offset_mm, fontsize, txt_rotation, txt_color, line_space, bg_color)
+        return self
+
+    def set_row_titles(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None, txt_color=None, line_space=None, bg_color=None):
+        name = 'row_titles.' + _transfer_position(position)
+        self._set_text_properties(name, position, field_size_mm, 
+                             offset_mm, fontsize, txt_rotation, txt_color, line_space, bg_color)
+        return self
+
+    def set_col_titles(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None, txt_color=None, line_space=None, bg_color=None):
+        name = 'column_titles.' + _transfer_position(position)
+        self._set_text_properties(name, position, field_size_mm, 
+                             offset_mm, fontsize, txt_rotation, txt_color, line_space, bg_color)
+        return self
+
+    def _set_field_size_if_not_set(self, name, pos, field_size_mm=5):
+        '''
+        Makes sure, that the corresponding field_size of new added content will be set (not zero) and, therefore, visible for the user. 
+        '''
+        if _is_north_or_south(pos):
+            field_size = self.get_set_props(name+'.height')
+        else:
+            field_size = self.get_set_props(name+'.width')
+        if field_size is None:
+            self._set_text_properties(name, pos, field_size_mm)
+
+class ElementView:
+    '''
+    A 'Grid' contains one or multiple elements depending on num_row and num_col. This class will help make changes in the settings for each element.
+    You should however 'set_images' for each element, else unknown behaviour.
+    '''
+    def __init__(self, grid, row, col):
+        self.elem = grid.data["elements"][row][col]
+        self.layout = grid.get_layout()    
+
+    def set_image(self, img_data):
+        self.elem['image'] = img_data
+        return self
+
+    def set_frame(self, linewidth, rgb=[0,0,0]):
+        '''
+        linewidth unit: pt
+        rgb: list or tripel, int range (0-255)
+        '''
+        self.elem['frame'] = { "line_width": linewidth, "color": rgb }
+        return self
+
+    def set_marker_properties(self, linewidth=1.5, is_dashed=False):
+        try:
+            test = self.elem["crop_marker"]["list"]
+        except:
+            self.elem["crop_marker"] = {}
+            self.elem["crop_marker"]["list"] = []
+
+        self.elem["crop_marker"]["line_width"] = linewidth
+        self.elem["crop_marker"]["dashed"] = is_dashed
+        return self
+
+    def set_marker(self, pos, size, rgb=[255,255,255]):
+        try:
+            test = self.elem["crop_marker"]["list"]
+        except:
+            self.set_marker_properties(linewidth=1.5)
+
+        self.elem["crop_marker"]["list"].append({"pos": pos, "size": size, "color": rgb})
+        return self
+
+    def set_caption(self, txt_content):
+        '''
+        A (south) caption is placed below an image. 
+        In case the corresponding field height is not set yet, we set a 'default' value. This makes sure, that 
+        the content (provided by the user) will be shown. The user can set (overwrite) the layout for captions anytime.
+        '''
+        self.elem["captions"] = {}
+        self.elem["captions"]["south"] = txt_content
+
+        # check if caption layout is already set, if not, set a field_size, so that the user is not confused, why content isn't shown
+        self.layout._set_field_size_if_not_set(name='element_config.captions.south', pos='south', field_size_mm=6.)
+        return self
+
+    def set_label(self, txt_content, pos, width_mm=10., height_mm=3.0, offset_mm=[1.0, 1.0], 
+                  fontsize=6, bg_color=None, txt_color=[0,0,0], txt_padding_mm=1.0):
+
+        if not(pos in ['bottom_left', 'bottom_right', 'bottom_center', 'top_left', 'top_right', 'top_center']):
+            print('Error, pos is invalid.') # TODO
+
+        try:
+            self.elem["label"][pos] = {}
+        except:
+            self.elem["label"] = {}
+        
+        if 'center' in pos:
             try:
-                elem["label"] = data_elem["label"]
-            except KeyError:
+                offset_mm = offset_mm[0]
+            except:
                 pass
 
-            # copy captions, if set
-            elem["captions"] = {}
-            for d in directions:
-                try:
-                    caption = data_elem["captions"][d]
-                except:
-                    caption = ""
-                elem["captions"][d] = caption
-            
-            # add frame from user (optional, default: no frame)
-            try:
-                frame = data_elem["frame"]
-            except: # do not set the frame
-                frame = None
-            if frame is not None: elem["frame"] = frame
+        self.elem["label"][pos] = {
+            "text": txt_content,
+            "fontsize": fontsize,
+            "line_space": 1.2,
+            "text_color": txt_color,
+            "background_color": bg_color,
+            "width_mm": width_mm,
+            "height_mm": height_mm,
+            "offset_mm": offset_mm,
+            "padding_mm": txt_padding_mm
+            }
+                  
 
-            # add crop marker (optional, default: no marker)
-            try:
-                marker = data_elem["crop_marker"]
-            except: # do not set marker
-                marker = None
-            if marker is not None: elem["marker"] = marker
+class Grid(Module):
+    def __init__(self, num_rows, num_cols):
+        '''
+        initialize empty matrix for elements and fill the matrix with 'image' content
+        '''
+        self.data = {
+            "type": "grid",
+            "elements": [[{} for i in range(num_cols)] for i in range (num_rows)],
+            "row_titles": {}, 
+            "column_titles": {}, 
+            "titles": {}, 
+            "layout": {}
+        }
 
-            # add the image data itself (raw): matrix of rgb
-            # assert ((data_elem["image"]).shape[2] == 3)
-            elem["filename"] = data_elem["image"]
+    def get_element(self, row, col):
+        return ElementView(self, row, col)
 
+    def get_layout(self):
+        return LayoutView(self)
 
-    # add column_titles
-    for d in ['north', 'south']:
-        # change text color
+    def set_title(self, position, txt_content):
+        '''
+        position: string (valid input: 'north'/'west'/... or 'top'/'right'/...) 
+        The corresponding field will be set to some value in case the user didn't set it yet.
+        '''
+        pos = _transfer_position(position)
+        self.data["titles"][pos] = txt_content
+
+        # check if caption layout is already set, if not, set a field_size, so that the user is not confused, why content isn't shown
+        self.get_layout()._set_field_size_if_not_set(name='titles.'+pos, pos=pos, field_size_mm=6.)
+        return self
+
+    def set_row_titles(self, position, txt_list):
+        '''
+        position: string (valid: 'west'/'east' or 'right'/'left')
+        txt_list: string list of num_rows
+        '''
+        pos = _transfer_position(position)
+        if pos in ['north', 'south']:
+            raise Error("Invalid position for row_title. Try: 'west'/'east' or 'right'/'left'")
+
         try:
-            layout["column_titles"][d]["text_color"] = data["column_titles"][d]["text_color"]
-        except: # keep default
-            pass
+            self.data['row_titles'][pos]['content'] = txt_list
+        except:
+            self.data['row_titles'][pos] = {}
+            self.data['row_titles'][pos]['content'] = txt_list
+        
+        # check if caption layout is already set, if not, set a field_size, so that the user is not confused, why content isn't shown
+        self.get_layout()._set_field_size_if_not_set(name='row_titles.'+pos, pos=pos, field_size_mm=3.)
+        return self
 
-        # change background color of column text field
+    def set_col_titles(self, position, txt_list):
+        '''
+        position: string (valid: 'north'/'south' or 'top'/'bottom')
+        txt_list: string list of num_cols
+        '''
+        pos = _transfer_position(position)
+        if pos in ['west', 'east']:
+            raise Error('Invalid position for column_title. Try: "north"/"south" or "top"/"bottom"')
+
         try:
-            layout["column_titles"][d]["background_colors"] = data["column_titles"][d]["background_colors"]
-        except: # keep default: [0,0,0]
-            pass
+            self.data['column_titles'][pos]['content'] = txt_list
+        except:
+            self.data['column_titles'][pos] = {}
+            self.data['column_titles'][pos]['content'] = txt_list
+        
+        # check if caption layout is already set, if not, set a field_size, so that the user is not confused, why content isn't shown
+        self.get_layout()._set_field_size_if_not_set(name='column_titles.'+pos, pos=pos, field_size_mm=3.)
+        return self
 
-        # add content
+
+class Plot(Module):
+
+    def __init__(self, p_data):
+        self.data = {
+            "type": "plot",
+            "data": p_data,
+            "plot_color": None,
+            "axis_labels": {},
+            "axis_properties": {},
+            "markers": {},
+            "layout": {}
+            }
+    
+    def _interpret_rotation(self, rotation):
+        if rotation == 0:
+            return 'horizontal'
+        if rotation == 90 or rotation == -90:
+            return 'vertical'
+        if rotation in ['horizontal', 'vertical']:
+            return rotation
+        raise Error('Incorrect rotation value. Try: 0/(-)90 or "horizontal"/"vertical".')
+
+    def _check_axis(self, axis):
+        if not (axis in ['x', 'y']):
+            raise Error('Incorrect axis. Try: "x" or "y".')
+
+    def set_plot_colors(self, rgb_color_list):
+        self.data['plot_color'] = rgb_color_list
+
+    def set_axis_label(self, axis, txt, rotation):
+        self._check_axis(axis)
+        rotation = self._interpret_rotation(rotation)
+        
+        self.data['axis_labels'][axis] = {}
+        self.data['axis_labels'][axis]['text'] = txt
+        self.data['axis_labels'][axis]['rotation'] = rotation
+
+    def set_axis_props(self, axis, ticks, range=None, use_log_scale=True, use_scientific_notations=False):
+        '''
+        So far, we need range and ticks as user input. Would be nice to let 
+        '''
+        self._check_axis(axis)
+        if range is not None and len(range) != 2:
+            raise Error('You need exactly two values to specify range: [min, max]')
+
+        self.data['axis_properties'][axis] = {}
+        if range is not None:
+            self.data['axis_properties'][axis]['range'] = range
+        self.data['axis_properties'][axis]['ticks'] = ticks
+        self.data['axis_properties'][axis]['use_log_scale'] = use_log_scale
+        self.data['axis_properties'][axis]['use_scientific_notations'] = use_scientific_notations
+
+    def set_marker_v_line(self, pos, color, linestyle, linewidth_pt=.8):
+        '''
+        Currently, we only implemented "vertical_lines"
+        linestyle allows matplotlib inputs, e.g. (0,(4,6)) is valid.
+        '''
         try:
-            layout["column_titles"][d]["content"] = data["column_titles"][d]["content"]
-        except: # set default: list of empty strings
-            layout["column_titles"][d]["content"] = [""] * num_cols
+            test = self.data['markers']['vertical_lines'][0]
+        except:
+            self.data['markers']['vertical_lines'] = []
+        self.data['markers']['vertical_lines'].append(
+                        {
+                            'pos': pos,
+                            'color': color,
+                            "linestyle": linestyle,
+                            "linewidth_pt": linewidth_pt,
+                        }
+                    )
+    def set_font_props(self, fontsize_pt=None, font_family=None, tex_package=None):
+        if fontsize_pt is not None:
+            self.data['layout']["plot_config.font.fontsize_pt"] = fontsize_pt
+        if font_family is not None:
+            # TODO: maybe check if font_family has a valid value
+            self.data['layout']["plot_config.font.font_family"] = font_family
+        if tex_package is not None:
+            self.data['layout']["plot_config.font.tex_package"] = tex_package
 
-    # add row_titles
-    for d in ['east', 'west']:
-        # change text color
-        try:
-            layout["row_titles"][d]["text_color"] = data["row_titles"][d]["text_color"]
-        except: # keep default
-            pass
+    def set_grid_props(self, color=None, linewidth_pt=None, linestyle=None):
+        if color is not None:
+            self.data['layout']["plot_config.grid.color"] = color
+        if linewidth_pt is not None:
+            self.data['layout']["plot_config.grid.linewidth_pt"] = linewidth_pt
+        if linestyle is not None:
+            self.data['layout']["plot_config.grid.linestyle"] = linestyle
 
-        # change background color of column text field
-        try:
-            layout["row_titles"][d]["background_colors"] = data["row_titles"][d]["background_colors"]
-        except: # keep default: [0,0,0]
-            pass
+    def set_width_to_height_aspect_ratio(self, a):
+        self.data['layout']['width_to_height_aspect_ratio'] = a
 
-        # add text-based content
-        try:
-            layout["row_titles"][d]["content"] = data["row_titles"][d]["content"]
-        except: # set default: list of empty strings
-            layout["row_titles"][d]["content"] = [""] * num_rows
+    def show_upper_axis(self):
+        self.data['layout']["plot_config.has_upper_axis"] = True
 
-    # titles
-    for d in directions:
-        # add text-based content
-        try:
-            layout['titles'][d]['content'] = data['titles'][d]
-        except: # set default: empty string
-            layout['titles'][d]['content'] = ''
+    def show_right_axis(self):
+        self.data['layout']["plot_config.has_right_axis"] = True
 
-    # set px size based on the first image
-    try:
-        first = layout["elements_content"][0][0]["filename"][0]["image"]
-    except:
-        first = layout["elements_content"][0][0]["filename"]
-    layout["img_width_px"] = first.shape[1]
-    layout["img_height_px"] = first.shape[0]
-    return layout
+    def set_linewidth(plot_line_pt=None, tick_line_pt=None):
+        if plot_line_pt is not None:
+            self.data['layout']['plot_config.plot_linewidth_pt'] = plot_line_pt
+        if tick_line_pt is not None:
+            self.data['layout']['plot_config.tick_linewidth_pt'] = tick_line_pt
 
-def merge(modules: dict, layouts: dict):
-    merged_dicts = []
-    for i in range(len(modules)):
-        if modules[i]['type'] == 'plot':
-            merged_dicts.append(merge_plot_data_into_layout(modules[i], layouts[i]))
-        else:
-            merged_dicts.append(merge_data_into_layout(modules[i], layouts[i]))
-    return merged_dicts
-
-
-def align_modules(modules, width):
-    num_modules = len(modules)
-    assert(num_modules!=0)
-
-    if num_modules == 1:
-        modules[0]["total_width"] = width
-        if modules[0]["type"] == "grid":
-            calculate.resize_to_match_total_width(modules[0])
-            modules[0]['total_height'] = calculate.get_total_height(modules[0])
-        elif modules[0]['type'] == 'plot':
-            modules[0]['total_height'] = width / modules[0]['width_to_height_aspect_ratio']
-        else:
-            pass
-        return
-
-    sum_inverse_aspect_ratios = 0
-    inverse_aspect_ratios = []
-    for m in modules:
-        if m["type"] == "grid":
-            image_aspect_ratio = m['img_height_px'] / float(m['img_width_px'])
-            a = m['num_rows'] / float(m['num_columns']) * image_aspect_ratio
-        elif m["type"] == "plot":
-            a = 1 / m['width_to_height_aspect_ratio']
-        else:
-            raise "unsupported module type '" + m['type'] + "'"
-        sum_inverse_aspect_ratios += 1/a
-        inverse_aspect_ratios.append(1/a)
-
-    sum_fixed_deltas = 0
-    i = 0
-    for m in modules:
-        if m["type"] == "grid":
-            w_fix = calculate.get_min_width(m)
-            h_fix = calculate.get_min_height(m)
-        else:
-            w_fix = 0
-            h_fix = 0
-        sum_fixed_deltas += w_fix - h_fix * inverse_aspect_ratios[i]
-        i += 1
-
-    height = (width - sum_fixed_deltas) / sum_inverse_aspect_ratios
-
-    for m in modules:
-        m['total_height'] = height
-        if m["type"] == "grid":
-            calculate.resize_to_match_total_height(m)
-            m['total_width'] = calculate.get_total_width(m)
-        elif m['type'] == 'plot':
-            m['total_width'] = height * m['width_to_height_aspect_ratio']
-        else:
-            pass
-
-def export_raw_img_to_png(module, module_idx, path):
-    if module['type'] != 'grid':
-        return
-
-    for row in range(module["num_rows"]):
-        for col in range(module["num_columns"]):
-            elem = module["elements_content"][row][col]
-
-            # the element can be either a list of multiple images, or one image
-            try:
-                file = elem["filename"][0]["image"]
-                is_multi = True
-            except:
-                is_multi = False
-
-            if is_multi:
-                for i in range(len(elem["filename"])):
-                    img_raw = elem["filename"][i]["image"]
-                    filename = 'image-'+str(row+1)+'-'+str(col+1) + '-' + str(i+1) + '-' + str(module_idx+1)+'.png'
-                    file_path = os.path.join(path, filename)
-                    png_export(img_raw, file_path)
-                    elem["filename"][i]["image"] = file_path
-            else:
-                img_raw = elem["filename"]
-                filename = 'image-'+str(row+1)+'-'+str(col+1) + '-' + str(module_idx+1)+'.png'
-                file_path = os.path.join(path, filename)
-                png_export(img_raw, file_path)
-                elem["filename"] = file_path
-
-def get_out_dir_and_backend(filename):
-    # Select the correct backend based on the filename
-    extension = os.path.splitext(filename)[1].lower()
-    if extension == ".pptx":
-        backend = 'pptx'
-    elif extension == ".html":
-        backend = 'html'
-    elif extension == ".pdf":
-        backend = 'tikz'
-    else:
-        raise ValueError(f"Could not derive backend from filename '{filename}'")
-    out_dir = os.path.dirname(filename)
-    return out_dir, backend, extension
 
 def horizontal_figure(modules, width_cm: float, filename):
     """
@@ -271,29 +394,4 @@ def horizontal_figure(modules, width_cm: float, filename):
         backend: can be one of: 'tikz', 'pptx', 'html'
         out_dir: path to the folder that will contain the generated figure and data
     """
-
-    out_dir, backend, extension = get_out_dir_and_backend(filename)
-
-    layouts = []
-    for m in modules:
-        layouts.append(modify_default_layout(m['layout'], m['type']))
-
-    merged_data = merge(modules, layouts)
-    align_modules(merged_data, width_cm*10.)
-
-    # All .pngs for a "/a/b/figure.pdf" are in a folder "/a/b/figure_images"
-    image_path, _ = os.path.splitext(filename)
-    image_path += "_images"
-    if not os.path.exists(image_path):
-        os.makedirs(image_path)
-
-    # Export all .png images
-    generated_data = []
-    for i in range(len(modules)):
-        if merged_data[i]['type'] != 'plot':
-            export_raw_img_to_png(merged_data[i], module_idx=i, path=image_path)
-        generated_data.append(backends[backend].generate(merged_data[i], to_path=out_dir, index=i))
-
-    backends[backend].combine(generated_data, filename)
-
-    # TODO delete the image folder iff the backend is tikz and the .tex files are deleted, too
+    return implementation.horizontal_figure(modules, width_cm, filename)

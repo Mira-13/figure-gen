@@ -40,6 +40,9 @@
     <Compile Include="generator.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="implementation.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="mplot\make_plot.py">
       <SubType>Code</SubType>
     </Compile>
