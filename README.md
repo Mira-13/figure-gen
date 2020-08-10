@@ -6,14 +6,14 @@ Dependencies
 ================
 - python 3.5+ (and in path)
 - latex (either on win or linux)
-- poppler (and in path).
 
 The following python packages need to be installed:
 ```
-python -m pip install --user matplotlib python-pptx pyexr pdf2image scipy imageio
+python -m pip install --user matplotlib python-pptx pyexr scipy opencv-python
 ```
 Note that matplotlib version >3.2.1 is required for the constrained layout feature.
-In case of install issues on Windows, try the pre-built OpenEXR binaries: https://www.lfd.uci.edu/~gohlke/pythonlibs/#openexr
+In case of install issues on Windows, try the pre-built OpenEXR binaries: 
+https://www.lfd.uci.edu/~gohlke/pythonlibs/#openexr
 
 Testing
 =======

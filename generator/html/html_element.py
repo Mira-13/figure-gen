@@ -144,7 +144,7 @@ def _title_container(position, size, rotation=0, bg_color=None, alignment='cente
 
 def _title_content(txt_content, fontsize_pt, txt_color=None, padding=None, alignment='center'):
     if txt_content == '':
-        return ''
+        return '</div>' + '\n'
 
     color = ''
     if txt_color is not None and txt_color != [0,0,0]:
@@ -199,9 +199,8 @@ def _row_col_titles(data, direction, title_properties, num, pos_fn):
         for i in range(num):
             pos, size = pos_fn(i)
             if size[0] != 0.0 and size[1] != 0.0:
-                result += _title_container(pos, size, t['rotation'], bg_colors[i])
-
                 if t['content'][i] != '':
+                    result += _title_container(pos, size, t['rotation'], bg_colors[i])
                     result += _title_content(t['content'][i], t['fontsize'], t['text_color'])
                 result += '\n'
     return result
@@ -228,10 +227,10 @@ def gen_south_captions(data):
     '''
     result = ''
     capt_prop = data['element_config']['captions']['south']
-    size = data['element_config']['img_width'], capt_prop['height'] 
+    size = data['element_config']['img_width'], capt_prop['height']
     if size[0] == 0.0:
         return result
-    
+
     rowIndex = 1
     for row in data['elements_content']:
         colIndex = 1
