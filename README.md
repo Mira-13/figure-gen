@@ -19,8 +19,8 @@ Install the pre-built OpenEXR binaries: https://www.lfd.uci.edu/~gohlke/pythonli
 
 ## Dependencies
 
-- python 3.5+ (and in path)
-- latex (either on win or linux)
+- Python 3.5+ (and in path)
+- LaTeX
 
 The following python packages need to be installed:
 ```
