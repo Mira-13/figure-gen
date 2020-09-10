@@ -92,5 +92,5 @@ def generate(module_data, to_path, index, temp_folder, delete_gen_files=True):
 def combine(data, filename, temp_folder, delete_gen_files=True):
     combine_pdfs.make_pdf(temp_folder, delete_gen_files=delete_gen_files)
     gen = os.path.join(temp_folder, "gen_figure.pdf")
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
     shutil.copy(gen, filename)
