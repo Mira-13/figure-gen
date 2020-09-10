@@ -46,6 +46,26 @@ def crop(img, crop_args):
 
     return img[top:top+height,left:left+width,:]
 
+class Cropbox:
+    def __init__(self, top, left, height, width, scale=1):
+        self.top = top
+        self.left = left
+        self.bottom = top + height
+        self.right = left + width
+        self.height = height
+        self.width = width
+        self.scale = scale
+
+    def crop(self, image):
+        c = crop(image, [self.left, self.top, self.width, self.height])
+        return zoom(c, self.scale)
+
+    def get_marker_pos(self):
+        return [self.left, self.top]
+
+    def get_marker_size(self):
+        return [self.right - self.left, self.bottom - self.top]
+
 def scale_and_convert_rgb(rgb_list, scale=255):
     r = round(rgb_list[0] * 1/scale, 2)
     g = round(rgb_list[1] * 1/scale, 2)
@@ -63,8 +83,8 @@ def mse(img, ref):
     return np.mean(luminance(squared_error(img, ref)))
 
 def remove_outliers(error_img):
-    f = 0.0001
-    errors = np.sort(error_img)
+    f = 0.00001
+    errors = np.sort(error_img.flatten())
     n = errors.size
     e = errors[0:n-int(n*f)] # ignore fireflies
     return np.mean(e)
@@ -73,6 +93,7 @@ def relative_mse(img, ref, epsilon=0.0001):
     err_img_rgb = relative_squared_error(img, ref, epsilon)
     err_img_gray = average_color_channels(err_img_rgb)
     return remove_outliers(err_img_gray)
+    # return np.mean(err_img_gray)
 
 def sape(img, ref):
     ''' Computes the symmetric absolute precentage error

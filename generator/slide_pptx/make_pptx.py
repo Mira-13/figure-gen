@@ -17,7 +17,7 @@ class Error(Exception):
     def __init__(self, message):
         self.message = message
 
-def generate(module_data, to_path, index, delete_gen_files=True):
+def generate(module_data, to_path, index, temp_folder, delete_gen_files=True):
     return module_data
 
 def place_modules(data, to_path, slide):
@@ -37,7 +37,7 @@ def place_modules(data, to_path, slide):
             place_element.south_captions(slide, d, 1, cur_width_mm)
         cur_width_mm += d['total_width']
 
-def combine(data, filename, delete_gen_files=True):
+def combine(data, filename, temp_folder, delete_gen_files=True):
     to_path = os.path.dirname(filename)
 
     # calculate correct width scaling so that the figure fills out the slide

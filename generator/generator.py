@@ -19,7 +19,7 @@ def _transfer_position(position):
 
     if position in ['north', 'east', 'south', 'west']:
         return position
-    
+
     raise Error('Incorrect position. Try: "top"/"left"/... or "north"/"west"/...')
 
 def _is_north_or_south(pos):
@@ -60,7 +60,7 @@ class LayoutView:
             self.layout['row_space'] = row
         return self
 
-    def _set_text_properties(self, name, position, field_size_mm, 
+    def _set_text_properties(self, name, position, field_size_mm,
                              offset_mm=None, fontsize=None, txt_rotation=None, txt_color=None, line_space=None, bg_color=None):
         '''
         Internal function to avoid code dublication
@@ -89,40 +89,40 @@ class LayoutView:
 
     def set_caption(self, height_mm, offset_mm=None, fontsize=None, txt_rotation=None, txt_color=None, line_space=None):
         '''
-        Currently we support only the south caption for all backends, which is why if the user sets a caption, 
+        Currently we support only the south caption for all backends, which is why if the user sets a caption,
         it will be the south caption.
         In the future, this function could be a reference for north/east/west captions.
         '''
         name = "element_config.captions.south"
-        self._set_text_properties(name, 'south', height_mm, 
+        self._set_text_properties(name, 'south', height_mm,
                              offset_mm, fontsize, txt_rotation, txt_color, line_space, bg_color=None)
         return self
 
-    def set_title(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None, 
+    def set_title(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None,
                   txt_color=None, line_space=None, bg_color=None):
         name = 'titles.' + _transfer_position(position)
-        self._set_text_properties(name, position, field_size_mm, 
+        self._set_text_properties(name, position, field_size_mm,
                              offset_mm, fontsize, txt_rotation, txt_color, line_space, bg_color)
         return self
 
-    def set_row_titles(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None, 
+    def set_row_titles(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None,
                        txt_color=None, line_space=None, bg_color=None):
         name = 'row_titles.' + _transfer_position(position)
-        self._set_text_properties(name, position, field_size_mm, 
+        self._set_text_properties(name, position, field_size_mm,
                              offset_mm, fontsize, txt_rotation, txt_color, line_space, bg_color)
         return self
 
-    def set_col_titles(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None, 
+    def set_col_titles(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None,
                        txt_color=None, line_space=None, bg_color=None):
         name = 'column_titles.' + _transfer_position(position)
-        self._set_text_properties(name, position, field_size_mm, 
+        self._set_text_properties(name, position, field_size_mm,
                              offset_mm, fontsize, txt_rotation, txt_color, line_space, bg_color)
         return self
 
     def _set_field_size_if_not_set(self, name, pos, field_size_mm=5):
         '''
-        Makes sure, that the corresponding field_size of new added content will be set (not zero) and, therefore, 
-        visible for the user. 
+        Makes sure, that the corresponding field_size of new added content will be set (not zero) and, therefore,
+        visible for the user.
         '''
         if _is_north_or_south(pos):
             field_size = self.get_set_props(name+'.height')
@@ -133,13 +133,13 @@ class LayoutView:
 
 class ElementView:
     '''
-    A 'Grid' contains one or multiple elements depending on num_row and num_col. This class will help make changes 
+    A 'Grid' contains one or multiple elements depending on num_row and num_col. This class will help make changes
     in the settings for each element.
     You should however 'set_images' for each element, else unknown behaviour.
     '''
     def __init__(self, grid, row, col):
         self.elem = grid.data["elements"][row][col]
-        self.layout = grid.get_layout()    
+        self.layout = grid.get_layout()
 
     def set_image(self, img_data):
         self.elem['image'] = img_data
@@ -175,8 +175,8 @@ class ElementView:
 
     def set_caption(self, txt_content):
         '''
-        A (south) caption is placed below an image. 
-        In case the corresponding field height is not set yet, we set a 'default' value. This makes sure, that 
+        A (south) caption is placed below an image.
+        In case the corresponding field height is not set yet, we set a 'default' value. This makes sure, that
         the content (provided by the user) will be shown. The user can set (overwrite) the layout for captions anytime.
         '''
         self.elem["captions"] = {}
@@ -186,7 +186,7 @@ class ElementView:
         self.layout._set_field_size_if_not_set(name='element_config.captions.south', pos='south', field_size_mm=6.)
         return self
 
-    def set_label(self, txt_content, pos, width_mm=10., height_mm=3.0, offset_mm=[1.0, 1.0], 
+    def set_label(self, txt_content, pos, width_mm=10., height_mm=3.0, offset_mm=[1.0, 1.0],
                   fontsize=6, bg_color=None, txt_color=[0,0,0], txt_padding_mm=1.0):
 
         if not(pos in ['bottom_left', 'bottom_right', 'bottom_center', 'top_left', 'top_right', 'top_center']):
@@ -196,7 +196,7 @@ class ElementView:
             self.elem["label"][pos] = {}
         except:
             self.elem["label"] = {}
-        
+
         if 'center' in pos:
             try:
                 offset_mm = offset_mm[0]
@@ -214,7 +214,7 @@ class ElementView:
             "offset_mm": offset_mm,
             "padding_mm": txt_padding_mm
         }
-                  
+
 
 class Grid(Module):
     def __init__(self, num_rows, num_cols):
@@ -224,9 +224,9 @@ class Grid(Module):
         self.data = {
             "type": "grid",
             "elements": [[{} for i in range(num_cols)] for i in range (num_rows)],
-            "row_titles": {}, 
-            "column_titles": {}, 
-            "titles": {}, 
+            "row_titles": {},
+            "column_titles": {},
+            "titles": {},
             "layout": {}
         }
 
@@ -238,7 +238,7 @@ class Grid(Module):
 
     def set_title(self, position, txt_content):
         '''
-        position: string (valid input: 'north'/'west'/... or 'top'/'right'/...) 
+        position: string (valid input: 'north'/'west'/... or 'top'/'right'/...)
         The corresponding field will be set to some value in case the user didn't set it yet.
         '''
         pos = _transfer_position(position)
@@ -262,7 +262,7 @@ class Grid(Module):
         except:
             self.data['row_titles'][pos] = {}
             self.data['row_titles'][pos]['content'] = txt_list
-        
+
         # check if caption layout is already set, if not, set a field_size, so that the user is not confused, why content isn't shown
         self.get_layout()._set_field_size_if_not_set(name='row_titles.'+pos, pos=pos, field_size_mm=3.)
         return self
@@ -281,7 +281,7 @@ class Grid(Module):
         except:
             self.data['column_titles'][pos] = {}
             self.data['column_titles'][pos]['content'] = txt_list
-        
+
         # check if caption layout is already set, if not, set a field_size, so that the user is not confused, why content isn't shown
         self.get_layout()._set_field_size_if_not_set(name='column_titles.'+pos, pos=pos, field_size_mm=3.)
         return self
@@ -298,7 +298,7 @@ class Plot(Module):
             "markers": {},
             "layout": {}
             }
-    
+
     def _interpret_rotation(self, rotation):
         if rotation == 0:
             return 'horizontal'
@@ -318,14 +318,14 @@ class Plot(Module):
     def set_axis_label(self, axis, txt, rotation):
         self._check_axis(axis)
         rotation = self._interpret_rotation(rotation)
-        
+
         self.data['axis_labels'][axis] = {}
         self.data['axis_labels'][axis]['text'] = txt
         self.data['axis_labels'][axis]['rotation'] = rotation
 
     def set_axis_props(self, axis, ticks, range=None, use_log_scale=True, use_scientific_notations=False):
         '''
-        So far, we need range and ticks as user input. Would be nice to let 
+        So far, we need range and ticks as user input. Would be nice to let
         '''
         self._check_axis(axis)
         if range is not None and len(range) != 2:
@@ -380,7 +380,7 @@ class Plot(Module):
     def show_right_axis(self):
         self.data['layout']["plot_config.has_right_axis"] = True
 
-    def set_linewidth(plot_line_pt=None, tick_line_pt=None):
+    def set_linewidth(self, plot_line_pt=None, tick_line_pt=None):
         if plot_line_pt is not None:
             self.data['layout']['plot_config.plot_linewidth_pt'] = plot_line_pt
         if tick_line_pt is not None:

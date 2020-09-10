@@ -63,7 +63,7 @@ def load_nth_color(color_list, num, idx):
     elif color_array.shape[1] == 3 and color_array.shape[0] >= num:
         return color_list[idx] # ith color of list
     else:
-        raise 'Number of colors does not match the number of rows / columns' 
+        raise 'Number of colors does not match the number of rows / columns'
 
 def gen_tikZ_frame(rgb_list, line_width):
     color = gen_tikZ_rgb255(rgb_list)
@@ -81,22 +81,22 @@ def gen_LaTeX_fontsize(fontsize, line_space):
 # GENERATING TIKZ NODES
 ### BEGIN generating basic nodes ###
 def gen_plain_node(width, height, name, parent_name = None, position = None, anchor='center', additional_params=''):
-    ''' 
-    Creates code for a TikZ node. A 'plain' node is a node that does not hold any information (no text, no img), so its mostly used to generate offsets.
-    additional params: e.g. 'fill=blue, ' or 'draw, '. You can also combine them like 'fill=blue, draw, '. Important is, that you do not forget the comma 
-    at the end. 
     '''
-    pos = '(0,0)' 
+    Creates code for a TikZ node. A 'plain' node is a node that does not hold any information (no text, no img), so its mostly used to generate offsets.
+    additional params: e.g. 'fill=blue, ' or 'draw, '. You can also combine them like 'fill=blue, draw, '. Important is, that you do not forget the comma
+    at the end.
+    '''
+    pos = '(0,0)'
     if parent_name and position:
         pos = '('+ parent_name + '.' + position +')'
-    
+
     return '\\node[anchor='+ anchor +', minimum width='+ str(width) +'mm, minimum height='+ str(height) +'mm, ' \
         + additional_params+' inner sep=0, outer sep=0] ('+ name +') at ' + pos + ' {}; \n'
 
 def gen_text_node(width, height, text, parent_name, fontsize, position='center', anchor='center', alignment='centering', rotation=0, text_color=None):
     '''
-    Creates a node that contains text-based content. In case, the text does not fit in a box of given width and height, the text is 'clipped off'. 
-    This makes sure that the text-field has the correct width and height. 
+    Creates a node that contains text-based content. In case, the text does not fit in a box of given width and height, the text is 'clipped off'.
+    This makes sure that the text-field has the correct width and height.
     '''
     begin_clipping = '\\begin{scope}\n\\clip ('+parent_name+'.south west) rectangle ('+parent_name+'.north east);\n'
     type_field = parent_name.split('-')[0]
@@ -108,12 +108,12 @@ def gen_text_node(width, height, text, parent_name, fontsize, position='center',
     txt_color=''
     if text_color is not None and text_color!=[0,0,0]:
         txt_color='text='+gen_tikZ_rgb255(text_color)+', '
-    
+
     paddedtext = replace_all_umlaute(text)
     # ensure that all lines are of equal height
     paddedtext = paddedtext.replace("\n", "\\strut\\\\")
     paddedtext += "\\strut"
-    
+
 
     if alignment == "left":
         alignment = "raggedright"
@@ -131,10 +131,10 @@ def gen_text_node(width, height, text, parent_name, fontsize, position='center',
 
 def gen_img_node(width, height, img_path, name, parent_name=None, position=None, anchor='center', additional_params=None):
     '''
-    Creates a node that contains an image. No cropping will be done to the image: The image can be distorted, if the width/height ratio is not fitted proberly. 
+    Creates a node that contains an image. No cropping will be done to the image: The image can be distorted, if the width/height ratio is not fitted proberly.
     addtional params: e.g. 'draw=blue, line width=0.3mm, ' If you want an RGB color, there are functions provided that generates Tikz-friendly 'code'.
     '''
-    pos = '(0,0)' 
+    pos = '(0,0)'
     if parent_name and position:
         pos = '('+ parent_name + '.' + position +')'
 
@@ -145,12 +145,12 @@ def gen_img_node(width, height, img_path, name, parent_name=None, position=None,
     img_path = img_path.replace('\\', '/')
 
     return '\\node[anchor='+ anchor +', '+ additional_params +' minimum width='+ str(width) +'mm, minimum height='+ str(height) +\
-            'mm, inner sep = 0, outer sep = 0] ('+ name +') at '+ pos +' {\\includegraphics[width='+str(width)+'mm, height='+str(height)+'mm]{'+ img_path +'}}; \n'
+            'mm, inner sep = 0, outer sep = 0] ('+ name +') at '+ pos +' {\\includegraphics[width='+str(width)+'mm, height='+str(height)+'mm]{\\detokenize{'+ img_path +'}}}; \n'
 
 def gen_frame_node(parent_width, parent_height, parent_name, color, linewidth):
     '''
     Because frames in tikz ignore borders per default, we sometimes have incorrect 'total_width' and 'total_height'. To prevent that, we draw frames on top of an
-    existing node and take the linewidth into account, so that frames do not overlap with other elements or even worse, goes 'beyond the total width and height' 
+    existing node and take the linewidth into account, so that frames do not overlap with other elements or even worse, goes 'beyond the total width and height'
     of the figure.
     '''
     if color == None or linewidth == 0:
@@ -177,7 +177,7 @@ def gen_node_west(width, height, name, parent_name, offset, offset_name, content
 def gen_node_east(width, height, name, parent_name, offset, offset_name, content, fontsize, alignment='centering', rotate_text=90, background_color=None, text_color=None):
     return gen_node_helper('east', 'west', **locals())
 
-def gen_node_helper(position, anchor, width, height, name, parent_name, offset, offset_name, content, fontsize, alignment='centering', 
+def gen_node_helper(position, anchor, width, height, name, parent_name, offset, offset_name, content, fontsize, alignment='centering',
                     rotate_text=0, background_color=None, text_color=None):
     space_node = ''
     if offset > 0.0: # offset node
@@ -199,7 +199,7 @@ def gen_node_helper(position, anchor, width, height, name, parent_name, offset, 
     # text/content node
     content_node = ''
     if content != '':
-        content_node = gen_text_node(width, height, content, parent_name=name, position='center', anchor='center', fontsize=fontsize, alignment=alignment, 
+        content_node = gen_text_node(width, height, content, parent_name=name, position='center', anchor='center', fontsize=fontsize, alignment=alignment,
                                            rotation=rotate_text, text_color=text_color)
 
     return space_node + container_node + content_node
@@ -216,7 +216,7 @@ def get_box_anchor_and_position(alignment):
         txt_box_anchor = 'center'
     return txt_box_pos, txt_box_anchor
 
-def gen_label_helper(position, width, height, name, parent_name, text_offset, content, fontsize, alignment='centering', 
+def gen_label_helper(position, width, height, name, parent_name, text_offset, content, fontsize, alignment='centering',
                     background_color=None, text_color=None):
     anchor = position
     position = opposite(position)
@@ -231,7 +231,7 @@ def gen_label_helper(position, width, height, name, parent_name, text_offset, co
     content_node = ''
     if content != '':
         pos1, anch1 =get_box_anchor_and_position(alignment)
-        content_node = gen_text_node(width-text_offset, height, content, parent_name=name, position=pos1, anchor=anch1, fontsize=fontsize, alignment=alignment, 
+        content_node = gen_text_node(width-text_offset, height, content, parent_name=name, position=pos1, anchor=anch1, fontsize=fontsize, alignment=alignment,
                                            rotation=0, text_color=text_color)
 
     return container_node + content_node + '\n'
@@ -255,7 +255,7 @@ def add_outer_horizontal_padding(margin, num_columns, position, has_title, has_r
         parent_name = position+'-group-field'+str_appendix+''
     elif has_row_field:
         parent_name = position+'-row-field'+str_appendix+'-1'
-    
+
     return gen_space_helper(margin, parent_name, position)
 
 def add_outer_vertical_padding(margin, position, num_rows, has_title, has_column_field, str_appendix=''):
@@ -264,12 +264,12 @@ def add_outer_vertical_padding(margin, position, num_rows, has_title, has_column
     '''
     if str_appendix != '':
         str_appendix = '-' + str_appendix
-    
+
     if position=='south':
         parent_name = position+'-field'+str_appendix+'-'+str(num_rows)+'-1'
     else: # north
         parent_name = position+'-field'+str_appendix+'-1-1'
-    
+
     if has_title:
         parent_name = position+'-group-field'+str_appendix+''
     elif has_column_field:
@@ -287,19 +287,19 @@ def gen_space_helper(margin, parent_name, position):
 
     if is_vertical(position):
         width, height = margin, 0.0
-    else: 
+    else:
         width, height = 0.0, margin
-    
+
     return gen_node_helper(position, opposite(position), width, height, name, parent_name, offset=0.0, offset_name=None, content='', fontsize='')
 
 def add_all_outer_paddings(data, str_appendix=''):
-    padding_nodes = add_outer_horizontal_padding(margin=data['padding']['west'], position='west', num_columns=data['num_columns'], 
+    padding_nodes = add_outer_horizontal_padding(margin=data['padding']['west'], position='west', num_columns=data['num_columns'],
                                     has_title=(data['titles']['west']['width']!=0.0), has_row_field=(data['row_titles']['west']['width']!=0.0), str_appendix=str_appendix)
-    padding_nodes += add_outer_horizontal_padding(margin=data['padding']['east'], position='east', num_columns=data['num_columns'], 
+    padding_nodes += add_outer_horizontal_padding(margin=data['padding']['east'], position='east', num_columns=data['num_columns'],
                                     has_title=(data['titles']['east']['width']!=0.0), has_row_field=(data['row_titles']['east']['width']!=0.0), str_appendix=str_appendix)
-    padding_nodes += add_outer_vertical_padding(margin=data['padding']['north'], position='north', num_rows=data['num_rows'], 
+    padding_nodes += add_outer_vertical_padding(margin=data['padding']['north'], position='north', num_rows=data['num_rows'],
                                     has_title=(data['titles']['north']['height']!=0.0), has_column_field=(data['column_titles']['north']['height']!=0.0), str_appendix=str_appendix)
-    padding_nodes += add_outer_vertical_padding(margin=data['padding']['south'], position='south', num_rows=data['num_rows'], 
+    padding_nodes += add_outer_vertical_padding(margin=data['padding']['south'], position='south', num_rows=data['num_rows'],
                                     has_title=(data['titles']['south']['height']!=0.0), has_column_field=(data['column_titles']['south']['height']!=0.0), str_appendix=str_appendix)
     return padding_nodes
 ### END space/padding nodes ###
@@ -309,7 +309,7 @@ def add_all_outer_paddings(data, str_appendix=''):
 def gen_horizontal_figure_title(position, num_rows, width, title_config, column_config, str_appendix='', txt_alignment='centering'):
     if str_appendix != '':
         str_appendix = '-' + str_appendix
-    
+
     if title_config['height']==0.0:
         return ''
 
@@ -319,15 +319,15 @@ def gen_horizontal_figure_title(position, num_rows, width, title_config, column_
     else: #north
         parent_name = position+'-field'+ str_appendix +'-1-1'
         name='north-group-field'+ str_appendix +''
-    
+
     if column_config['height']!=0.0:
         parent_name = position+'-column-field'+ str_appendix +'-1'
 
     anchor = opposite(position)+' west'
     position = position+' west'
 
-    return gen_node_helper(position, anchor, width, title_config['height'], name=name, parent_name=parent_name, offset=title_config['offset'], offset_name=None, 
-                           content=title_config['content'], fontsize=gen_LaTeX_fontsize(title_config['fontsize'],title_config['line_space']), alignment=txt_alignment, 
+    return gen_node_helper(position, anchor, width, title_config['height'], name=name, parent_name=parent_name, offset=title_config['offset'], offset_name=None,
+                           content=title_config['content'], fontsize=gen_LaTeX_fontsize(title_config['fontsize'],title_config['line_space']), alignment=txt_alignment,
                            rotate_text=title_config['rotation'], background_color=title_config['background_color'], text_color=title_config['text_color'])
 
 def gen_vertical_figure_title(position, num_columns, height, title_config, title_offset, column_north_config, str_appendix='', txt_alignment='centering'):
@@ -339,7 +339,7 @@ def gen_vertical_figure_title(position, num_columns, height, title_config, title
     '''
     if str_appendix != '':
         str_appendix = '-' + str_appendix
-    
+
     if title_config['width']==0.0:
         return ''
 
@@ -357,8 +357,8 @@ def gen_vertical_figure_title(position, num_columns, height, title_config, title
     anchor = 'north '+opposite(position)
     position = 'north '+position
 
-    return gen_node_helper(position, anchor, title_config['width'], height, name=name, parent_name=parent_name, offset=title_offset, offset_name=None, 
-                           content=title_config['content'], fontsize=gen_LaTeX_fontsize(title_config['fontsize'],title_config['line_space']), alignment=txt_alignment, 
+    return gen_node_helper(position, anchor, title_config['width'], height, name=name, parent_name=parent_name, offset=title_offset, offset_name=None,
+                           content=title_config['content'], fontsize=gen_LaTeX_fontsize(title_config['fontsize'],title_config['line_space']), alignment=txt_alignment,
                            rotate_text=title_config['rotation'], background_color=title_config['background_color'], text_color=title_config['text_color'])
 
 def gen_outer_row(position, row, data, str_appendix=''):
@@ -371,20 +371,20 @@ def gen_outer_row(position, row, data, str_appendix=''):
     row_title = data['row_titles'][position]
     if row_title['width']==0.0:
         return ''
-        
+
     name=position+'-row-field'+ str_appendix +'-'+str(row)
     parent_name='west-field'+ str_appendix +'-'+str(row)+'-1'
     if position=='east':
         parent_name='east-field'+ str_appendix +'-'+str(row)+'-'+str(data['num_columns'])
-    
+
     bg_color_list = read_optional(row_title, 'background_colors', default=None)
     if bg_color_list is not None:
         bg_color = load_nth_color(bg_color_list, data['num_rows'], row-1)
     else:
         bg_color = None
 
-    return gen_node_helper(position, opposite(position), row_title['width'], data['element_config']['img_height'], name=name, parent_name=parent_name, offset=row_title['offset'], offset_name=None, 
-                           content=row_title['content'][row-1], fontsize=gen_LaTeX_fontsize(row_title['fontsize'],row_title['line_space']), alignment='centering', 
+    return gen_node_helper(position, opposite(position), row_title['width'], data['element_config']['img_height'], name=name, parent_name=parent_name, offset=row_title['offset'], offset_name=None,
+                           content=row_title['content'][row-1], fontsize=gen_LaTeX_fontsize(row_title['fontsize'],row_title['line_space']), alignment='centering',
                            rotate_text=row_title['rotation'], background_color=bg_color, text_color=row_title['text_color'])
 
 def gen_outer_col(position, column, data, str_appendix=''):
@@ -397,7 +397,7 @@ def gen_outer_col(position, column, data, str_appendix=''):
 
     if col_title['height']==0.0:
         return ''
-    
+
     name=position+'-column-field'+ str_appendix +'-'+str(column)
     parent_name='north-field'+ str_appendix +'-1-'+str(column)
     if position=='south':
@@ -408,9 +408,9 @@ def gen_outer_col(position, column, data, str_appendix=''):
         bg_color = load_nth_color(bg_color_list, data['num_columns'], column-1)
     else:
         bg_color = None
-    
-    return gen_node_helper(position, opposite(position), data['element_config']['img_width'], col_title['height'], name=name, parent_name=parent_name, offset=col_title['offset'], offset_name=None, 
-                           content=col_title['content'][column-1], fontsize=gen_LaTeX_fontsize(col_title['fontsize'],col_title['line_space']), alignment='centering', 
+
+    return gen_node_helper(position, opposite(position), data['element_config']['img_width'], col_title['height'], name=name, parent_name=parent_name, offset=col_title['offset'], offset_name=None,
+                           content=col_title['content'][column-1], fontsize=gen_LaTeX_fontsize(col_title['fontsize'],col_title['line_space']), alignment='centering',
                            rotate_text=col_title['rotation'], background_color=bg_color, text_color=col_title['text_color'])
 
 def add_col_and_row_titles(data, str_appendix=''):
@@ -423,7 +423,7 @@ def add_col_and_row_titles(data, str_appendix=''):
     for row in range(data['num_rows']):
         c_r_title_nodes += gen_outer_row('west', row+1, data, str_appendix=str_appendix)
         c_r_title_nodes += gen_outer_row('east', row+1, data, str_appendix=str_appendix)
-    
+
     return c_r_title_nodes
 
 def add_big_titles(data, str_appendix=''):
@@ -431,17 +431,17 @@ def add_big_titles(data, str_appendix=''):
     body_height = calculate.get_body_height(data)
 
     # horizontal
-    title_nodes = gen_horizontal_figure_title('north', num_rows=data['num_rows'], width=body_width, title_config=data['titles']['north'], 
+    title_nodes = gen_horizontal_figure_title('north', num_rows=data['num_rows'], width=body_width, title_config=data['titles']['north'],
                                                     column_config=data['column_titles']['north'], str_appendix=str_appendix)
-    title_nodes += gen_horizontal_figure_title('south', num_rows=data['num_rows'], width=body_width, title_config=data['titles']['south'], 
+    title_nodes += gen_horizontal_figure_title('south', num_rows=data['num_rows'], width=body_width, title_config=data['titles']['south'],
                                                     column_config=data['column_titles']['south'], str_appendix=str_appendix)
 
     # vertical
-    offset_west_title = calculate.get_h_offset_for_title(title_offset=data['titles']['west']['offset'], caption_config=data['element_config']['captions']['west'], 
+    offset_west_title = calculate.get_h_offset_for_title(title_offset=data['titles']['west']['offset'], caption_config=data['element_config']['captions']['west'],
                                                      row_config=data['row_titles']['west'])
-    title_nodes += gen_vertical_figure_title('west', num_columns=data['num_columns'], height=body_height, title_config=data['titles']['west'], 
+    title_nodes += gen_vertical_figure_title('west', num_columns=data['num_columns'], height=body_height, title_config=data['titles']['west'],
                                                   title_offset=offset_west_title, column_north_config=data['column_titles']['north'], str_appendix=str_appendix)
-    offset_east_title = calculate.get_h_offset_for_title(title_offset=data['titles']['east']['offset'], caption_config=data['element_config']['captions']['east'], 
+    offset_east_title = calculate.get_h_offset_for_title(title_offset=data['titles']['east']['offset'], caption_config=data['element_config']['captions']['east'],
                                                      row_config=data['row_titles']['east'])
     title_nodes += gen_vertical_figure_title('east', num_columns=data['num_columns'], height=body_height, title_config=data['titles']['east'],
                                                   title_offset=offset_east_title, column_north_config=data['column_titles']['north'], str_appendix=str_appendix)
@@ -460,7 +460,7 @@ def gen_all_image_blocks(data, str_appendix=''):
         colIndex = 1
         for elem in row:
             if colIndex<=data['num_columns']:
-                content += gen_one_img_block(data['img_width_px'], data['img_height_px'], element_config=data['element_config'], 
+                content += gen_one_img_block(data['img_width_px'], data['img_height_px'], element_config=data['element_config'],
                                             element_content=elem, row=rowIndex, column=colIndex, row_spacing=data['row_space'],
                                             column_spacing=data['column_space'], str_appendix=str_appendix)
                 colIndex += 1
@@ -469,17 +469,17 @@ def gen_all_image_blocks(data, str_appendix=''):
 
 def draw_rectangle_on_img(parent_name, crop_num, parent_width_factor, parent_height_factor,
                             pos_x1, pos_y1, xoffset, yoffset, line_width, color=[255,255,255], dashed=False):
-    
-    offset_node = gen_plain_node(width=parent_width_factor * pos_x1,height=parent_height_factor * pos_y1, 
-                                 name='inset'+str(crop_num)+'-offset-'+parent_name, parent_name=parent_name, 
+
+    offset_node = gen_plain_node(width=parent_width_factor * pos_x1,height=parent_height_factor * pos_y1,
+                                 name='inset'+str(crop_num)+'-offset-'+parent_name, parent_name=parent_name,
     position= "north west", anchor="north west", additional_params='')
 
     draw_params = 'draw='+str(gen_tikZ_rgb255(color))+', line width='+str(line_width)+'pt, '
     if dashed:
         draw_params = draw_params + 'dashed, '
 
-    inset_node = gen_plain_node(width=parent_width_factor * (xoffset),height=parent_height_factor *(yoffset), 
-                                name='inset'+str(crop_num)+'-'+parent_name, 
+    inset_node = gen_plain_node(width=parent_width_factor * (xoffset),height=parent_height_factor *(yoffset),
+                                name='inset'+str(crop_num)+'-'+parent_name,
     parent_name='inset'+str(crop_num)+'-offset-'+parent_name, position= "south east", anchor="north west", additional_params=draw_params)
     return offset_node + inset_node
 
@@ -493,10 +493,10 @@ def gen_marker_nodes(inset_configs, parent_name, parent_width_px, parent_height_
             inset_pos = inset['pos']
             inset_size = inset['size']
             width_factor, height_factor = calculate.relative_position(parent_width_px, parent_height_px, parent_width, parent_height)
-            marker_nodes += draw_rectangle_on_img(parent_name=parent_name, crop_num=crop_num, 
+            marker_nodes += draw_rectangle_on_img(parent_name=parent_name, crop_num=crop_num,
                                                  parent_width_factor=width_factor, parent_height_factor=height_factor,
-                                                 pos_x1=inset_pos[0], pos_y1=inset_pos[1], 
-                                                 xoffset=inset_size[0], yoffset=inset_size[1], line_width=inset_configs['line_width'], 
+                                                 pos_x1=inset_pos[0], pos_y1=inset_pos[1],
+                                                 xoffset=inset_size[0], yoffset=inset_size[1], line_width=inset_configs['line_width'],
                                                  color=inset['color'], dashed=inset_configs['dashed'])
 
     return marker_nodes
@@ -506,7 +506,7 @@ def make_label(dir, cfg, name, parent_name):
         cfg = cfg[name]
     except KeyError:
         return ''
-                
+
     # set the text alignment
     alignment_lookup = {
         'south': 'centering',
@@ -530,8 +530,8 @@ def make_label(dir, cfg, name, parent_name):
 
     result = ""
     result += gen_plain_node(offset_w, offset_h, offset_name, parent_name, dir, dir)
-    result += gen_label_helper(dir, cfg['width_mm'], cfg['height_mm'], node_name, offset_name, cfg['padding_mm'], 
-                               cfg['text'], gen_LaTeX_fontsize(cfg['fontsize'], cfg['line_space']), alignment, 
+    result += gen_label_helper(dir, cfg['width_mm'], cfg['height_mm'], node_name, offset_name, cfg['padding_mm'],
+                               cfg['text'], gen_LaTeX_fontsize(cfg['fontsize'], cfg['line_space']), alignment,
                                cfg['background_color'], cfg['text_color'])
     return result
 
@@ -548,12 +548,12 @@ def gen_label(label_config, parent_name):
 
 def gen_one_img_block(img_width_px, img_height_px, element_config, element_content, row, column, row_spacing, column_spacing, str_appendix, txt_align='centering'):
     '''
-    A image block can contain up to 5 'content' nodes: the image node itself with the image and 4 nodes, which are in 
+    A image block can contain up to 5 'content' nodes: the image node itself with the image and 4 nodes, which are in
     each direction around the image node (north, east, south, west). You can leave the 'direction' nodes empty, if you want to.
     Per default, the width of north/south nodes will be the (img) width. The same applies for the height of east/west nodes.
     You can add a frame to the image. An example would look like this: frame_specs='draw=blue, line width=0.25mm, '.
 
-    TODO; this is one of the oldest and worst code written. Feature north/east and west captions are not supported in other backends. 
+    TODO; this is one of the oldest and worst code written. Feature north/east and west captions are not supported in other backends.
     This is a reminder, that at some point I should rewrite this function into several smaller functions ...
     '''
     img_width, img_height = element_config['img_width'], element_config['img_height']
@@ -575,52 +575,52 @@ def gen_one_img_block(img_width_px, img_height_px, element_config, element_conte
         if row == 1: #create starting node
             tikz_content += gen_plain_node(img_width, north_config['height'], name='north-field-'+append)
             if e_c['north']!='':
-                tikz_content += gen_text_node(img_width, north_config['height'], e_c['north'], parent_name='north-field-'+append, position='center', 
-                                                  anchor='center', fontsize=gen_LaTeX_fontsize(north_config['fontsize'], north_config['line_space']), 
+                tikz_content += gen_text_node(img_width, north_config['height'], e_c['north'], parent_name='north-field-'+append, position='center',
+                                                  anchor='center', fontsize=gen_LaTeX_fontsize(north_config['fontsize'], north_config['line_space']),
                                                   alignment=txt_align, rotation=north_config['rotation'], text_color=north_config['text_color'])
         else: #coming from top, meaning, we create a new row with corresponding spacing
-            tikz_content += gen_node_south(img_width, north_config['height'], name='north-field-'+append, parent_name='south-field-'+str(row-1)+'-'+str(column), 
-                                        offset=row_spacing, offset_name='row-space-'+str(row-1)+'-'+str(row), content=e_c['north'], 
-                                        fontsize=gen_LaTeX_fontsize(north_config['fontsize'], north_config['line_space']), 
+            tikz_content += gen_node_south(img_width, north_config['height'], name='north-field-'+append, parent_name='south-field-'+str(row-1)+'-'+str(column),
+                                        offset=row_spacing, offset_name='row-space-'+str(row-1)+'-'+str(row), content=e_c['north'],
+                                        fontsize=gen_LaTeX_fontsize(north_config['fontsize'], north_config['line_space']),
                                         alignment=txt_align, rotate_text=north_config['rotation'], background_color=None, text_color=north_config['text_color'])
 
         parent_name='north-field-'+append
         if north_config['offset']!=0.0:
-            tikz_content += gen_plain_node(img_width, height=north_config['offset'], name='north-space-'+append, parent_name=parent_name, position='south', 
+            tikz_content += gen_plain_node(img_width, height=north_config['offset'], name='north-space-'+append, parent_name=parent_name, position='south',
                                                 anchor='north')
             parent_name='north-space-'+append
 
-        tikz_content += gen_img_node(img_width, img_height, name='img-'+append, parent_name=parent_name, position='south', anchor='north', 
+        tikz_content += gen_img_node(img_width, img_height, name='img-'+append, parent_name=parent_name, position='south', anchor='north',
                                     img_path=element_content['filename'], additional_params='')
-        tikz_content += gen_node_west(west_config['width'], img_height, name='west-field-'+append, parent_name='img-'+append, offset=west_config['offset'], offset_name=None, 
-                                  content=e_c['west'], fontsize=gen_LaTeX_fontsize(west_config['fontsize'], west_config['line_space']), 
+        tikz_content += gen_node_west(west_config['width'], img_height, name='west-field-'+append, parent_name='img-'+append, offset=west_config['offset'], offset_name=None,
+                                  content=e_c['west'], fontsize=gen_LaTeX_fontsize(west_config['fontsize'], west_config['line_space']),
                                   alignment=txt_align, rotate_text=west_config['rotation'], background_color=None, text_color=west_config['text_color'])
-    
-    else: # creating img block from left 
-        tikz_content += gen_node_east(west_config['width'], img_height, name='west-field-'+append, parent_name='east-field-'+str(row)+'-'+str(column-1), offset=column_spacing, 
-                                  offset_name='column-space-'+str(row)+'-'+str(column-1)+'-'+str(column), content=e_c['west'], 
-                                  fontsize=gen_LaTeX_fontsize(west_config['fontsize'], west_config['line_space']), 
+
+    else: # creating img block from left
+        tikz_content += gen_node_east(west_config['width'], img_height, name='west-field-'+append, parent_name='east-field-'+str(row)+'-'+str(column-1), offset=column_spacing,
+                                  offset_name='column-space-'+str(row)+'-'+str(column-1)+'-'+str(column), content=e_c['west'],
+                                  fontsize=gen_LaTeX_fontsize(west_config['fontsize'], west_config['line_space']),
                                   alignment=txt_align, rotate_text=west_config['rotation'], background_color=None, text_color=west_config['text_color'])
 
         parent_name='west-field-'+append
-        if west_config['offset']!=0.0: 
-            tikz_content += gen_plain_node(width=west_config['offset'], height=img_height, name='west-space-'+append, parent_name=parent_name, position='east', 
+        if west_config['offset']!=0.0:
+            tikz_content += gen_plain_node(width=west_config['offset'], height=img_height, name='west-space-'+append, parent_name=parent_name, position='east',
                                               anchor='west')
             parent_name='west-space-'+append
 
-        tikz_content += gen_img_node(img_width, img_height, name='img-'+append, parent_name=parent_name, position='east', anchor='west', 
+        tikz_content += gen_img_node(img_width, img_height, name='img-'+append, parent_name=parent_name, position='east', anchor='west',
                                      img_path=element_content['filename'], additional_params='')
-        tikz_content += gen_node_north(img_width, height=north_config['height'], name='north-field-'+append, parent_name='img-'+append, offset=north_config['offset'], 
-                                       offset_name=None, content=e_c['north'], fontsize=gen_LaTeX_fontsize(north_config['fontsize'], north_config['line_space']), 
+        tikz_content += gen_node_north(img_width, height=north_config['height'], name='north-field-'+append, parent_name='img-'+append, offset=north_config['offset'],
+                                       offset_name=None, content=e_c['north'], fontsize=gen_LaTeX_fontsize(north_config['fontsize'], north_config['line_space']),
                                        alignment=txt_align, rotate_text=north_config['rotation'], background_color=None, text_color=north_config['text_color'])
-    
+
     #creating east and south nodes are independent of where the parent node was connected
-    tikz_content += gen_node_east(east_config['width'], img_height, name='east-field-'+append, parent_name='img-'+append, offset=east_config['offset'], offset_name=None, 
-                              content=e_c['east'], fontsize=gen_LaTeX_fontsize(east_config['fontsize'],east_config['line_space']), alignment=txt_align, 
+    tikz_content += gen_node_east(east_config['width'], img_height, name='east-field-'+append, parent_name='img-'+append, offset=east_config['offset'], offset_name=None,
+                              content=e_c['east'], fontsize=gen_LaTeX_fontsize(east_config['fontsize'],east_config['line_space']), alignment=txt_align,
                               rotate_text=east_config['rotation'], background_color=None, text_color=east_config['text_color'])
 
-    tikz_content += gen_node_south(img_width, height=south_config['height'], name='south-field-'+append, parent_name='img-'+append, offset=south_config['offset'], 
-                                offset_name=None, content=e_c['south'], fontsize=gen_LaTeX_fontsize(south_config['fontsize'],south_config['line_space']), 
+    tikz_content += gen_node_south(img_width, height=south_config['height'], name='south-field-'+append, parent_name='img-'+append, offset=south_config['offset'],
+                                offset_name=None, content=e_c['south'], fontsize=gen_LaTeX_fontsize(south_config['fontsize'],south_config['line_space']),
                                 alignment=txt_align, rotate_text=south_config['rotation'], background_color=None, text_color=south_config['text_color'])
 
     marker_specs = read_optional(element_content, 'marker', default='')
@@ -636,6 +636,6 @@ def gen_one_img_block(img_width_px, img_height_px, element_config, element_conte
         tikz_content += gen_frame_node(img_width, img_height, parent_name='img-'+append, color=frame_specs['color'], linewidth=frame_specs['line_width'])
 
     return tikz_content + '\n'
-    
+
 ### END generating img/element blocks ###
 # END TIKZ GEN
