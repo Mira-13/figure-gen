@@ -1,4 +1,5 @@
 import json
+import tempfile
 import numpy
 import os
 import copy
@@ -80,7 +81,7 @@ def merge_data_into_layout(data, layout):
                 except:
                     caption = ""
                 elem["captions"][d] = caption
-            
+
             # add frame from user (optional, default: no frame)
             try:
                 frame = data_elem["frame"]
@@ -283,20 +284,28 @@ def horizontal_figure(modules, width_cm: float, filename):
     merged_data = merge(modules_data_list, layouts)
     align_modules(merged_data, width_cm*10.)
 
-    # All .pngs for a "/a/b/figure.pdf" are in a folder "/a/b/figure_images"
-    image_path, _ = os.path.splitext(filename)
-    image_path += "_images"
-    if not os.path.exists(image_path):
-        os.makedirs(image_path)
+    # Create temporary folder for images, generated .tex files, LaTeX output, etc
+    temp_folder = tempfile.TemporaryDirectory()
+
+    if (backend == 'html'):
+        # All .pngs for a "/a/b/figure.pdf" are in a folder "/a/b/figure_images"
+        image_path, _ = os.path.splitext(filename)
+        image_path += "_images"
+        if not os.path.exists(image_path):
+            os.makedirs(image_path)
+    else:
+        image_path = temp_folder.name
 
     # Export all .png images
     generated_data = []
     for i in range(len(modules)):
         if merged_data[i]['type'] != 'plot':
             export_raw_img_to_png(merged_data[i], module_idx=i, path=image_path)
-        generated_data.append(backends[backend].generate(merged_data[i], to_path=out_dir, index=i))
+        generated_data.append(backends[backend].generate(merged_data[i], to_path=out_dir,
+                                                         index=i, temp_folder=temp_folder.name))
 
-    backends[backend].combine(generated_data, filename)
+    backends[backend].combine(generated_data, filename, temp_folder=temp_folder.name)
+    temp_folder.cleanup()
 
     # TODO delete the image folder iff the backend is tikz and the .tex files are deleted, too
 

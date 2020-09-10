@@ -1,5 +1,6 @@
 import os
 import shutil
+import tempfile
 
 from . import tikz
 from . import calculate
@@ -45,7 +46,7 @@ def begin_tikz_document(background_color):
 def create_header(background_color):
     header = combine_pdfs.documentclass()
     # used package 'libertine', but maybe let the user decide which font-family he wants
-    header += combine_pdfs.use_packages(["{comment}", "{amsmath}", "{tikz}", "[T1]{fontenc}", "{libertine}"]) 
+    header += combine_pdfs.use_packages(["{comment}", "{amsmath}", "{tikz}", "[T1]{fontenc}", "{libertine}"])
     header += begin_tikz_document(background_color)
     return header
 
@@ -66,16 +67,16 @@ def delete_gen_images(data):
             os.remove(os.path.join(elem['filename']))
 
 
-def generate(module_data, to_path, index, delete_gen_files=True):
+def generate(module_data, to_path, index, temp_folder, delete_gen_files=True):
     tex_filename = 'gen_tex'+str(index)+'.tex'
     pdf_filename = tex_filename.replace('tex', 'pdf')
 
     if module_data['type'] == 'grid':
         content = gen_content(module_data)
-        write_into_tex_file(to_path, content, tex_filename, background_color=module_data['background_color'])
-        compile_tex.compile(to_path, tex_filename, pdf_filename)
+        write_into_tex_file(temp_folder, content, tex_filename, background_color=module_data['background_color'])
+        compile_tex.compile(temp_folder, tex_filename, pdf_filename)
     elif module_data['type'] == 'plot':
-        make_plot.generate(module_data, to_path, pdf_filename)
+        make_plot.generate(module_data, temp_folder, pdf_filename)
     else:
         raise "unsupported module type '" + module_data['type'] + "'"
 
@@ -88,10 +89,8 @@ def generate(module_data, to_path, index, delete_gen_files=True):
 
     return pdf_filename
 
-def combine(data, filename, delete_gen_files=True):
-    to_path = os.path.dirname(filename)
-    combine_pdfs.make_pdf(to_path, delete_gen_files=delete_gen_files)
-
-    tempfile = os.path.join(to_path, "gen_figure.pdf")
-    shutil.copy(tempfile, filename)
-    os.remove(tempfile)
+def combine(data, filename, temp_folder, delete_gen_files=True):
+    combine_pdfs.make_pdf(temp_folder, delete_gen_files=delete_gen_files)
+    gen = os.path.join(temp_folder, "gen_figure.pdf")
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    shutil.copy(gen, filename)
