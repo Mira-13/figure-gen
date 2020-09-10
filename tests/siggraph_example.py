@@ -160,6 +160,6 @@ plot_module.set_width_to_height_aspect_ratio(1.15)
 modules = [ref_grid, comp_grid, plot_module]
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.pdf')
+    #generator.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.pdf')
     generator.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.pptx')
-    generator.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.html')
+    #generator.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.html')

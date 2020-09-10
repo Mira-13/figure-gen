@@ -297,6 +297,3 @@ def horizontal_figure(modules, width_cm: float, filename):
         generated_data.append(backends[backend].generate(merged_data[i], to_path=out_dir, index=i))
 
     backends[backend].combine(generated_data, filename)
-
-    # TODO delete the image folder iff the backend is tikz and the .tex files are deleted, too
-
