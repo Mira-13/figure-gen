@@ -180,7 +180,7 @@ class ElementView:
         the content (provided by the user) will be shown. The user can set (overwrite) the layout for captions anytime.
         '''
         self.elem["captions"] = {}
-        self.elem["captions"]["south"] = txt_content
+        self.elem["captions"]["south"] = str(txt_content)
 
         # check if caption layout is already set, if not, set a field_size, so that the user is not confused, why content isn't shown
         self.layout._set_field_size_if_not_set(name='element_config.captions.south', pos='south', field_size_mm=6.)
@@ -204,7 +204,7 @@ class ElementView:
                 pass
 
         self.elem["label"][pos] = {
-            "text": txt_content,
+            "text": str(txt_content),
             "fontsize": fontsize,
             "line_space": 1.2,
             "text_color": txt_color,
@@ -242,7 +242,7 @@ class Grid(Module):
         The corresponding field will be set to some value in case the user didn't set it yet.
         '''
         pos = _transfer_position(position)
-        self.data["titles"][pos] = txt_content
+        self.data["titles"][pos] = str(txt_content)
 
         # check if caption layout is already set, if not, set a field_size, so that the user is not confused, why content isn't shown
         self.get_layout()._set_field_size_if_not_set(name='titles.'+pos, pos=pos, field_size_mm=6.)
