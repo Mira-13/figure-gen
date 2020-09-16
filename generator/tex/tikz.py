@@ -11,6 +11,7 @@ def text_umlaut_replacement():
         "Ö": '\\\"O',
         "Ä": '\\\"A',
     }
+
 def replace_all_umlaute(text):
     table = text_umlaut_replacement()
 

@@ -44,7 +44,13 @@ def get_fontsize(data):
 def scaleRGB(rgb_list):
     return (rgb_list[0] * 1.0/255.0, rgb_list[1] * 1.0/255.0, rgb_list[2] * 1.0/255.0)
 
-def set_labels(fig, ax, data, pad): #fontsize_pt, xlabel, xrotation, ylabel, yrotation
+def set_labels(fig, ax, data, pad): 
+    '''
+    Sets fontsize (pt), labels and their rotation.
+    The labels are placed at each end of the axes so that we don't waste too much space.
+    The correct label position will be calculated automatically.
+    Currently the user needs to find suitable ticks, so that labels and ticks don't overlap!
+    '''
     axis_labels = data['axis_labels']
     ax.set_xlabel(axis_labels['x']['text'], fontsize=get_fontsize(data), ha="right", 
                   va=label_alignment(axis_labels['x']['rotation']), rotation=axis_labels['x']['rotation'])
@@ -91,36 +97,61 @@ def _apply_axis_range(ax, axis, data):
         else:
             ax.set_ylim(axis_range)
 
+def _apply_x_axes_properties(fig, ax, data):
+    '''
+    Because matplotlib has different function names for each axes, we also need two functions for the two axes.
+    '''
+    try:
+        props = data['axis_properties']['x']
+    except:
+        return
+
+    if props['use_log_scale']:
+        ax.set_xscale('log')
+
+    if props['ticks'] is not None:
+        ax.set_xticks(props['ticks'])
+        if not props['use_scientific_notations']: # can only apply if we have specific ticks
+            ax.set_xticklabels(props['ticks'])
+    
+    ax.xaxis.set_minor_formatter(FormatStrFormatter(""))
+
+def _apply_y_axes_properties(fig, ax, data):
+    '''
+    Because matplotlib has different function names for each axes, we also need two functions for the two axes.
+    '''
+    try:
+        props = data['axis_properties']['y']
+    except:
+        return
+
+    if props['use_log_scale']:
+        ax.set_yscale('log')
+
+    if props['ticks'] is not None:
+        ax.set_yticks(props['ticks'])
+        if not props['use_scientific_notations']: # can only apply if we have specific ticks
+            ax.set_yticklabels(props['ticks'])
+    
+    ax.yaxis.set_minor_formatter(FormatStrFormatter(""))
+
 def apply_axes_properties_and_labels(fig, ax, data):
     _apply_axis_range(ax, 'x', data)
     _apply_axis_range(ax, 'y', data)
 
-    if data['axis_properties']['x']['use_log_scale']:
-        ax.set_xscale('log')
-    if data['axis_properties']['y']['use_log_scale']:
-        ax.set_yscale('log')
-
-    tick_lw_pt = data['plot_config']['tick_linewidth_pt']
-
-    plt.tick_params(width=tick_lw_pt, length=(tick_lw_pt * 4), labelsize=get_fontsize(data), pad=(tick_lw_pt * 2))
     if not data['plot_config']['has_right_axis']: 
         remove_right_axis(ax)
     if not data['plot_config']['has_upper_axis']: 
         remove_upper_axis(ax)
 
+    tick_lw_pt = data['plot_config']['tick_linewidth_pt']
+    plt.tick_params(width=tick_lw_pt, length=(tick_lw_pt * 4), labelsize=get_fontsize(data), pad=(tick_lw_pt * 2))
     set_labels(fig, ax, data, pad=(tick_lw_pt * 6))
-    # if use_scientific_notations True, displaystyle is used in pgf --> offset pf ticks changes 
-    ax.set_xticks(data['axis_properties']['x']['ticks'])
-    if not data['axis_properties']['x']['use_scientific_notations']:
-        #xticks[-1] = '\\textbf{'+ str(xticks[-1]) + '}'
-        ax.set_xticklabels(data['axis_properties']['x']['ticks'])
+    # if use_scientific_notations True, displaystyle is used in pgf --> offset of ticks changes 
 
-    ax.set_yticks(data['axis_properties']['y']['ticks'])
-    if not data['axis_properties']['y']['use_scientific_notations']:
-        ax.set_yticklabels(data['axis_properties']['y']['ticks'])
+    _apply_x_axes_properties(fig, ax, data)
+    _apply_y_axes_properties(fig, ax, data)
 
-    ax.yaxis.set_minor_formatter(FormatStrFormatter(""))
-    ax.xaxis.set_minor_formatter(FormatStrFormatter(""))
 
 def place_marker(ax, marker_data):
     try:

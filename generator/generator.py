@@ -145,12 +145,12 @@ class ElementView:
         self.elem['image'] = img_data
         return self
 
-    def set_frame(self, linewidth, rgb=[0,0,0]):
+    def set_frame(self, linewidth, color=[0,0,0]):
         '''
         linewidth unit: pt
-        rgb: list or tripel, int range (0-255)
+        color: [r,g,b] each channel with int range (0-255)
         '''
-        self.elem['frame'] = { "line_width": linewidth, "color": rgb }
+        self.elem['frame'] = { "line_width": linewidth, "color": color }
         return self
 
     def set_marker_properties(self, linewidth=1.5, is_dashed=False):
@@ -164,13 +164,13 @@ class ElementView:
         self.elem["crop_marker"]["dashed"] = is_dashed
         return self
 
-    def set_marker(self, pos, size, rgb=[255,255,255]):
+    def set_marker(self, pos, size, color=[255,255,255]):
         try:
             test = self.elem["crop_marker"]["list"]
         except:
             self.set_marker_properties(linewidth=1.5)
 
-        self.elem["crop_marker"]["list"].append({"pos": pos, "size": size, "color": rgb})
+        self.elem["crop_marker"]["list"].append({"pos": pos, "size": size, "color": color})
         return self
 
     def set_caption(self, txt_content):
@@ -292,7 +292,13 @@ class Plot(Module):
         self.data = {
             "type": "plot",
             "data": p_data,
-            "plot_color": None,
+            "plot_color": [ 
+                [232, 181, 88],
+                [5, 142, 78],
+                [94, 163, 188],
+                [181, 63, 106], 
+                [255, 255, 255]
+            ],
             "axis_labels": {},
             "axis_properties": {},
             "markers": {},
@@ -312,12 +318,23 @@ class Plot(Module):
         if not (axis in ['x', 'y']):
             raise Error('Incorrect axis. Try: "x" or "y".')
 
-    def set_plot_colors(self, rgb_color_list):
-        self.data['plot_color'] = rgb_color_list
+    def set_plot_colors(self, color_list):
+        '''
+        color list contains a list of colors. A color is defined as [r,g,b] while each channel
+        ranges from 0 to 255.
+        '''
+        self.data['plot_color'] = color_list
 
-    def set_axis_label(self, axis, txt, rotation):
+    def set_axis_label(self, axis, txt, rotation=None):
         self._check_axis(axis)
-        rotation = self._interpret_rotation(rotation)
+
+        if rotation is not None:
+            rotation = self._interpret_rotation(rotation)
+        else:
+            if axis == 'x':
+                rotation = 'horizontal'
+            else:
+                rotation = 'vertical'
 
         self.data['axis_labels'][axis] = {}
         self.data['axis_labels'][axis]['text'] = txt
@@ -325,7 +342,8 @@ class Plot(Module):
 
     def set_axis_props(self, axis, ticks, range=None, use_log_scale=True, use_scientific_notations=False):
         '''
-        So far, we need range and ticks as user input. Would be nice to let
+        The user should find and define suitable ticks so that the labels and ticks don't overlap.
+        Would be nice to do that automatically at some point.
         '''
         self._check_axis(axis)
         if range is not None and len(range) != 2:

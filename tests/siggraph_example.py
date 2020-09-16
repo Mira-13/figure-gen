@@ -113,7 +113,7 @@ reference = ref_grid.get_element(0,0).set_image(get_image(scene[idx], seconds[id
 # marker
 reference.set_marker_properties(0.6)
 for crop in crops[idx]:
-    reference.set_marker(pos=[crop[0], crop[1]], size=[crop[2], crop[3]], rgb=[242, 113, 0])
+    reference.set_marker(pos=[crop[0], crop[1]], size=[crop[2], crop[3]], color=[242, 113, 0])
 
 # titles
 ref_grid.set_title('south', scene[idx].replace('-',' ').title())
@@ -145,11 +145,11 @@ c_layout.set_col_titles('south', field_size_mm=7., offset_mm=0.5, fontsize=8, bg
 plot_module = generator.Plot(get_plot_data(scene[idx], method_list))
 plot_module.set_plot_colors(colors)
 
-plot_module.set_axis_label('x', "Time [s]", rotation="horizontal")
-plot_module.set_axis_label('y', "Error\n[relMSE]", rotation="vertical")
+plot_module.set_axis_label('x', "Time [s]")
+plot_module.set_axis_label('y', "Error\n[relMSE]")
 
-plot_module.set_axis_props('x', range=[2.5, 800], ticks=xticks[idx], use_log_scale=True, use_scientific_notations=False)
-plot_module.set_axis_props('y', range=None, ticks=[0.01, 0.1, 1.0], use_log_scale=True, use_scientific_notations=False)
+plot_module.set_axis_props('x', ticks=xticks[idx], range=[2.5, 800])
+plot_module.set_axis_props('y', ticks=[0.01, 0.1, 1.0])
 
 plot_module.set_marker_v_line(pos=vline_positions[idx][0], color=colors[baseline], linestyle=(0,(4,6)), linewidth_pt=0.6)
 plot_module.set_marker_v_line(pos=vline_positions[idx][1], color=colors[3], linestyle=(-5,(4,6)), linewidth_pt=0.6)
@@ -160,6 +160,6 @@ plot_module.set_width_to_height_aspect_ratio(1.15)
 modules = [ref_grid, comp_grid, plot_module]
 
 if __name__ == "__main__":
-    #generator.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.pdf')
-    generator.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.pptx')
+    generator.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.pdf')
+    #generator.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.pptx')
     #generator.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.html')

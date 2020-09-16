@@ -31,8 +31,8 @@ def gen_content(data, str_appendix=''):
     # write into json height and width. # CAREFUL: NOT frames included if frame line width > paddings
     data['total_height'] = calculate.get_total_height(data)
     data['total_width'] = calculate.get_total_width(data)
-    print('total width of generated tikz file: ', data['total_width'])
-    print('total height of generated tikz file: ', data['total_height'])
+    print('total width of generated tikz module: ', data['total_width'])
+    print('total height of generated tikz module: ', data['total_height'])
 
     return content
 
@@ -58,8 +58,6 @@ def write_into_tex_file(path, body_content, file_name, background_color=[255,255
     f = open(os.path.join(path, file_name), 'w')
     f.write(whole_content)
     f.close()
-
-    print('Tikz/LaTeX file was generated.')
 
 def delete_gen_images(data):
     for row in data['elements_content']:
@@ -94,3 +92,4 @@ def combine(data, filename, temp_folder, delete_gen_files=True):
     gen = os.path.join(temp_folder, "gen_figure.pdf")
     os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
     shutil.copy(gen, filename)
+    print('Tikz/LaTeX file was generated.')

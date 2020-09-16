@@ -161,7 +161,7 @@ def _title_content(txt_content, fontsize_pt, txt_color=None, padding=None, align
     result = ''
     if alignment=='left':
         result += txt_pad
-    result += '<p class="title-content" style="'+ txt_align + color + font_size +'">' + txt_content.replace('\n', '<br/>') +'</p>' + '\n'
+    result += '<p class="title-content" style="'+ txt_align + color + font_size +'">' + txt_content.replace('\\\\', '<br/>') +'</p>' + '\n'
     if alignment=='right':
         result += txt_pad
     result += '</div>' + '\n'
