@@ -24,11 +24,6 @@ tests/gen_figure.pdf
 # Python compiled files
 __pycache__
 
-# Web UI generated folders and files
-dist
-package-lock.json
-yarn.lock
-node_modules
 
 # Visual studio generated / user specific
 .vs
