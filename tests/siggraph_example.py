@@ -5,7 +5,7 @@ import pyexr
 import json
 import numpy as np
 
-idx = 1
+idx = 2 # only pool scene will be in repo included
 scene = ['bookshelf', 'glossy-kitchen', 'pool', 'veach-door']
 seconds = [120, 90, 60, 60]
 baseline = 2
