@@ -82,18 +82,21 @@ def relative_squared_error(img, ref, epsilon=0.0001):
 def mse(img, ref):
     return np.mean(luminance(squared_error(img, ref)))
 
-def remove_outliers(error_img):
-    f = 0.00001
+def remove_outliers(error_img, percentage):
     errors = np.sort(error_img.flatten())
-    n = errors.size
-    e = errors[0:n-int(n*f)] # ignore fireflies
+    num_outliers = int(errors.size * 0.01 * percentage)
+    e = errors[0:errors.size-num_outliers]
     return np.mean(e)
 
 def relative_mse(img, ref, epsilon=0.0001):
     err_img_rgb = relative_squared_error(img, ref, epsilon)
     err_img_gray = average_color_channels(err_img_rgb)
-    return remove_outliers(err_img_gray)
-    # return np.mean(err_img_gray)
+    return np.mean(err_img_gray)
+
+def relative_mse_outlier_rejection(img, ref, epsilon=0.0001, percentage=0.1):
+    err_img_rgb = relative_squared_error(img, ref, epsilon)
+    err_img_gray = average_color_channels(err_img_rgb)
+    return remove_outliers(err_img_gray, percentage)
 
 def sape(img, ref):
     ''' Computes the symmetric absolute precentage error
