@@ -77,9 +77,10 @@ python -m pip install --user --upgrade --force-reinstall ./dist/figuregen-0.1-py
 
 To get an inspiration on how to create figures, you might have a look at our tests or our [tutorial](Tutorial.ipynb).
 
-## Feedback
+## Feedback 
 
 We are happy to recieve honest feedback. If something does not work or you think there is a missing feature, please let us know.
 
-WIP: We are planning to add a short questionnaire in the future.
+Please participate in our survey (2-3 min):
+https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAMAAAHGrp1UMDBNU0VaNVlXNjhDT1JVT1NXOUtNQlVYSy4u.
 
