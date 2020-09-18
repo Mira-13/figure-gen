@@ -10,7 +10,7 @@ Why did we implemented a figure generator?
 
 In rendering research, it is quite common to create figures of "comparison"-type. Meaning, that we start with a set of generated images, that needs to be compared. Oftentimes, one rendered scene is not enough, therefore, we need several comparison figures - at best in a similar or same style as the other created figures.
 
-We support _grids_ (images that are grid-like arranged) and simple _line-plotting_. To get a further understanding what _grids_ are, you might want to have a look at our tutorial (Tutorial.ipynb).
+We support _grids_ (images that are grid-like arranged) and simple _line-plotting_. To get a further understanding what _grids_ are, you might want to have a look at our tutorial ([Tutorial.ipynb](Tutorial.ipynb)).
 
 ## Quickstart
 
@@ -79,7 +79,7 @@ To get an inspiration on how to create figures, you might have a look at our tes
 
 ## Feedback
 
-We are happy to recieve honest feedback. If something does not work or you think there is a missing feature, please let us now.
+We are happy to recieve honest feedback. If something does not work or you think there is a missing feature, please let us know.
 
 WIP: We are planning to add a short questionnaire in the future.
 
