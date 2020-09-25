@@ -54,11 +54,7 @@ https://www.lfd.uci.edu/~gohlke/pythonlibs/#openexr
 
 ## Testing
 
-There are two ways to run the unit tests: using Visual Studio or using Python CLI.
-
-For Visual Studio, simply open the FigureGenerator.sln file and launch the debugger.
-
-For Python CLI, the process is a bit more complicated. First, set PYTHONPATH to include the root folder of this repository.
+First, set PYTHONPATH to include the root folder of this repository.
 Alternatively, you can install the package via pip, as discussed below. Then, you can run test as follows:
 ```
 cd tests

@@ -1,5 +1,5 @@
-import generator
-import generator.util
+import figuregen
+import figuregen.util
 import os
 import pyexr
 import numpy as np
@@ -22,16 +22,16 @@ def get_image(method=None, crop_args=None):
 
     img = pyexr.read(path)
     if crop_args is not None:
-        img = generator.util.image.crop(img, crop_args)
-        img = generator.util.image.zoom(img)
-    return generator.util.image.lin_to_srgb(img)
+        img = figuregen.util.image.crop(img, crop_args)
+        img = figuregen.util.image.zoom(img)
+    return figuregen.util.image.lin_to_srgb(img)
 
 ref_img = get_image() 
 m_images = [get_image(m) for m in method_list[:-1]]
 
 #-------- Data Gathering: errors & captions ----------
 def get_error(method_img):
-    rMSE = generator.util.image.relative_mse(img=method_img, ref=ref_img)
+    rMSE = figuregen.util.image.relative_mse(img=method_img, ref=ref_img)
     return rMSE
 
 def get_captions():
@@ -57,7 +57,7 @@ def get_captions():
 
 
 # ---------- REFERENCE Module ----------
-ref_grid = generator.Grid(1,1)
+ref_grid = figuregen.Grid(1,1)
 reference = ref_grid.get_element(0,0).set_image(ref_img)
  
 # marker
@@ -76,7 +76,7 @@ ref_layout.set_title('top', field_size_mm=6., offset_mm=0.2, fontsize=8)
 # ---------- COMPARE Module ----------
 num_rows = len(crops)
 num_cols = len(method_list)
-comp_grid = generator.Grid(num_rows, num_cols)
+comp_grid = figuregen.Grid(num_rows, num_cols)
 
 # set images
 for row in range(0,num_rows):
@@ -93,4 +93,4 @@ c_layout.set_col_titles('top', field_size_mm=6., offset_mm=0.2, fontsize=8)
 
 # ------ create figure --------
 if __name__ == "__main__":
-    generator.horizontal_figure([ref_grid, comp_grid], width_cm=15., filename='siggraph/'+scene+'.pdf')
+    figuregen.horizontal_figure([ref_grid, comp_grid], width_cm=15., filename='siggraph/'+scene+'.pdf')

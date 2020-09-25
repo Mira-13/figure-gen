@@ -2,8 +2,8 @@ import copy
 import numpy as np
 import pyexr
 import single_module
-import generator
-import generator.util
+import figuregen
+import figuregen.util
 
 # generate test images
 blue = np.tile([0.2,0.3,0.9], (32, 32, 1))
@@ -13,12 +13,12 @@ pyexr.write("images//yellow.exr", yellow)
 
 # load the two images
 images = [
-    generator.util.image.lin_to_srgb(pyexr.read("images//blue.exr")),
-    generator.util.image.lin_to_srgb(pyexr.read("images//yellow.exr"))
+    figuregen.util.image.lin_to_srgb(pyexr.read("images//blue.exr")),
+    figuregen.util.image.lin_to_srgb(pyexr.read("images//yellow.exr"))
 ]
 
 # ---- Grid Module ----
-grid0 = generator.Grid(1, 1)
+grid0 = figuregen.Grid(1, 1)
 grid0.get_layout().set_padding(right=0.5)
 e0 = grid0.get_element(0,0).set_image(images[1])
 e0.set_frame(0.3, [0,0,0])
@@ -27,7 +27,7 @@ e0.set_marker(pos=[15,1], size=[10,15], color=[186, 98, 82])
 e0.set_marker_properties(0.6)
 
 # ---- Grid Module ----
-grid1 = generator.Grid(2, 2)
+grid1 = figuregen.Grid(2, 2)
 layout1 = grid1.get_layout()
 layout1.set_padding(top=0.2, right=0.5)
 
@@ -65,6 +65,6 @@ modules = [
 ]
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=18., filename='multimodule_test.pdf')
-    generator.horizontal_figure(modules, width_cm=18., filename='multimodule_test.pptx')
-    generator.horizontal_figure(modules, width_cm=18., filename='multimodule_test.html')
+    figuregen.horizontal_figure(modules, width_cm=18., filename='multimodule_test.pdf')
+    figuregen.horizontal_figure(modules, width_cm=18., filename='multimodule_test.pptx')
+    figuregen.horizontal_figure(modules, width_cm=18., filename='multimodule_test.html')

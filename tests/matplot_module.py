@@ -1,5 +1,5 @@
-import generator
-import generator.util
+import figuregen
+import figuregen.util
 import numpy as np
 
 # generate test data
@@ -17,7 +17,7 @@ plot_color = [
 ]
 
 # ----- PLOT Module ----- 
-plot_module = generator.Plot(data)
+plot_module = figuregen.Plot(data)
 #plot_module.set_plot_colors(plot_color)
 
 plot_module.set_axis_label('x', "sec", rotation="horizontal")
@@ -32,6 +32,6 @@ plot_module.set_marker_v_line(pos=10.5, color=[242, 113, 0], linestyle=(0,(4,6))
 plot_module.set_width_to_height_aspect_ratio(1.15)
 
 if __name__ == "__main__":
-    generator.horizontal_figure([plot_module], width_cm=11., filename='matplot_test.pdf')
-    #generator.horizontal_figure([plot_module], width_cm=11., filename='matplot_test.pptx')
-    #generator.horizontal_figure([plot_module], width_cm=11., filename='matplot_test.html')
+    figuregen.horizontal_figure([plot_module], width_cm=11., filename='matplot_test.pdf')
+    #figuregen.horizontal_figure([plot_module], width_cm=11., filename='matplot_test.pptx')
+    #figuregen.horizontal_figure([plot_module], width_cm=11., filename='matplot_test.html')

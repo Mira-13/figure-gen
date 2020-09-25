@@ -1,7 +1,7 @@
 import pyexr
 import numpy as np
-import generator
-import generator.util
+import figuregen
+import figuregen.util
 
 colors = [ 
             [232, 181, 88], #yellow
@@ -20,12 +20,12 @@ pyexr.write("images//yellow.exr", yellow)
 
 # load the two images
 images = [
-    generator.util.image.lin_to_srgb(pyexr.read("images//blue.exr")),
-    generator.util.image.lin_to_srgb(pyexr.read("images//yellow.exr"))
+    figuregen.util.image.lin_to_srgb(pyexr.read("images//blue.exr")),
+    figuregen.util.image.lin_to_srgb(pyexr.read("images//yellow.exr"))
 ]
 
 # ------ create 'empty' Grid with num_rows, num_cols ---------
-grid = generator.Grid(2, 3)
+grid = figuregen.Grid(2, 3)
 layout = grid.get_layout()
 layout.set_padding(top=0.5, bottom=1.5)
 
@@ -76,6 +76,6 @@ grid.set_col_titles('north', ['Col Titles', 'are', 'The Best'])
 #layout.set_col_titles('north', 10., offset_mm=1., fontsize=9, bg_color=[200, 180, 220])
 
 if __name__ == "__main__":
-    generator.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.pdf')
-    generator.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.pptx')
-    generator.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.html')
+    figuregen.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.pdf')
+    figuregen.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.pptx')
+    figuregen.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.html')

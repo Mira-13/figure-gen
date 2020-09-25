@@ -1,5 +1,5 @@
-import generator
-import generator.util
+import figuregen
+import figuregen.util
 import os
 import pyexr
 import json
@@ -45,9 +45,9 @@ def get_image(scene, seconds, method=None, crop_args=None):
 
     img = pyexr.read(path)
     if crop_args is not None:
-        img = generator.util.image.crop(img, crop_args)
-        img = generator.util.image.zoom(img)
-    return generator.util.image.lin_to_srgb(img)
+        img = figuregen.util.image.crop(img, crop_args)
+        img = figuregen.util.image.zoom(img)
+    return figuregen.util.image.lin_to_srgb(img)
 
 
 # ----- Helper for Comparision Module to generate content -----
@@ -107,7 +107,7 @@ def get_plot_data(scene, method_list):
     ]
 
 # ---------- REFERENCE Module ----------
-ref_grid = generator.Grid(1,1)
+ref_grid = figuregen.Grid(1,1)
 reference = ref_grid.get_element(0,0).set_image(get_image(scene[idx], seconds[idx], method=None, crop_args=None))
  
 # marker
@@ -126,7 +126,7 @@ ref_layout.set_title('bottom', field_size_mm=7., offset_mm=0.5, fontsize=8)
 # ---------- COMPARE Module ----------
 num_rows = len(crops[idx])
 num_cols = len(method_list)
-comp_grid = generator.Grid(num_rows, num_cols)
+comp_grid = figuregen.Grid(num_rows, num_cols)
 
 # set images
 for row in range(0,num_rows):
@@ -142,7 +142,7 @@ c_layout = comp_grid.get_layout().set_padding(bottom=0.1, right=0.5, row=0.8, co
 c_layout.set_col_titles('south', field_size_mm=7., offset_mm=0.5, fontsize=8, bg_color=colors)
 
 # ---------- PLOT Module ----------
-plot_module = generator.Plot(get_plot_data(scene[idx], method_list))
+plot_module = figuregen.Plot(get_plot_data(scene[idx], method_list))
 plot_module.set_plot_colors(colors)
 
 plot_module.set_axis_label('x', "Time [s]")
@@ -160,6 +160,6 @@ plot_module.set_width_to_height_aspect_ratio(1.15)
 modules = [ref_grid, comp_grid, plot_module]
 
 if __name__ == "__main__":
-    generator.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.pdf')
-    #generator.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.pptx')
-    #generator.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.html')
+    figuregen.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.pdf')
+    #figuregen.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.pptx')
+    #figuregen.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.html')

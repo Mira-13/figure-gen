@@ -1,4 +1,13 @@
 gen_*.json
+*.tex
+*.pdf
+*.png
+*.exr
+
+*.pptx
+!figure_generator_layout.pptx
+
+# siggraph sample data
 *__path.json
 *__pgfull6.json
 *__full.json
@@ -7,20 +16,15 @@ gen_*.json
 *__pgfull7.json
 *__pgrad7.json
 *__upsmcmc.json
-images
-*.tex
-*.pdf
-*.exr
-*.png
-*.pptx
-
-!tests/*
-!figure_generator_layout.pptx
+!tests/errors/pool/*
+!tests/images/pool/*
 
 # generated test results
 tests/gen_figure.pptx
 tests/gen_figure.pdf
 tests/siggraph/*
+tests/*.html
+tests/scripts
 
 # Python compiled files
 __pycache__
