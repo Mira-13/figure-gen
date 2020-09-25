@@ -20,10 +20,11 @@ images
 # generated test results
 tests/gen_figure.pptx
 tests/gen_figure.pdf
+tests/siggraph/*
 
 # Python compiled files
 __pycache__
-
+.ipynb_checkpoints
 
 # Visual studio generated / user specific
 .vs
@@ -31,3 +32,4 @@ __pycache__
 # Python setuptools / wheel / pip generated files
 build/*
 figuregen.egg-info/*
+dist/*
