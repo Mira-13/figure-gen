@@ -33,7 +33,7 @@ def create_tex_content(path, files, list_packages):
 def get_files(path, search_for_filenames):
     pattern = os.path.join(path, search_for_filenames)
     files = glob.glob(pattern)
-    return files
+    return sorted(files)
 
 def create_tex_file(content, path, filename):
     f = open(os.path.join(path, filename), 'w')
