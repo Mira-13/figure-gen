@@ -1,4 +1,3 @@
-import json
 import os
 import matplotlib
 matplotlib.use('pgf')
@@ -14,11 +13,11 @@ def setup_fonts(plt, data):
     "pgf.rcfonts": False,    # don't setup fonts from rc parameters
     "pgf.texsystem": "pdflatex",
     "font.family": font_properties['font_family'],
-    "pgf.preamble": [
-         r"\usepackage[utf8]{inputenc}",
-         r"\usepackage[T1]{fontenc}",
-         r"\usepackage{"+font_properties['tex_package']+"}"
-         ]
+    "pgf.preamble": "\n".join([
+            r"\usepackage[utf8]{inputenc}",
+            r"\usepackage[T1]{fontenc}",
+            r"\usepackage{"+font_properties['tex_package']+"}"
+        ])
     })
 
 def calculate_inch_fig_size(width_mm, height_mm):
