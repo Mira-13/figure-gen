@@ -4,24 +4,24 @@ import figuregen
 import figuregen.util
 
 colors = [ 
-            [232, 181, 88], #yellow
-            [5, 142, 78], #green
-            [94, 163, 188], #light-blue
-            [181, 63, 106], #pink
-            [82, 110, 186], #blue
-            [186, 98, 82] #orange-crab
-        ]
+    [232, 181, 88], #yellow
+    [5, 142, 78], #green
+    [94, 163, 188], #light-blue
+    [181, 63, 106], #pink
+    [82, 110, 186], #blue
+    [186, 98, 82] #orange-crab
+]
 
 # generate test images
 blue = np.tile([x / 255 for x in colors[2]], (32, 64, 1))
 yellow = np.tile([x / 255 for x in colors[0]], (32, 64, 1))
-pyexr.write("images//blue.exr", blue)
-pyexr.write("images//yellow.exr", yellow)
+pyexr.write("images/blue.exr", blue)
+pyexr.write("images/yellow.exr", yellow)
 
 # load the two images
 images = [
-    figuregen.util.image.lin_to_srgb(pyexr.read("images//blue.exr")),
-    figuregen.util.image.lin_to_srgb(pyexr.read("images//yellow.exr"))
+    figuregen.util.image.lin_to_srgb(pyexr.read("images/blue.exr")),
+    figuregen.util.image.lin_to_srgb(pyexr.read("images/yellow.exr"))
 ]
 
 # ------ create 'empty' Grid with num_rows, num_cols ---------
