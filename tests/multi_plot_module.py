@@ -3,12 +3,11 @@ import matplot_module
 import figuregen
 import figuregen.util
 
-plot_module = matplot_module.plot_module
-
-some_modules = [multi_module.grid0, multi_module.grid1]
-
-multi_type_modules = some_modules
-multi_type_modules.append(plot_module)
+multi_type_modules = [
+    multi_module.grid0,
+    multi_module.grid1,
+    matplot_module.plot_module,
+]
 
 if __name__ == "__main__":
     figuregen.horizontal_figure(multi_type_modules, width_cm=18., filename='multiplot_test.pdf')
