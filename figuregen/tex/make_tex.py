@@ -65,8 +65,8 @@ def delete_gen_images(data):
             os.remove(os.path.join(elem['filename']))
 
 
-def generate(module_data, to_path, index, temp_folder, delete_gen_files=True):
-    tex_filename = 'gen_tex'+str(index)+'.tex'
+def generate(module_data, to_path, index, temp_folder):
+    tex_filename = f'gen_tex{index:04d}.tex'
     pdf_filename = tex_filename.replace('tex', 'pdf')
 
     if module_data['type'] == 'grid':
@@ -77,18 +77,11 @@ def generate(module_data, to_path, index, temp_folder, delete_gen_files=True):
         make_plot.generate(module_data, temp_folder, pdf_filename)
     else:
         raise "unsupported module type '" + module_data['type'] + "'"
-
-    if delete_gen_files:
-        try:
-            os.remove(os.path.join(to_path, tex_filename))
-            delete_gen_images(module_data)
-        except:
-            pass
-
+    
     return pdf_filename
 
-def combine(data, filename, temp_folder, delete_gen_files=True):
-    combine_pdfs.make_pdf(temp_folder, delete_gen_files=delete_gen_files)
+def combine(data, filename, temp_folder):
+    combine_pdfs.make_pdf(temp_folder, data)
     gen = os.path.join(temp_folder, "gen_figure.pdf")
     os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
     shutil.copy(gen, filename)
