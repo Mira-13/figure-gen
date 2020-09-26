@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='figuregen',
-    version='0.2',
+    version='0.2.1',
     description='Figure Generator',
     long_description='This tool generates figures in pdf- (via LaTeX), html- and pptx-format. '\
     'It might help not only to create final figures, but also to analyze images faster: '\
@@ -18,5 +18,12 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.5',
+    install_requires=[
+        'matplotlib>=3.2.1',
+        'python-pptx',
+        'pyexr',
+        'scipy',
+        'opencv-python'
+    ],
     zip_safe=False
 )

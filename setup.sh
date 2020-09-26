@@ -1,3 +1,4 @@
-python -m pip install --user matplotlib python-pptx pyexr scipy opencv-python wheel
+python -m pip install wheel
 python setup.py sdist bdist_wheel
-python -m pip install --user --upgrade --force-reinstall ./dist/figuregen-0.2-py3-none-any.whl
+python -m pip uninstall figuregen
+python -m pip install --upgrade .\dist\figuregen-0.2.1-py3-none-any.whl
