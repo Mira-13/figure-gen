@@ -12,66 +12,29 @@ In rendering research, it is quite common to create figures of "comparison"-type
 
 We support _grids_ (images that are grid-like arranged) and simple _line-plotting_. To get a further understanding what _grids_ are, you might want to have a look at our tutorial ([Tutorial.ipynb](Tutorial.ipynb)).
 
-## Quickstart
-
-### Linux / Mac OS
-
-```
-./setup.sh
-```
-
-### Windows
-
-Install the pre-built OpenEXR binaries: https://www.lfd.uci.edu/~gohlke/pythonlibs/#openexr
-
-Dummy Note -to be more precise-: Open Powershell in folder where the downloaded binary file is:
-``` 
-python -m pip install .\OpenEXR-_VERSION_.whl
-```
-
-Afterwards, go to the main folder of the figure generator and run:
-```
-./setup.ps1
-```
-Dummy Note -in case this fails-: You might need to change execution policy to run the setup. Therefore, run in admin-Powershell:
-```
-Set-ExecutionPolicy Unrestricted
-./setup.ps1
-```
-
 ## Dependencies
 
 - Python 3.5+ (and in path)
 - LaTeX
 
-The following python packages need to be installed:
-```
-python -m pip install --user matplotlib python-pptx pyexr scipy opencv-python wheel
-```
-Note that matplotlib version >3.2.1 is required for the constrained layout feature.
-In case of install issues on Windows, try the pre-built OpenEXR binaries:
-https://www.lfd.uci.edu/~gohlke/pythonlibs/#openexr
-
-## Testing
-
-First, set PYTHONPATH to include the root folder of this repository.
-Alternatively, you can install the package via pip, as discussed below. Then, you can run test as follows:
-```
-cd tests
-python -m single_module
-python -m multi_module
-...
-```
-
-## Getting started
-
-Build and install the package:
-```
-python setup.py sdist bdist_wheel
-python -m pip install --user --upgrade --force-reinstall ./dist/figuregen-0.1-py3-none-any.whl
-```
+## Quickstart
 
 To get an inspiration on how to create figures, you might have a look at our tests or our [tutorial](Tutorial.ipynb).
+
+### Linux / Mac OS
+
+```
+python -m pip install figuregen
+```
+
+### Windows
+
+Download the pre-built OpenEXR binaries: https://www.lfd.uci.edu/~gohlke/pythonlibs/#openexr
+Open Powershell in the folder where the downloaded binary file is and run:
+``` 
+python -m pip install .\OpenEXR-_VERSION_.whl
+python -m pip install figuregen
+```
 
 ## Feedback 
 
