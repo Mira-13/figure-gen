@@ -557,12 +557,12 @@ def gen_one_img_block2(data, row, col, str_appendix):
     capt_config = data['element_config']['captions']['south']
     elem = data['elements_content'][row-1][col-1]
     south_caption = elem['captions']['south']
-    
+
     append = str(row)+'-'+str(col)
 
     # create image block
     tikz_content = ''
-    
+
     if col == 1: # create img block from top
 
         if row == 1: # create the very first node
@@ -571,13 +571,13 @@ def gen_one_img_block2(data, row, col, str_appendix):
             tikz_content += gen_node_south(img_width, height=0.0, name='north-field-'+append, parent_name='south-field-'+str(row-1)+'-'+str(col),
                                         offset=data['row_space'], offset_name='row-space-'+str(row-1)+'-'+str(row))
         parent_name='north-field-'+append
-        
+
         tikz_content += gen_img_node(img_width, img_height, name='img-'+append, parent_name=parent_name, position='south', anchor='north',
                                     img_path=elem['filename'], additional_params='')
         tikz_content += gen_node_west(width=0.0, height=img_height, name='west-field-'+append, parent_name='img-'+append, offset=0.0, offset_name=None)
 
-    else: # creating img block from left, add corresponding column spacing 
-        tikz_content += gen_node_east(width=0.0, height=img_height, name='west-field-'+append, parent_name='east-field-'+str(row)+'-'+str(col-1), 
+    else: # creating img block from left, add corresponding column spacing
+        tikz_content += gen_node_east(width=0.0, height=img_height, name='west-field-'+append, parent_name='east-field-'+str(row)+'-'+str(col-1),
                                       offset=data['column_space'], offset_name='column-space-'+str(row)+'-'+str(col-1)+'-'+str(col))
 
         parent_name='west-field-'+append
@@ -587,7 +587,7 @@ def gen_one_img_block2(data, row, col, str_appendix):
 
     # creating east and south nodes are independent of where the parent node was appended
     tikz_content += gen_node_east(width=0.0, height=img_height, name='east-field-'+append, parent_name='img-'+append, offset=0.0, offset_name=None)
-    
+
     #south caption
     tikz_content += gen_node_south(img_width, height=capt_config['height'], name='south-field-'+append, parent_name='img-'+append, offset=capt_config['offset'],
                                 offset_name=None, content=south_caption, fontsize=gen_LaTeX_fontsize(capt_config['fontsize'],capt_config['line_space']),

@@ -292,11 +292,11 @@ class Plot(Module):
         self.data = {
             "type": "plot",
             "data": p_data,
-            "plot_color": [ 
+            "plot_color": [
                 [232, 181, 88],
                 [5, 142, 78],
                 [94, 163, 188],
-                [181, 63, 106], 
+                [181, 63, 106],
                 [255, 255, 255]
             ],
             "axis_labels": {},
@@ -405,14 +405,14 @@ class Plot(Module):
             self.data['layout']['plot_config.tick_linewidth_pt'] = tick_line_pt
 
 
-def horizontal_figure(modules, width_cm: float, filename):
+def horizontal_figure(modules, width_cm: float, filename, intermediate_dir = None):
     """
     Creates a figure by putting modules next to each other, from left to right.
     Aligns the height of the given modules such that they fit the given total width.
 
     Args:
         modules: a list of dictionaries, one for each module
-        backend: can be one of: 'tikz', 'pptx', 'html'
-        out_dir: path to the folder that will contain the generated figure and data
+        width_cm: total width of the figure in centimeters
+        intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
     """
-    return implementation.horizontal_figure(modules, width_cm, filename)
+    return implementation.horizontal_figure(modules, width_cm, filename, intermediate_dir)

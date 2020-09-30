@@ -263,7 +263,7 @@ def get_out_dir_and_backend(filename):
     out_dir = os.path.dirname(filename)
     return out_dir, backend, extension
 
-def horizontal_figure(modules, width_cm: float, filename):
+def horizontal_figure(modules, width_cm: float, filename, intermediate_dir):
     """
     Creates a figure by putting modules next to each other, from left to right.
     Aligns the height of the given modules such that they fit the given total width.
@@ -285,7 +285,13 @@ def horizontal_figure(modules, width_cm: float, filename):
     align_modules(merged_data, width_cm*10.)
 
     # Create temporary folder for images, generated .tex files, LaTeX output, etc
-    temp_folder = tempfile.TemporaryDirectory()
+    # Unless the user specified a folder for those files
+    if intermediate_dir is not None and os.path.isdir(intermediate_dir):
+        temp_folder = None
+        temp_dir = os.path.abspath(intermediate_dir)
+    else:
+        temp_folder = tempfile.TemporaryDirectory()
+        temp_dir = temp_folder.name
 
     if (backend == 'html'):
         # All .pngs for a "/a/b/figure.pdf" are in a folder "/a/b/figure_images"
@@ -294,7 +300,7 @@ def horizontal_figure(modules, width_cm: float, filename):
         if not os.path.exists(image_path):
             os.makedirs(image_path)
     else:
-        image_path = temp_folder.name
+        image_path = temp_dir
 
     # Export all .png images
     generated_data = []
@@ -302,7 +308,9 @@ def horizontal_figure(modules, width_cm: float, filename):
         if merged_data[i]['type'] != 'plot':
             export_raw_img_to_png(merged_data[i], module_idx=i, path=image_path)
         generated_data.append(backends[backend].generate(merged_data[i], to_path=out_dir,
-                                                         index=i, temp_folder=temp_folder.name))
+                                                         index=i, temp_folder=temp_dir))
 
-    backends[backend].combine(generated_data, filename, temp_folder=temp_folder.name)
-    temp_folder.cleanup()
+    backends[backend].combine(generated_data, filename, temp_folder=temp_dir)
+
+    if temp_folder is not None:
+        temp_folder.cleanup()
