@@ -3,6 +3,7 @@ gen_*.json
 *.pdf
 *.png
 *.exr
+uploadpip.ps1
 
 *.pptx
 !figure_generator_layout.pptx

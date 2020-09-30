@@ -229,6 +229,8 @@ class Grid(Module):
             "titles": {},
             "layout": {}
         }
+        self.rows = num_rows
+        self.cols = num_cols
 
     def get_element(self, row, col):
         return ElementView(self, row, col)
@@ -256,6 +258,10 @@ class Grid(Module):
         pos = _transfer_position(position)
         if pos in ['north', 'south']:
             raise Error("Invalid position for row_title. Try: 'west'/'east' or 'right'/'left'")
+        if not isinstance(txt_list, list):
+            raise Error ("'set_row_titles': Please give a list of strings, not a simple string. The length of the list should cover the number of rows.")
+        if len(txt_list) < self.rows:
+            raise Error ("'set_rows_titles': length of provided list is less than number of rows.")  
 
         try:
             self.data['row_titles'][pos]['content'] = txt_list
@@ -275,6 +281,10 @@ class Grid(Module):
         pos = _transfer_position(position)
         if pos in ['west', 'east']:
             raise Error('Invalid position for column_title. Try: "north"/"south" or "top"/"bottom"')
+        if not isinstance(txt_list, list):
+            raise Error ("'set_col_titles': Please give a list of strings, not a simple string. The length of the list should cover the number of columns.")
+        if len(txt_list) < self.cols:
+            raise Error ("'set_col_titles': length of provided list is less than number of columns.")  
 
         try:
             self.data['column_titles'][pos]['content'] = txt_list
