@@ -1,4 +1,3 @@
-import json
 from . import calculate
 
 # BEGIN minor utitities for TIKZ generation

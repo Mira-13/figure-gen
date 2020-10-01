@@ -1,5 +1,4 @@
 import subprocess
-import sys
 import os
 from shutil import rmtree
 from shutil import copy

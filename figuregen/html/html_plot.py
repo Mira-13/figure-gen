@@ -1,5 +1,3 @@
-import json
-
 template = """
 <script>
 var ctx = document.getElementById('__canvas_id__').getContext('2d');

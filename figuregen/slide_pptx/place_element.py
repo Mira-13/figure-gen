@@ -1,6 +1,3 @@
-import os
-import json
-import numpy
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.dml.color import RGBColor
