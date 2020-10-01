@@ -1,15 +1,16 @@
-import json
 import tempfile
-import numpy
 import os
 import copy
 import cv2
-import shutil
 
 from .tex import make_tex, calculate, combine_pdfs
 from .slide_pptx import make_pptx
 from .html import make_html
 from . import default_layouts
+
+class Error(Exception):
+    def __init__(self, message):
+        self.message = message
 
 backends = {
     "tikz": make_tex,
@@ -98,7 +99,10 @@ def merge_data_into_layout(data, layout):
 
             # add the image data itself (raw): matrix of rgb
             # assert ((data_elem["image"]).shape[2] == 3)
-            elem["filename"] = data_elem["image"]
+            try:
+                elem["filename"] = data_elem["image"]
+            except KeyError:
+                raise Error('An element (row: '+str(row)+', column: '+str(col)+') of one of your grid modules has no set image!')
 
 
     # add column_titles
