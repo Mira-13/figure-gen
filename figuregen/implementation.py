@@ -263,15 +263,16 @@ def get_out_dir_and_backend(filename):
     out_dir = os.path.dirname(filename)
     return out_dir, backend, extension
 
-def horizontal_figure(modules, width_cm: float, filename, intermediate_dir):
+def horizontal_figure(modules, width_cm: float, filename, intermediate_dir, tex_packages):
     """
     Creates a figure by putting modules next to each other, from left to right.
     Aligns the height of the given modules such that they fit the given total width.
 
     Args:
         modules: a list of dictionaries, one for each module
-        backend: can be one of: 'tikz', 'pptx', 'html'
-        out_dir: path to the folder that will contain the generated figure and data
+        width_cm: total width of the figure in centimeters
+        intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
+        tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
     """
 
     out_dir, backend, extension = get_out_dir_and_backend(filename)
@@ -308,7 +309,7 @@ def horizontal_figure(modules, width_cm: float, filename, intermediate_dir):
         if merged_data[i]['type'] != 'plot':
             export_raw_img_to_png(merged_data[i], module_idx=i, path=image_path)
         generated_data.append(backends[backend].generate(merged_data[i], to_path=out_dir,
-                                                         index=i, temp_folder=temp_dir))
+                                                         index=i, temp_folder=temp_dir, tex_packages=tex_packages))
 
     backends[backend].combine(generated_data, filename, temp_folder=temp_dir)
 

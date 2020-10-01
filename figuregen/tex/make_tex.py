@@ -1,12 +1,15 @@
 import os
 import shutil
-import tempfile
 
 from . import tikz
 from . import calculate
 from . import compile_tex
 from . import combine_pdfs
 from ..mplot import make_plot
+
+class Error(Exception):
+    def __init__(self, message):
+        self.message = message
 
 def gen_content(data, str_appendix=''):
     ''' TODO Describe me please
@@ -43,15 +46,24 @@ def begin_tikz_document(background_color):
     beginnig += '\\begin{tikzpicture}[show background rectangle,inner frame sep=0pt]\n\n'
     return beginnig
 
-def create_header(background_color):
+def create_header(background_color, tex_packages):
     header = combine_pdfs.documentclass()
-    # used package 'libertine', but maybe let the user decide which font-family he wants
-    header += combine_pdfs.use_packages(["{comment}", "{amsmath}", "{tikz}", "[T1]{fontenc}", "{libertine}"])
+
+    # LaTeX package Error and Warning messages
+    if not type(tex_packages) is list:
+        raise Error(r'Figure generation: provided "tex_packages" needs to be of type list. Valid packages looks like {comment}, [T1]{fontec}. They do not include the prefix "\usepackage"!')
+    if any(r"\usepackage" in e for e in tex_packages):
+        raise Error(r'Figure generation: provided "tex_packages" contain somewhere the prefix "\usepackage". Valid packages looks like ["{comment}", "[T1]{fontenc}"].')
+    if tex_packages: # check if a list is not empty
+        print('Warning: You have included LaTeX-Packages: '+ str(tex_packages) +'. If you encounter problems, provide a "temp_folder" (absolute path), which contains all generated LaTeX output files (e.g. log) for easier debugging.')
+    packs = ["{comment}", "{amsmath}", "{tikz}", "[T1]{fontenc}", "{libertine}"]
+    packs.extend(tex_packages)
+    header += combine_pdfs.use_packages(packs)
     header += begin_tikz_document(background_color)
     return header
 
-def write_into_tex_file(path, body_content, file_name, background_color=[255,255,255]):
-    header = create_header(background_color)
+def write_into_tex_file(path, body_content, file_name, background_color, tex_packages):
+    header = create_header(background_color, tex_packages)
     ending = '\n\\end{tikzpicture}\n\\end{document}'
     whole_content = header + body_content + ending
 
@@ -65,13 +77,17 @@ def delete_gen_images(data):
             os.remove(os.path.join(elem['filename']))
 
 
-def generate(module_data, to_path, index, temp_folder):
+def generate(module_data, to_path, index, temp_folder, tex_packages=[]):
+    '''
+    tex_packages: valid packages looks like ["{comment}", "{amsmath}", "[T1]{fontenc}", "{libertine}"] (these are included per default). 
+    If you want to add a package, please also do not include "\\usepackage", but what comes afterwards. 
+    '''
     tex_filename = f'gen_tex{index:04d}.tex'
     pdf_filename = tex_filename.replace('tex', 'pdf')
 
     if module_data['type'] == 'grid':
         content = gen_content(module_data)
-        write_into_tex_file(temp_folder, content, tex_filename, background_color=module_data['background_color'])
+        write_into_tex_file(temp_folder, content, tex_filename, background_color=module_data['background_color'], tex_packages=tex_packages)
         compile_tex.compile(temp_folder, tex_filename, pdf_filename)
     elif module_data['type'] == 'plot':
         make_plot.generate(module_data, temp_folder, pdf_filename)

@@ -189,8 +189,10 @@ class ElementView:
     def set_label(self, txt_content, pos, width_mm=10., height_mm=3.0, offset_mm=[1.0, 1.0],
                   fontsize=6, bg_color=None, txt_color=[0,0,0], txt_padding_mm=1.0):
 
-        if not(pos in ['bottom_left', 'bottom_right', 'bottom_center', 'top_left', 'top_right', 'top_center']):
-            print('Error, pos is invalid.') # TODO
+        if not(pos in ['bottom', 'top', 'bottom_left', 'bottom_right', 'bottom_center', 'top_left', 'top_right', 'top_center']):
+            raise Error("Label position '"+ pos +"' is invalid. Valid positions are: 'bottom_left', 'bottom_right', 'bottom_center' (= 'bottom'), 'top_left', 'top_right', or 'top_center' (= 'top').") 
+        if pos == 'bottom' or pos == 'top':
+            pos += '_center'
 
         try:
             self.elem["label"][pos] = {}
@@ -415,7 +417,7 @@ class Plot(Module):
             self.data['layout']['plot_config.tick_linewidth_pt'] = tick_line_pt
 
 
-def horizontal_figure(modules, width_cm: float, filename, intermediate_dir = None):
+def horizontal_figure(modules, width_cm: float, filename, intermediate_dir = None, tex_packages=[]):
     """
     Creates a figure by putting modules next to each other, from left to right.
     Aligns the height of the given modules such that they fit the given total width.
@@ -424,5 +426,6 @@ def horizontal_figure(modules, width_cm: float, filename, intermediate_dir = Non
         modules: a list of dictionaries, one for each module
         width_cm: total width of the figure in centimeters
         intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
+        tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
     """
-    return implementation.horizontal_figure(modules, width_cm, filename, intermediate_dir)
+    return implementation.horizontal_figure(modules, width_cm, filename, intermediate_dir, tex_packages)

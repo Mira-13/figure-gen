@@ -1,5 +1,4 @@
 import os
-import json
 from ..mplot import make_plot
 from pptx import Presentation
 from pptx.util import Inches
@@ -17,7 +16,7 @@ class Error(Exception):
     def __init__(self, message):
         self.message = message
 
-def generate(module_data, to_path, index, temp_folder, delete_gen_files=True):
+def generate(module_data, to_path, index, temp_folder, delete_gen_files=True, tex_packages=[]):
     return module_data
 
 def place_modules(data, to_path, slide):

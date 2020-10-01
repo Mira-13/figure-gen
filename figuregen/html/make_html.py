@@ -1,5 +1,4 @@
 import os
-import json
 from . import html_element, html_plot, chartjs
 '''
 in HTML format we
@@ -58,7 +57,7 @@ def gen_body_content(module_data, to_path, offset_top, offset_left, id):
 
     return body + '\n' + '</div>'
 
-def generate(module_data, to_path, index, temp_folder, delete_gen_files=False):
+def generate(module_data, to_path, index, temp_folder, delete_gen_files=False, tex_packages=[]):
     return module_data
 
 def combine(data, filename, temp_folder, delete_gen_files=False):
