@@ -14,8 +14,9 @@ We support _grids_ (images that are grid-like arranged) and simple _line-plottin
 
 ## Dependencies
 
-- Python 3.5+ (and in path)
-- LaTeX
+- Python 3.5+
+- LaTeX with the following packages: tikz, standalone, graphicx, fontenc, libertine, inputenc, comment, amsmath, newverbs.
+
 
 ## Quickstart
 
