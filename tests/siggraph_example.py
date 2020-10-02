@@ -111,9 +111,8 @@ ref_grid = figuregen.Grid(1,1)
 reference = ref_grid.get_element(0,0).set_image(get_image(scene[idx], seconds[idx], method=None, crop_args=None))
  
 # marker
-reference.set_marker_properties(0.6)
 for crop in crops[idx]:
-    reference.set_marker(pos=[crop[0], crop[1]], size=[crop[2], crop[3]], color=[242, 113, 0])
+    reference.set_marker(pos=[crop[0], crop[1]], size=[crop[2], crop[3]], color=[242, 113, 0], linewidth_pt=0.6)
 
 # titles
 ref_grid.set_title('south', scene[idx].replace('-',' ').title())

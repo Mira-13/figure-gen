@@ -22,9 +22,8 @@ grid0 = figuregen.Grid(1, 1)
 grid0.get_layout().set_padding(right=0.5)
 e0 = grid0.get_element(0,0).set_image(images[1])
 e0.set_frame(0.3, [0,0,0])
-e0.set_marker(pos=[2,12], size=[10,10], color=[155, 155, 155])
-e0.set_marker(pos=[15,1], size=[10,15], color=[186, 98, 82])
-e0.set_marker_properties(0.6)
+e0.set_marker(pos=[2,12], size=[10,10], color=[155, 155, 155], linewidth_pt=0.6)
+e0.set_marker(pos=[15,1], size=[10,15], color=[186, 98, 82], linewidth_pt=0.6)
 
 # ---- Grid Module ----
 grid1 = figuregen.Grid(2, 2)
@@ -38,7 +37,6 @@ e1_2 = grid1.get_element(0,1).set_image(images[1])
 e1_2.set_frame(0.3, [0,0,0])
 
 e1_4 = grid1.get_element(1,1).set_image(images[1])
-e1_4.set_marker_properties(1.)
 e1_4.set_frame(0.3, [0,0,0])
 
 e1_3 = grid1.get_element(1,0).set_image(images[0])

@@ -168,13 +168,14 @@ def _add_markers(slide, element, img_pos_top, img_pos_left, img_width_px, img_he
     # crop_markers are based on pixels, therefore we calculate the relative position of the marker that will be placed on top of the image
     w_scale, h_scale = calculate.relative_position(img_width_px, img_height_px, img_used_width, img_used_height)
 
-    if markers['line_width'] > 0.0 and markers['list']!=[]: # only draw if line width reasonable and list not empty
+    if markers['list']!=[]: # only draw if line width reasonable and list not empty
         for m in markers['list']:
-            pos_top = img_pos_top + m['pos'][1] * h_scale
-            pos_left = img_pos_left + m['pos'][0] * w_scale
-            w = m['size'][0] * w_scale
-            h = m['size'][1] * h_scale
-            _add_frame_on_top(slide, pos_top, pos_left, w, h, m['color'], markers['line_width'])
+            if m['lw'] > 0.0:
+                pos_top = img_pos_top + m['pos'][1] * h_scale
+                pos_left = img_pos_left + m['pos'][0] * w_scale
+                w = m['size'][0] * w_scale
+                h = m['size'][1] * h_scale
+                _add_frame_on_top(slide, pos_top, pos_left, w, h, m['color'], m['lw'])
 
 def images_and_frames_and_labels(slide, data, factor, offset_width_mm):
     '''

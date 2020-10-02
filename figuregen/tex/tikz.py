@@ -481,21 +481,22 @@ def draw_rectangle_on_img(parent_name, crop_num, parent_width_factor, parent_hei
     parent_name='inset'+str(crop_num)+'-offset-'+parent_name, position= "south east", anchor="north west", additional_params=draw_params)
     return offset_node + inset_node
 
-def gen_marker_nodes(inset_configs, parent_name, parent_width_px, parent_height_px, parent_width, parent_height):
+def gen_marker_nodes(inset_markers, parent_name, parent_width_px, parent_height_px, parent_width, parent_height):
     marker_nodes = ''
-    if inset_configs['line_width'] > 0.0 and inset_configs['list']!=[]: # only draw if line width reasonable and list not empty
-        crop_list = inset_configs['list']
+    if inset_markers['list']!=[]: # only draw if list not empty
+        crop_list = inset_markers['list']
         crop_num = 0
         for inset in crop_list:
             crop_num += 1
-            inset_pos = inset['pos']
-            inset_size = inset['size']
-            width_factor, height_factor = calculate.relative_position(parent_width_px, parent_height_px, parent_width, parent_height)
-            marker_nodes += draw_rectangle_on_img(parent_name=parent_name, crop_num=crop_num,
+            if inset['lw'] > 0.0: # and if linewidth is reasonable
+                inset_pos = inset['pos']
+                inset_size = inset['size']
+                width_factor, height_factor = calculate.relative_position(parent_width_px, parent_height_px, parent_width, parent_height)
+                marker_nodes += draw_rectangle_on_img(parent_name=parent_name, crop_num=crop_num,
                                                  parent_width_factor=width_factor, parent_height_factor=height_factor,
                                                  pos_x1=inset_pos[0], pos_y1=inset_pos[1],
-                                                 xoffset=inset_size[0], yoffset=inset_size[1], line_width=inset_configs['line_width'],
-                                                 color=inset['color'], dashed=inset_configs['dashed'])
+                                                 xoffset=inset_size[0], yoffset=inset_size[1], line_width=inset['lw'], #i_configs
+                                                 color=inset['color'], dashed=inset['dashed']) #i_configs
 
     return marker_nodes
 
@@ -595,7 +596,7 @@ def gen_one_img_block2(data, row, col, str_appendix):
     # optional: add markers, labels and frames
     marker_specs = read_optional(elem, 'marker', default='')
     if marker_specs != '':
-        tikz_content += gen_marker_nodes(inset_configs=marker_specs, parent_name='img-'+append, parent_width_px=data['img_width_px'],
+        tikz_content += gen_marker_nodes(inset_markers=marker_specs, parent_name='img-'+append, parent_width_px=data['img_width_px'],
                                     parent_height_px=data['img_height_px'], parent_width=img_width, parent_height=img_height)
     label_specs = read_optional(elem, 'label', default='')
     if label_specs != '':

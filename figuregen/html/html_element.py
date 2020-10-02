@@ -82,13 +82,14 @@ def _gen_markers(element, img_pos_top, img_pos_left, img_width_px, img_height_px
     # crop_markers are based on pixels, therefore we calculate the relative position of the marker that will be placed on top of the image
     w_scale, h_scale = calculate.relative_position(img_width_px, img_height_px, img_used_width, img_used_height)
 
-    if markers['line_width'] > 0.0 and markers['list']!=[]: # only draw if line width reasonable and list not empty
+    if markers['list']!=[]: # only draw if line width reasonable and list not empty
         for m in markers['list']:
-            pos_top = img_pos_top + (m['pos'][1] * h_scale)
-            pos_left = img_pos_left + (m['pos'][0] * w_scale)
-            result += _gen_rectangle(pos_top, pos_left,
+            if m['lw'] > 0.0:
+                pos_top = img_pos_top + (m['pos'][1] * h_scale)
+                pos_left = img_pos_left + (m['pos'][0] * w_scale)
+                result += _gen_rectangle(pos_top, pos_left,
                                      width = m['size'][0] * w_scale, height = m['size'][1] * h_scale,
-                                     line_width_pt = markers['line_width'], color = m['color'])
+                                     line_width_pt = m['lw'], color = m['color'])
     return result
 
 def gen_images(data, to_path):

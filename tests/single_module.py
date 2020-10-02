@@ -37,7 +37,7 @@ e4 = grid.get_element(1,0).set_image(images[1])
 e5 = grid.get_element(1,1).set_image(images[0])
 e6 = grid.get_element(1,2).set_image(images[1])
 
-# marker (default marker props)
+# marker
 e1.set_marker(pos=[32,12], size=[15,10], color=colors[4])
 e1.set_marker(pos=[1,1], size=[15,10], color=colors[-1])
 

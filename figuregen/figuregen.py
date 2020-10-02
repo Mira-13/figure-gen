@@ -154,23 +154,20 @@ class ElementView:
         return self
 
     def set_marker_properties(self, linewidth=1.5, is_dashed=False):
+        print('Warning, deprecated function: set_marker_properties got replaced by set_marker.')
+        return self
+
+    def set_marker(self, pos, size, color=[255,255,255], linewidth_pt=1.0, is_dashed=False):
+        if linewidth_pt <= 0.0:
+            raise Error('set_marker: invalid linewidth "'+str(linewidth_pt)+'". Please choose a positive linewidth_pt > 0.')
+
         try:
             test = self.elem["crop_marker"]["list"]
         except:
             self.elem["crop_marker"] = {}
-            self.elem["crop_marker"]["list"] = []
+            self.elem["crop_marker"]["list"] = [] #TODO remove 'list' and only use 'crop_markers'
 
-        self.elem["crop_marker"]["line_width"] = linewidth
-        self.elem["crop_marker"]["dashed"] = is_dashed
-        return self
-
-    def set_marker(self, pos, size, color=[255,255,255]):
-        try:
-            test = self.elem["crop_marker"]["list"]
-        except:
-            self.set_marker_properties(linewidth=1.5)
-
-        self.elem["crop_marker"]["list"].append({"pos": pos, "size": size, "color": color})
+        self.elem["crop_marker"]["list"].append({"pos": pos, "size": size, "color": color, "lw": linewidth_pt, "dashed": is_dashed})
         return self
 
     def set_caption(self, txt_content):

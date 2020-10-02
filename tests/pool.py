@@ -61,9 +61,8 @@ ref_grid = figuregen.Grid(1,1)
 reference = ref_grid.get_element(0,0).set_image(ref_img)
  
 # marker
-reference.set_marker_properties(0.6)
 for crop in crops:
-    reference.set_marker(pos=[crop[0], crop[1]], size=[crop[2], crop[3]], color=[255, 255, 255])
+    reference.set_marker(pos=[crop[0], crop[1]], size=[crop[2], crop[3]], color=[255, 255, 255], linewidth_pt=0.6)
 
 # titles
 ref_grid.set_title('top', 'Pool')
