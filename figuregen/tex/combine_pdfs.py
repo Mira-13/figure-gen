@@ -1,4 +1,3 @@
-import glob
 import os
 from . import compile_tex
 
