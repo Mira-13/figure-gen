@@ -154,7 +154,7 @@ class ElementView:
         return self
 
     def set_marker_properties(self, linewidth=1.5, is_dashed=False):
-        print('Warning, deprecated function: set_marker_properties got replaced by set_marker.')
+        print('Warning, function does not change marker properties anymore: set_marker_properties got replaced by set_marker.')
         return self
 
     def set_marker(self, pos, size, color=[255,255,255], linewidth_pt=1.0, is_dashed=False):

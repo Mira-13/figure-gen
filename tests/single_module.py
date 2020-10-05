@@ -39,7 +39,7 @@ e6 = grid.get_element(1,2).set_image(images[1])
 
 # marker
 e1.set_marker(pos=[32,12], size=[15,10], color=colors[4])
-e1.set_marker(pos=[1,1], size=[15,10], color=colors[-1])
+e1.set_marker(pos=[1,1], size=[15,10], color=colors[-1], linewidth_pt=0.6, is_dashed=True)
 
 # frame
 e2.set_frame(linewidth=2., color=colors[4])

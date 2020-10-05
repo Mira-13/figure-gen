@@ -55,7 +55,7 @@ def create_header(background_color, tex_packages):
     if any(r"\usepackage" in e for e in tex_packages):
         raise Error(r'Figure generation: provided "tex_packages" contain somewhere the prefix "\usepackage". Valid packages looks like ["{comment}", "[T1]{fontenc}"].')
     if tex_packages: # check if a list is not empty
-        print('Warning: You have included LaTeX-Packages: '+ str(tex_packages) +'. If you encounter problems, provide a "temp_folder" (absolute path), which contains all generated LaTeX output files (e.g. log) for easier debugging.')
+        print('Warning: You have included LaTeX-Packages: '+ str(tex_packages) +'. If you encounter problems, provide a "temp_folder", which contains all generated LaTeX output files (e.g. log) for easier debugging.')
     packs = ["{comment}", "{amsmath}", "{tikz}", "[T1]{fontenc}", "{libertine}"]
     packs.extend(tex_packages)
     header += combine_pdfs.use_packages(packs)
