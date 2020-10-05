@@ -2,6 +2,7 @@ gen_*.json
 *.tex
 *.pdf
 *.png
+!grid-layout.png
 *.exr
 uploadpip.ps1
 
