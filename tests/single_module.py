@@ -57,9 +57,9 @@ layout.set_caption(height_mm=4.0, fontsize=9, txt_color=[170,170,170])
 e4.set_label("bottom center", pos='bottom_center', width_mm=25., height_mm=4.0, offset_mm=[1.0, 1.0], 
                   fontsize=9, bg_color=None)
 e4.set_label("top\\\\right", pos='top_right', width_mm=8., height_mm=7.0, offset_mm=[1.0, 1.0], 
-                  fontsize=9, bg_color=[255,255,255])
+                  fontsize=9, bg_color=[255,255,255], txt_padding_mm=0.4)
 e4.set_label("top\\\\left", pos='top_left', width_mm=8., height_mm=7.0, offset_mm=[1.0, 1.0], 
-                  fontsize=9, bg_color=colors[-1], txt_color=[255,255,255])
+                  fontsize=9, bg_color=colors[-1], txt_color=[255,255,255], txt_padding_mm=1.5)
 
 # grid specific titles
 grid.set_title('top', 'Top Title')
@@ -76,6 +76,6 @@ grid.set_col_titles('north', ['Col Titles', 'are', 'The Best'])
 #layout.set_col_titles('north', 10., offset_mm=1., fontsize=9, bg_color=[200, 180, 220])
 
 if __name__ == "__main__":
-    figuregen.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.pdf')
+    figuregen.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.pdf', intermediate_dir='pups')
     figuregen.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.pptx')
     figuregen.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.html')

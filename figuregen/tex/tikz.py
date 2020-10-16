@@ -93,7 +93,7 @@ def gen_plain_node(width, height, name, parent_name = None, position = None, anc
     return '\\node[anchor='+ anchor +', minimum width='+ str(width) +'mm, minimum height='+ str(height) +'mm, ' \
         + additional_params+' inner sep=0, outer sep=0] ('+ name +') at ' + pos + ' {}; \n'
 
-def gen_text_node(width, height, text, parent_name, fontsize, position='center', anchor='center', alignment='centering', rotation=0, text_color=None):
+def gen_text_node(width, height, text, parent_name, fontsize, position='center', anchor='center', alignment='centering', rotation=0, text_color=None, vert_algin='c'):
     '''
     Creates a node that contains text-based content. In case, the text does not fit in a box of given width and height, the text is 'clipped off'.
     This makes sure that the text-field has the correct width and height.
@@ -124,7 +124,7 @@ def gen_text_node(width, height, text, parent_name, fontsize, position='center',
 
     node = '\\node[anchor='+ anchor +', minimum width='+ str(width) +'mm, minimum height='+ str(height) +'mm, rotate='+str(rotation)+\
         ', '+ txt_color +'inner sep=0, outer sep=0] at ('+parent_name+'.'+position+') \n'
-    node_content = '{\\begin{minipage}[c]['+str(height)+'mm]{'+str(width)+'mm} '+ fontsize + ' \\selectfont \\'+alignment+' \n'+paddedtext+'\n\\end{minipage}};\n'
+    node_content = '{\\begin{minipage}['+vert_algin+']['+str(height)+'mm]{'+str(width)+'mm} '+ fontsize + ' \\selectfont \\'+alignment+' \n'+paddedtext+'\n\\end{minipage}};\n'
     end_clipping = '\\end{scope}'
 
     return begin_clipping + node + node_content + end_clipping + '\n'
@@ -217,7 +217,7 @@ def get_box_anchor_and_position(alignment):
     return txt_box_pos, txt_box_anchor
 
 def gen_label_helper(position, width, height, name, parent_name, text_offset, content, fontsize, alignment='centering',
-                    background_color=None, text_color=None):
+                    background_color=None, text_color=None, vert_align='c'):
     anchor = position
     position = opposite(position)
 
@@ -230,9 +230,10 @@ def gen_label_helper(position, width, height, name, parent_name, text_offset, co
     # text/content node
     content_node = ''
     if content != '':
-        pos1, anch1 =get_box_anchor_and_position(alignment)
-        content_node = gen_text_node(width-text_offset, height, content, parent_name=name, position=pos1, anchor=anch1, fontsize=fontsize, alignment=alignment,
-                                           rotation=0, text_color=text_color)
+        #pos1, anch1 = get_box_anchor_and_position(alignment)
+        pos1, anch1 = 'center', 'center' # works better
+        content_node = gen_text_node(width-text_offset, height-text_offset, content, parent_name=name, position=pos1, anchor=anch1, fontsize=fontsize, alignment=alignment,
+                                           rotation=0, text_color=text_color, vert_algin=vert_align)
 
     return container_node + content_node + '\n'
 ### END helper node functions ###
@@ -527,11 +528,18 @@ def make_label(dir, cfg, name, parent_name):
     else:
         offset_w, offset_h = 0, cfg['offset_mm']
 
+    # determine vertical alignment based on label position (top vs bottom)
+    vert_pos = name.split('_')[0]
+    if vert_pos == 'top' or vert_pos == 'bottom':
+        vert_align = vert_pos[0]
+    else:
+        vert_align = 'c' #should never be the case, however this value is still valid
+
     result = ""
     result += gen_plain_node(offset_w, offset_h, offset_name, parent_name, dir, dir)
     result += gen_label_helper(dir, cfg['width_mm'], cfg['height_mm'], node_name, offset_name, cfg['padding_mm'],
                                cfg['text'], gen_LaTeX_fontsize(cfg['fontsize'], cfg['line_space']), alignment,
-                               cfg['background_color'], cfg['text_color'])
+                               cfg['background_color'], cfg['text_color'], vert_align=vert_align)
     return result
 
 def gen_label(label_config, parent_name):
