@@ -288,15 +288,7 @@ def make_image_tmp_dir(intermediate_dir, backend, filename):
     else:
         temp_folder = tempfile.TemporaryDirectory()
         temp_dir = temp_folder.name
-
-    if (backend == 'html'):
-        # All .pngs for a "/a/b/figure.pdf" are in a folder "/a/b/figure_images"
-        image_path, _ = os.path.splitext(filename)
-        image_path += "_images"
-        if not os.path.exists(image_path):
-            os.makedirs(image_path)
-    else:
-        image_path = temp_dir
+    image_path = temp_dir
     
     return image_path, temp_dir, temp_folder
 

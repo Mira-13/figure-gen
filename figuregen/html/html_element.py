@@ -1,4 +1,5 @@
 import os
+import base64
 from . import calculate
 
 def gen_module_unit_mm(width, height, offset_top=0, offset_left=0):
@@ -21,8 +22,10 @@ def _gen_border(element, width, height, pos_top, pos_left):
     return _gen_rectangle(pos_top, pos_left, width, height, frame['line_width'], frame['color'])
 
 def _gen_image(element, width, height, pos_top, pos_left, to_path):
-    img_block = '<img class="element" style="top: '+str(pos_top)+'mm; left: '+str(pos_left)+'mm; height: '+str(height)+'mm; width: '+str(width)+'mm;"'
-    src = ' src="' + os.path.relpath(element['filename'], to_path) + '"'
+    img_block = f'<img class="element" style="top: {pos_top}mm; left: {pos_left}mm;'\
+                f'height: {height}mm; width: {width}mm;"'
+    b64data = base64.b64encode(open(element['filename'], "rb").read()).decode()
+    src = ' src="' + "data:image/png;base64," + b64data + '"'
     return img_block + src + '/>' +'\n'
 
 def _gen_label(img_pos_top, img_pos_left, img_width, img_height, cfg, label_pos):
