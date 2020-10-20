@@ -2,8 +2,7 @@ import os
 from . import html_element, html_plot, chartjs
 '''
 in HTML format we
- - ignore background colors for whole figure (for now)
- - ignore element captions (north/east/south/west content of each img) as we didn't even use them once before
+ - ignore background colors for whole figure (for now), the background color is white
  - do not support 'dashed' frames - if a frame is 'dashed' the frame will be normal (but still has a frame)
  - only support text rotation by 0° and +-90°
  - have plot defaults, that ignore some user defined input:

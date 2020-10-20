@@ -228,6 +228,8 @@ def export_raw_img_to_png(module, figure_idx, module_idx, path):
     if module['type'] != 'grid':
         return
 
+    img_append = '-'+ str(figure_idx+1)+'-'+str(module_idx+1)+'.png'
+
     for row in range(module["num_rows"]):
         for col in range(module["num_columns"]):
             elem = module["elements_content"][row][col]
@@ -242,13 +244,13 @@ def export_raw_img_to_png(module, figure_idx, module_idx, path):
             if is_multi:
                 for i in range(len(elem["filename"])):
                     img_raw = elem["filename"][i]["image"]
-                    filename = 'image-'+str(row+1)+'-'+str(col+1)+'-'+str(i+1)+'-'+ str(figure_idx+1)+'-'+str(module_idx+1)+'.png'
+                    filename = 'image-'+str(row+1)+'-'+str(col+1)+'-'+str(i+1)+ img_append
                     file_path = os.path.join(path, filename)
                     png_export(img_raw, file_path)
                     elem["filename"][i]["image"] = file_path
             else:
                 img_raw = elem["filename"]
-                filename = 'image-'+str(row+1)+'-'+str(col+1)+'-'+str(figure_idx+1)+'-'+str(module_idx+1)+'.png'
+                filename = 'image-'+str(row+1)+'-'+str(col+1)+ img_append
                 file_path = os.path.join(path, filename)
                 png_export(img_raw, file_path)
                 elem["filename"] = file_path
