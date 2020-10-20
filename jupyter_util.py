@@ -38,8 +38,9 @@ def loadhtml(html_file):
 
         for c, s in table.items():
             figure = figure.replace(f'class="{c}" style="', f'class="{c}" style="{s}')
+            figure = figure.replace(f'class="{c}"', '')
         
-        return '<script src="./scripts/Chart.min.js"></script>' + figure
+        return figure
 
 def displayhtml(html_file):
     display(HTML(data=loadhtml(html_file)))
