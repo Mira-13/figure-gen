@@ -25,7 +25,10 @@ def end_document():
 def create_tex_content(path, files, list_packages):
     header = documentclass() + use_packages(list_packages)
     beginning = begin_document()
-    body = include_graphics(path, files)
+    body = ''
+    for f in files:
+        body += include_graphics(path, f)
+        body += '\n\n'
     ending = end_document()
     return header + beginning + body + ending
 

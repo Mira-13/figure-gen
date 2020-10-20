@@ -177,7 +177,7 @@ def _add_markers(slide, element, img_pos_top, img_pos_left, img_width_px, img_he
                 h = m['size'][1] * h_scale
                 _add_frame_on_top(slide, pos_top, pos_left, w, h, m['color'], m['lw'])
 
-def images_and_frames_and_labels(slide, data, factor, offset_width_mm):
+def images_and_frames_and_labels(slide, data, factor, offset_width_mm, offset_top_mm):
     '''
     Reads module data and puts images on the slide. 
     args:
@@ -190,7 +190,7 @@ def images_and_frames_and_labels(slide, data, factor, offset_width_mm):
         colIndex = 1
         for element in row:
             # place image
-            pos_top, pos_left = calculate.img_pos(data, colIndex, rowIndex, factor, offset_left_mm=offset_width_mm)
+            pos_top, pos_left = calculate.img_pos(data, colIndex, rowIndex, factor, offset_left_mm=offset_width_mm, offset_top_mm=offset_top_mm)
             add_image(slide, element['filename'], width_inch, pos_top, pos_left)
 
             # place frame

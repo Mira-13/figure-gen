@@ -31,11 +31,11 @@ def gen_content(data, str_appendix=''):
     # outer spacing
     content += tikz.add_all_outer_paddings(data, str_appendix)
 
-    # write into json height and width. # CAREFUL: NOT frames included if frame line width > paddings
+    # write into json height and width
     data['total_height'] = calculate.get_total_height(data)
     data['total_width'] = calculate.get_total_width(data)
-    print('total width of generated tikz module: ', data['total_width'])
-    print('total height of generated tikz module: ', data['total_height'])
+    # print('total width of generated tikz module: ', data['total_width'])
+    # print('total height of generated tikz module: ', data['total_height'])
 
     return content
 
@@ -77,12 +77,12 @@ def delete_gen_images(data):
             os.remove(os.path.join(elem['filename']))
 
 
-def generate(module_data, to_path, index, temp_folder, tex_packages=[]):
+def generate(module_data, to_path, figure_idx, module_idx, temp_folder, tex_packages=[]):
     '''
     tex_packages: valid packages looks like ["{comment}", "{amsmath}", "[T1]{fontenc}", "{libertine}"] (these are included per default). 
     If you want to add a package, please also do not include "\\usepackage", but what comes afterwards. 
     '''
-    tex_filename = f'gen_tex{index:04d}.tex'
+    tex_filename = f'gen_tex{figure_idx:03d}-{module_idx:04d}.tex'
     pdf_filename = tex_filename.replace('tex', 'pdf')
 
     if module_data['type'] == 'grid':
@@ -101,4 +101,3 @@ def combine(data, filename, temp_folder):
     gen = os.path.join(temp_folder, "gen_figure.pdf")
     os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
     shutil.copy(gen, filename)
-    print('Tikz/LaTeX file was generated.')

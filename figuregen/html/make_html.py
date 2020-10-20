@@ -57,7 +57,7 @@ def gen_body_content(module_data, to_path, offset_top, offset_left, id):
 
     return body + '\n' + '</div>'
 
-def generate(module_data, to_path, index, temp_folder, delete_gen_files=False, tex_packages=[]):
+def generate(module_data, to_path, figure_idx, module_idx, temp_folder, delete_gen_files=False, tex_packages=[]):
     return module_data
 
 def combine(data, filename, temp_folder, delete_gen_files=False):
@@ -66,14 +66,26 @@ def combine(data, filename, temp_folder, delete_gen_files=False):
     html_code = html_header_and_styles()
     html_code += '<body>' + '\n'
 
-    offset_left = 0
-    module_index = 0
-    for module in data:
-        html_code += gen_body_content(module, to_path, offset_top=0, offset_left=offset_left, id=module_index) + '\n'
-        offset_left += module['total_width']
-        module_index += 1
+    # Create a container div so the result can be embedded
+    sum_total_width_mm = 0
+    for d in data[0]:
+        sum_total_width_mm += d['total_width']
+    figure_height = 0.
+    for d in data:
+        figure_height += d[0]['total_height']
+    html_code += f"<div style='position: relative; background-color: white; width: {sum_total_width_mm}mm; height: {figure_height}mm; ' > \n"
 
-    html_code += '\n' + '</body></html>'
+    offset_top = 0
+    for fig_idx in range(len(data)):
+        offset_left = 0
+        module_index = 0
+        for module in data[fig_idx]:
+            html_code += gen_body_content(module, to_path, offset_top=offset_top, offset_left=offset_left, id=module_index) + '\n'
+            offset_left += module['total_width']
+            module_index += 1
+        offset_top += data[fig_idx][0]['total_height']
+
+    html_code += '\n' + '</div></body></html>'
 
     with open(filename, "w") as file:
         file.write(html_code)

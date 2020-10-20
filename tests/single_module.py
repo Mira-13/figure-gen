@@ -76,6 +76,10 @@ grid.set_col_titles('north', ['Col Titles', 'are', 'The Best'])
 #layout.set_col_titles('north', 10., offset_mm=1., fontsize=9, bg_color=[200, 180, 220])
 
 if __name__ == "__main__":
-    figuregen.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.pdf', intermediate_dir='pups')
+    figuregen.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.pdf')
     figuregen.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.pptx')
     figuregen.horizontal_figure([grid], width_cm=28., filename='singlemodule_test.html')
+
+    # figuregen.figure([[grid],[grid]], width_cm=28., filename='singlemodule_test.pdf')
+    # figuregen.figure([[grid],[grid]], width_cm=28., filename='singlemodule_test.pptx')
+    # figuregen.figure([[grid],[grid]], width_cm=28., filename='singlemodule_test.html')

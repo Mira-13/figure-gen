@@ -1,4 +1,5 @@
 from . import implementation
+import numpy as np
 
 class Error(Exception):
     def __init__(self, message):
@@ -425,4 +426,26 @@ def horizontal_figure(modules, width_cm: float, filename, intermediate_dir = Non
         intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
         tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
     """
-    return implementation.horizontal_figure(modules, width_cm, filename, intermediate_dir, tex_packages)
+    if not (any(isinstance(el, list) for el in modules)):
+        return implementation.horizontal_figure(modules, width_cm, filename, intermediate_dir, tex_packages)
+    
+    a = np.array(modules)
+    raise Error('horizontal_figure: provided modules needs a one-dimensional (simple) list. Given modules shape is: '+ str(a.shape) +'. If you want to stack horizontal figures vertically, then use "figure" and provide a list of lists.')
+
+
+def figure(modules, width_cm: float, filename, intermediate_dir = None, tex_packages=[]):
+    """
+    Creates a figure by putting modules next to each other, from left to right.
+    Aligns the height of the given modules such that they fit the given total width.
+
+    Args:
+        modules: a list of lists of dictionaries (type: Module), which stacks horizontal figures vertically
+        width_cm: total width of the figure in centimeters
+        intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
+        tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
+    """
+    if any(isinstance(el, list) for el in modules):
+        return implementation.figure(modules, width_cm, filename, intermediate_dir, tex_packages)
+
+    a = np.array(modules)
+    raise Error('figure: provided module needs a two-dimensional list. Given modules shape is: '+ str(a.shape) +'. Either provide a list of lists or use a simple list and call "horizontal_figure".')
