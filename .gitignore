@@ -27,6 +27,7 @@ tests/gen_figure.pdf
 tests/siggraph/*
 tests/*.html
 tests/scripts
+figure.html
 
 # Python compiled files
 __pycache__

@@ -151,8 +151,9 @@ def _title_content(txt_content, fontsize_pt, txt_color=None, padding=None, align
         return '</div>' + '\n'
 
     color = ''
-    if txt_color is not None and txt_color != [0,0,0]:
-        color += 'color: '+ css_color(txt_color)+'; '
+    if txt_color is None:
+        txt_color = [0,0,0]
+    color += 'color: '+ css_color(txt_color)+'; '
 
     txt_pad = ''
     if padding is not None and padding != 0.0:

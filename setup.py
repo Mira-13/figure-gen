@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='figuregen',
-    version='0.3.0',
+    version='0.3.1',
     description='Figure Generator',
     long_description='This tool generates figures in pdf- (via LaTeX), html- and pptx-format. '\
     'It might help not only to create final figures, but also to analyze images faster: '\

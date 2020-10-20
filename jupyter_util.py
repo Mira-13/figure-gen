@@ -2,6 +2,7 @@
 from pdf2image import convert_from_path
 import IPython
 from IPython.display import Image
+from IPython.display import display
 import cv2
 import numpy as np
 
@@ -39,3 +40,6 @@ def loadhtml(html_file):
             figure = figure.replace(f'class="{c}" style="', f'class="{c}" style="{s}')
         
         return '<script src="./scripts/Chart.min.js"></script>' + figure
+
+def displayhtml(html_file):
+    display(HTML(data=loadhtml(html_file)))
