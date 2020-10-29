@@ -1,5 +1,5 @@
 from pptx import Presentation
-from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from pptx.util import Inches, Pt
@@ -177,6 +177,27 @@ def _add_markers(slide, element, img_pos_top, img_pos_left, img_width_px, img_he
                 h = m['size'][1] * h_scale
                 _add_frame_on_top(slide, pos_top, pos_left, w, h, m['color'], m['lw'])
 
+def _add_lines(slide, element, img_pos_top, img_pos_left, img_width_px, img_height_px, img_used_width, img_used_height):
+    try:
+        lines = element['lines']
+    except:
+        return
+
+    # crop_markers are based on pixels, therefore we calculate the relative position of the marker that will be placed on top of the image
+    w_scale, h_scale = calculate.relative_position(img_width_px, img_height_px, img_used_width, img_used_height)
+
+    if lines != []: # only draw if line width reasonable and list not empty
+        for l in lines:
+            if l['lw'] > 0.0:
+                pos_start_h = img_pos_top + l['from'][0] * h_scale
+                pos_start_w = img_pos_left + l['from'][1] * w_scale
+                pos_end_h = img_pos_top + l['to'][0] * h_scale
+                pos_end_w = img_pos_left + l['to'][1] * w_scale
+                shape = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(pos_start_w), Inches(pos_start_h), Inches(pos_end_w), Inches(pos_end_h))
+                shape.shadow.inherit = False
+                shape.line.color.rgb = RGBColor(l['color'][0], l['color'][1], l['color'][2])
+                shape.line.width = Pt(l['lw'])
+
 def images_and_frames_and_labels(slide, data, factor, offset_width_mm, offset_top_mm):
     '''
     Reads module data and puts images on the slide. 
@@ -206,6 +227,7 @@ def images_and_frames_and_labels(slide, data, factor, offset_width_mm, offset_to
 
             # place markers
             _add_markers(slide, element, pos_top, pos_left, data['img_width_px'], data['img_height_px'], width_inch, height_inch)
+            _add_lines(slide, element, pos_top, pos_left, data['img_width_px'], data['img_height_px'], width_inch, height_inch)
 
             colIndex += 1
         rowIndex += 1
