@@ -283,6 +283,16 @@ def get_height_paddings_with_titles(data):
         }
     }
     return height_alignments
+
+def _get_vector(start, end, f=0.25):
+    v1 = end[0] - start[0]
+    v2 = end[1] - start[1]
+    return (v1 * f, v2 * f)
+
+def new_point(p, v, f=1):
+    n1 = p[0] + v[0]*f
+    n2 = p[1] + v[1]*f
+    return (n1, n2)
 # END CALCULATIONS
 
 def align_heights(data_to_be_aligned, data):
@@ -300,75 +310,3 @@ def align_heights(data_to_be_aligned, data):
     data_to_be_aligned['column_titles']['south']['offset'] = data['column_titles']['south']['offset']
 
     return data_to_be_aligned
-
-# TEST
-def load_test_data():
-    import os
-    wd_path = r'C:\Users\admin\Documents\MasterThesis\mtc\workDir'
-    fig_path = os.path.join(wd_path, 'figures')
-    module_path = os.path.join(fig_path, 'fig2', 'grid2') # e.g. 'fig1' 'grid1'
-
-    with open(os.path.join(module_path, 'gen_figure.json')) as json_file:
-        data = json.load(json_file)
-    
-    return data
-
-def compare_values(val1, val2):
-    if val1 != val2:
-        print(False)
-        print(val1)
-        print(val2)
-    else:
-        print(True)
-        print(val1)
-        print(val2)
-
-def test_caption():
-    data = load_test_data()
-
-    val1 = 0
-    val2 = 0
-    num_cols = data['num_columns']
-    if (data['element_config']['captions']['east']['width'] > 0.0): # + (muliplied by num)
-        val1 += data['element_config']['captions']['east']['offset'] * num_cols # if width # else ignore (muliplied by num)
-        val1 += data['element_config']['captions']['east']['width'] * num_cols
-    val2 += sum_caption_spacing(data, 'east', num_cols)
-
-    compare_values(val1, val2)
-
-def test_row_title():
-    data = load_test_data()
-
-    val1 = 0
-    val2 = 0
-
-    if (data['row_titles']['east']['width'] > 0.0): # + 
-        val1 += data['row_titles']['east']['offset'] + data['row_titles']['east']['width']
-    if (data['row_titles']['west']['width'] > 0.0): # + 
-        val1 += data['row_titles']['west']['offset'] + data['row_titles']['west']['width']
-    
-    val2 += sum_row_title_spacing(data, 'east')
-    val2 += sum_row_title_spacing(data, 'west')
-
-    compare_values(val1, val2)
-
-def test_fixed_inner_width():
-    data = load_test_data()
-
-    val1 = 0
-    val2 = 0
-    num_columns = data['num_columns']
-
-    val2 += sum_caption_spacing(data,'east', num_columns-1)
-    val2 += sum_caption_spacing(data,'west', num_columns-1)
-
-    print(str(sum_caption_spacing(data,'east', 1)) + ' * ' + str(num_columns))
-
-    if (data['element_config']['captions']['east']['width'] > 0.0):
-        val1 += data['element_config']['captions']['east']['width'] * (num_columns -1)
-        val1 += data['element_config']['captions']['east']['offset'] * (num_columns -1)
-    if (data['element_config']['captions']['west']['width'] > 0.0):
-        val1 += data['element_config']['captions']['west']['width'] * (num_columns -1)
-        val1 += data['element_config']['captions']['west']['offset'] * (num_columns -1)
-
-    compare_values(val1, val2)

@@ -148,11 +148,36 @@ class ElementView:
 
     def set_frame(self, linewidth, color=[0,0,0]):
         '''
-        linewidth unit: pt
+        linewidth (float): unit is in pt
         color: [r,g,b] each channel with int range (0-255)
         '''
         self.elem['frame'] = { "line_width": linewidth, "color": color }
         return self
+
+    def draw_lines(self, start_positions, end_positions, linewidth_pt=0.5, color=[0,0,0]):
+        '''
+        start_positions/end_positions (list of tupels): defines the position of the line to draw on top of the image. 
+            Needs a tupel (x: row, y: column) in pixel.
+        '''
+        if linewidth_pt <= 0.0:
+            raise Error('draw_lines: invalid linewidth "'+str(linewidth_pt)+'". Please choose a positive linewidth_pt > 0.')
+        if not isinstance(start_positions, list) or start_positions == []:
+            raise Error('draw_lines: the argument "start_positions" needs to be a list that is not empty. Given: '+ str(start_positions) +'.')
+        if not isinstance(end_positions, list) or end_positions == []:
+            raise Error('draw_lines: the argument "end_positions" needs to be a list that is not empty.Given: '+ str(end_positions) +'.')
+        if len(start_positions) != len(end_positions):
+            raise Error('draw_lines: You have more start positions than end positions (or reverse).')
+        if len(start_positions[0]) != 2 or len(end_positions[0]) != 2:
+            raise Error('draw_lines: the argument "start_positions" and "end_positions" should be a list of tupels. Each tupel represents the x and y coordination in pixels.')
+
+        try:
+            self.elem["lines"].append({"from": start_positions[0], "to": end_positions[0], "color": color, "lw": linewidth_pt})
+        except:
+            self.elem["lines"] = []
+            self.elem["lines"].append({"from": start_positions[0], "to": end_positions[0], "color": color, "lw": linewidth_pt})
+        
+        for i in range(1, len(start_positions)):
+            self.elem["lines"].append({"from": start_positions[i], "to": end_positions[i], "color": color, "lw": linewidth_pt})
 
     def set_marker_properties(self, linewidth=1.5, is_dashed=False):
         print('Warning, function does not change marker properties anymore: set_marker_properties got replaced by set_marker.')

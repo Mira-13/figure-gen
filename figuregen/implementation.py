@@ -97,6 +97,13 @@ def merge_data_into_layout(data, layout):
                 marker = None
             if marker is not None: elem["marker"] = marker
 
+            # add lines (optional, default: no lines)
+            try:
+                lines = data_elem["lines"]
+            except: # do not set lines
+                lines = None
+            if lines is not None: elem["lines"] = lines
+
             # add the image data itself (raw): matrix of rgb
             # assert ((data_elem["image"]).shape[2] == 3)
             try:

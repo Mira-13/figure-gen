@@ -1,4 +1,5 @@
 from . import calculate
+import numpy as np
 
 # BEGIN minor utitities for TIKZ generation
 def text_umlaut_replacement():
@@ -128,6 +129,34 @@ def gen_text_node(width, height, text, parent_name, fontsize, position='center',
     end_clipping = '\\end{scope}'
 
     return begin_clipping + node + node_content + end_clipping + '\n'
+
+def gen_line_node(parent_name, parent_width, parent_height, lines, rel_p_factor):
+    '''
+        We need to create a node to clip the drawn line within a node.
+        For exmaple, if we want to draw on top of an image, we clip the drawing.
+
+        \begin{scope}
+            \clip (img-1-1.south west) rectangle (img-1-1.north east);
+            \draw[line width=1.3] ([xshift=0mm, yshift=-37.5mm]img-1-1.north west) -- ([xshift=180.0mm, yshift=-37.5mm]img-1-1.north west);
+        \end{scope}
+    '''
+    begin_clipping = '\\begin{scope}\n\\clip ('+parent_name+'.south west) rectangle ('+parent_name+'.north east);\n'
+
+    drawn_lines = ''
+    for line in lines:
+        start = np.array(line['from']) * rel_p_factor
+        end = np.array(line['to']) * rel_p_factor
+        color = line['color']
+        if color is None or color == [0,0,0]:
+            tmp_color = ''
+        else:
+            tmp_color = r'\definecolor{tempcolor}{RGB}{'+ f'{color[0]}, {color[1]}, {color[2]}' +'}\n'
+
+        draw_color = 'tempcolor, ' if tmp_color != '' else ''
+        drawn_lines += tmp_color + f"\\draw[{draw_color}line width={line['lw']}] ([xshift={start[1]}mm, yshift=-{start[0]}mm]{parent_name}.north west) -- ([xshift={end[1]}mm, yshift=-{end[0]}mm]{parent_name}.north west);\n"
+    
+    end_clipping = '\\end{scope}'
+    return begin_clipping + drawn_lines + end_clipping + '\n'
 
 def gen_img_node(width, height, img_path, name, parent_name=None, position=None, anchor='center', additional_params=None):
     '''
@@ -461,7 +490,7 @@ def gen_all_image_blocks(data, str_appendix=''):
         colIndex = 1
         for elem in row:
             if colIndex<=data['num_columns']:
-                content += gen_one_img_block2(data, rowIndex, colIndex, str_appendix)
+                content += gen_one_img_block(data, rowIndex, colIndex, str_appendix)
                 colIndex += 1
         rowIndex += 1
     return content
@@ -471,7 +500,7 @@ def draw_rectangle_on_img(parent_name, crop_num, parent_width_factor, parent_hei
 
     offset_node = gen_plain_node(width=parent_width_factor * pos_x1,height=parent_height_factor * pos_y1,
                                  name='inset'+str(crop_num)+'-offset-'+parent_name, parent_name=parent_name,
-    position= "north west", anchor="north west", additional_params='')
+                                position= "north west", anchor="north west", additional_params='')
 
     draw_params = 'draw='+str(gen_tikZ_rgb255(color))+', line width='+str(line_width)+'pt, '
     if dashed:
@@ -554,10 +583,10 @@ def gen_label(label_config, parent_name):
     return l_content + '\n'
 
 
-def gen_one_img_block2(data, row, col, str_appendix):
+def gen_one_img_block(data, row, col, str_appendix):
     '''
     An image block contains a node for the image.
-    Optional: An image block can additionally contain a south caption, frames and markers.
+    Optional: An image block can additionally contain a south caption, frames, markers (rectangle) and lines.
     Note: We still create north/east/west nodes (empty!) on each side of the image, because we append other nodes on them.
     This also allows - if so desired - to extend the image block, such that an image can have captions at north/west/east side.
     '''
@@ -601,7 +630,7 @@ def gen_one_img_block2(data, row, col, str_appendix):
                                 offset_name=None, content=south_caption, fontsize=gen_LaTeX_fontsize(capt_config['fontsize'],capt_config['line_space']),
                                 alignment='centering', rotate_text=capt_config['rotation'], background_color=None, text_color=capt_config['text_color'])
 
-    # optional: add markers, labels and frames
+    # optional: add markers, labels, frames, or lines
     marker_specs = read_optional(elem, 'marker', default='')
     if marker_specs != '':
         tikz_content += gen_marker_nodes(inset_markers=marker_specs, parent_name='img-'+append, parent_width_px=data['img_width_px'],
@@ -613,6 +642,11 @@ def gen_one_img_block2(data, row, col, str_appendix):
     frame_specs = read_optional(elem, 'frame', default='')
     if frame_specs != '':
         tikz_content += gen_frame_node(img_width, img_height, parent_name='img-'+append, color=frame_specs['color'], linewidth=frame_specs['line_width'])
+
+    line_specs = read_optional(elem, 'lines', default='')
+    if line_specs != '':
+        rel_w, rel_h = calculate.relative_position(data['img_width_px'], data['img_height_px'], img_width, img_height)
+        tikz_content += gen_line_node('img-'+append, img_width, img_height, line_specs, rel_w)
 
     return tikz_content + '\n'
 
