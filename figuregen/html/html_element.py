@@ -1,5 +1,5 @@
-import os
 import base64
+import math
 from . import calculate
 
 def gen_module_unit_mm(width, height, offset_top=0, offset_left=0):
@@ -95,6 +95,29 @@ def _gen_markers(element, img_pos_top, img_pos_left, img_width_px, img_height_px
                                      line_width_pt = m['lw'], color = m['color'])
     return result
 
+def _add_lines(element, img_pos_top, img_pos_left, img_width_px, img_height_px, img_used_width, img_used_height):
+    try:
+        lines = element['lines']
+    except:
+        return ''
+
+    w_scale, h_scale = calculate.relative_position(img_width_px, img_height_px, img_used_width, img_used_height)
+
+    if lines != []:
+        div = f'<div class="svg-container" style="position: absolute; top: {img_pos_top}mm; left: {img_pos_left}mm; '\
+            f'height: {img_used_height}mm; width: {img_used_width}mm;">'
+        svg = f'<svg style="height: {img_used_height}mm; width: {img_used_width}mm;">'
+        svg_lines = ''
+        for l in lines:
+            start_h = l['from'][0] * h_scale
+            start_w = l['from'][1] * w_scale
+            end_h = l['to'][0] * h_scale
+            end_w = l['to'][1] * w_scale
+            rgb = (l['color'][0], l['color'][1], l['color'][2])
+            svg_lines += f'<line x1="{start_w}mm" y1="{start_h}mm" x2="{end_w}mm" y2="{end_h}mm" style="stroke:rgb{rgb};stroke-width:{l["lw"]}pt" />\n'
+        return div + svg + svg_lines + '</svg>' + '</div>'+'\n'
+    return ''
+
 def gen_images(data, to_path):
     images = ''
     width = data['element_config']['img_width']
@@ -106,6 +129,7 @@ def gen_images(data, to_path):
         for element in row:
             pos_top, pos_left = calculate.img_pos(data, col_idx, row_idx)
             images += _gen_image(element, width, height, pos_top, pos_left, to_path)
+            images += _add_lines(element, pos_top, pos_left, data['img_width_px'], data['img_height_px'], width, height)
             images += _gen_border(element, width, height, pos_top, pos_left)
             images += _gen_labels(element, width, height, pos_top, pos_left)
             images += _gen_markers(element, pos_top, pos_left, data['img_width_px'], data['img_height_px'], width, height)

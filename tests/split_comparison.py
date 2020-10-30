@@ -43,10 +43,10 @@ top_grid.set_col_titles('top', ['Horizontal Split', 'Vertical Split', 'C)', 'D)'
 
 # LAYOUT: Specify paddings (unit: mm)
 top_lay = top_grid.get_layout()
-top_lay.set_padding(column=1.0, bottom=0.5)
+top_lay.set_padding(column=1.0)
 top_lay.set_col_titles('top', field_size_mm=5.0)
 
 if __name__ == "__main__":
-    # figuregen.horizontal_figure([top_grid], width_cm=15., filename='split_comparison.html')
+    figuregen.horizontal_figure([top_grid], width_cm=15., filename='split_comparison.html')
     figuregen.horizontal_figure([top_grid], width_cm=15., filename='split_comparison.pptx')
-    # figuregen.horizontal_figure([top_grid], width_cm=15., filename='split_comparison.pdf')
+    figuregen.horizontal_figure([top_grid], width_cm=15., filename='split_comparison.pdf')
