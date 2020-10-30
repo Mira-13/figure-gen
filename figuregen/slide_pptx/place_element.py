@@ -183,7 +183,6 @@ def _add_lines(slide, element, img_pos_top, img_pos_left, img_width_px, img_heig
     except:
         return
 
-    # crop_markers are based on pixels, therefore we calculate the relative position of the marker that will be placed on top of the image
     w_scale, h_scale = calculate.relative_position(img_width_px, img_height_px, img_used_width, img_used_height)
 
     if lines != []: # only draw if line width reasonable and list not empty
