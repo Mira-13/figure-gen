@@ -9,7 +9,6 @@ import numpy as np
 # HTML imports
 from IPython.core.display import HTML
 import re
-import random
 
 def loadpdf(pdfname):
     images = convert_from_path(pdfname, dpi=1000)
