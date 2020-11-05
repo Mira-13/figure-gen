@@ -1,10 +1,8 @@
-import json
-
 def pt_to_mm(x):
     return x * 0.352778
 
 # helper
-def get_space_type(position):
+def _get_space_type(position):
     if position == 'east' or position == 'west':
         return 'width'
     return 'height'
@@ -12,7 +10,7 @@ def get_space_type(position):
 def sum_caption_spacing(data, position, muliplied): # e.g. multiplied = num_cols
     sum = 0
     caption = data['element_config']['captions'][position]
-    spacing = get_space_type(position)
+    spacing = _get_space_type(position)
     
     if (caption[spacing] > 0.0):
         sum = caption['offset'] + caption[spacing]
@@ -20,7 +18,7 @@ def sum_caption_spacing(data, position, muliplied): # e.g. multiplied = num_cols
 
 def sum_title_spacing(data, position):
     title = data['titles'][position]
-    spacing = get_space_type(position)
+    spacing = _get_space_type(position)
     if (title[spacing] > 0.0):
         return title['offset'] + title[spacing]
     return 0
@@ -175,13 +173,13 @@ def resize_to_match_total_width(data):
     '''
     You overwrite the local value. If you use this function and want to have the value used permanently
     then you need to make sure to save it in a file.
+
+    Note: If float() is too unprecise, use Decimal()
     '''
     num_cols = data['num_columns']
-    num_rows = data['num_rows']
     total_width = data['total_width']
     width_to_height_ratio = data['img_height_px'] / data['img_width_px']
 
-    min_height = get_min_height(data)
     min_width = get_min_width(data)
     width_left_per_img = (total_width - min_width) / num_cols
     if width_left_per_img < 1.0:
@@ -195,23 +193,23 @@ def resize_to_match_total_width(data):
 
     # force width/height ratio of origin img 
     data['element_config']['img_width'] = width_left_per_img
-    data['element_config']['img_height'] = width_left_per_img * width_to_height_ratio
-    return width_left_per_img, (width_left_per_img * width_to_height_ratio)
+    h = width_left_per_img * float(width_to_height_ratio) # w_to_h_ratio was of type decimal, which is more precise
+    data['element_config']['img_height'] = h
+    return width_left_per_img, h
 
 def resize_to_match_total_height(data):
     '''
     You overwrite the local value. If you use this function and want to have the value used permanently
     then you need to make sure to save it in a file.
+
+    Note: If float() is too unprecise, use Decimal()
     '''
     # TODO test function at some point
-    num_cols = data['num_columns']
     num_rows = data['num_rows']
     total_height = data['total_height'] 
     heigth_to_width_ratio = data['img_width_px'] / data['img_height_px']
 
     min_height = get_min_height(data)
-    min_width = get_min_width(data)
-
     height_left_per_img = (total_height - min_height) / num_rows
     if height_left_per_img < 1.0:
         if height_left_per_img < 0.0:
@@ -225,74 +223,6 @@ def resize_to_match_total_height(data):
     # force width/height ratio of origin img 
     data['element_config']['img_width'] = height_left_per_img * heigth_to_width_ratio
     data['element_config']['img_height'] = height_left_per_img
-
-
-def get_combined_minimum_widths(data1, data2):
-    a = get_min_width(data1)
-    b = get_min_width(data2)
-    return a + b
-
-def get_body_widths_for_equal_heights(data1, data2, sum_total_width):
-    '''
-    GOAL: fullfill the following two constrains for optimal results:
-    (1) body height of reference/data1 (bh1) = body height of grid/data2 (bh2)
-    (2) body width of ref (bw1) + body width of grid (bw2) + fixed width = sum total width  
-
-    In more detail, if you want to understand how those constrains are applied:
-    bw1: body_width_reference = flexible width_reference = only contains the images widths (usually one image)
-    bw2: body_width_grid = flexible width_grid = only contains the images widths
-    xF: sum_total_width, must be given (user defines)
-    wF: width fix = includes all the stuff that is fixed (e.g. paddings, offsets, text-field sizes defined by user in config.jsons)
-    hF2: grid; fixed inner body height that needs to be considered in a2
-    a: aspect ratio = bh / bw (respectively a1, a2)
-
-    (1) a1 * bw1 = a2 * bw2 + hF2 <=> bw1 = a2/a1 * bw2 + hF2/a1
-    (2) bw1 + bw2 + wF = xF
-    (1 in 2) a2/a1 * bw2 + hF2/a1 + bw2 + wF = xF  <=> bw2 = (xF - wF)/(a2/a1 + 1)
-    '''
-    ref_data = data1
-    grid_data = data2
-
-    hF2 = get_fixed_inner_height(grid_data)
-    a2 = (grid_data['img_height_px'] * grid_data['num_rows']) / (grid_data['img_width_px'] * grid_data['num_columns'])
-    a1 = (ref_data['img_height_px'] * ref_data['num_rows']) / (ref_data['img_width_px'] * ref_data['num_columns'])
-    xF = sum_total_width
-    wF = get_combined_minimum_widths(grid_data, ref_data)
-    bw2 = (xF - wF - hF2/a1) / (a2/a1 + 1)
-
-    bw1 = xF - wF - bw2 
-    return bw1, bw2
-
-def get_height_paddings_with_titles(data):
-    captions_with_offset_top = sum_col_title_spacing(data, 'north')
-    captions_with_offset_top += sum_caption_spacing(data, 'north', 1)
-
-    captions_with_offset_bottom = sum_col_title_spacing(data, 'south')
-    captions_with_offset_bottom += sum_caption_spacing(data, 'south', 1)
-    
-    height_alignments = {
-        'top': {
-            'padding': data['padding']['north'],
-            'title+offset': sum_title_spacing(data, 'north'),
-            'captions+offset': captions_with_offset_top
-        },
-        'bottom': {
-            'padding': data['padding']['south'],
-            'title+offset': sum_title_spacing(data, 'south'),
-            'captions+offset': captions_with_offset_bottom
-        }
-    }
-    return height_alignments
-
-def _get_vector(start, end, f=0.25):
-    v1 = end[0] - start[0]
-    v2 = end[1] - start[1]
-    return (v1 * f, v2 * f)
-
-def new_point(p, v, f=1):
-    n1 = p[0] + v[0]*f
-    n2 = p[1] + v[1]*f
-    return (n1, n2)
 # END CALCULATIONS
 
 def align_heights(data_to_be_aligned, data):
