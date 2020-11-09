@@ -211,22 +211,18 @@ def images_and_frames_and_labels(slide, data, factor, offset_width_mm, offset_to
         for element in row:
             # place image
             pos_top, pos_left = calculate.img_pos(data, colIndex, rowIndex, factor, offset_left_mm=offset_width_mm, offset_top_mm=offset_top_mm)
-            add_image(slide, element['filename'], width_inch, pos_top, pos_left)
+            add_image(slide, element['image'], width_inch, pos_top, pos_left)
+            _add_lines(slide, element, pos_top, pos_left, data['img_width_px'], data['img_height_px'], width_inch, height_inch)
+            _add_markers(slide, element, pos_top, pos_left, data['img_width_px'], data['img_height_px'], width_inch, height_inch)
 
-            # place frame
             if _has_frame(element):
                 _add_frame_on_top(slide, pos_top, pos_left, width_inch, height_inch, color=element['frame']['color'], thickness_pt=element['frame']['line_width'])
             
-            # place labels
-            try:
+            try: # place labels
                 cfg = element['label']
             except:
                 cfg = None
             _add_labels(slide, pos_top, pos_left, width_inch, height_inch, cfg, factor)
-
-            # place markers
-            _add_markers(slide, element, pos_top, pos_left, data['img_width_px'], data['img_height_px'], width_inch, height_inch)
-            _add_lines(slide, element, pos_top, pos_left, data['img_width_px'], data['img_height_px'], width_inch, height_inch)
 
             colIndex += 1
         rowIndex += 1
