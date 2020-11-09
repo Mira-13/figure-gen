@@ -495,10 +495,10 @@ def gen_all_image_blocks(data, str_appendix=''):
         rowIndex += 1
     return content
 
-def draw_rectangle_on_img(parent_name, crop_num, parent_width_factor, parent_height_factor,
+def draw_rectangle_on_img(parent_name, crop_num, rel_width, rel_height,
                             pos_x1, pos_y1, xoffset, yoffset, line_width, color=[255,255,255], dashed=False):
 
-    offset_node = gen_plain_node(width=parent_width_factor * pos_x1,height=parent_height_factor * pos_y1,
+    offset_node = gen_plain_node(width=rel_width * pos_x1,height=rel_height * pos_y1,
                                  name='inset'+str(crop_num)+'-offset-'+parent_name, parent_name=parent_name,
                                 position= "north west", anchor="north west", additional_params='')
 
@@ -506,12 +506,12 @@ def draw_rectangle_on_img(parent_name, crop_num, parent_width_factor, parent_hei
     if dashed:
         draw_params = draw_params + 'dashed, '
 
-    inset_node = gen_plain_node(width=parent_width_factor * (xoffset),height=parent_height_factor *(yoffset),
+    inset_node = gen_plain_node(width=rel_width * (xoffset),height=rel_height *(yoffset),
                                 name='inset'+str(crop_num)+'-'+parent_name,
     parent_name='inset'+str(crop_num)+'-offset-'+parent_name, position= "south east", anchor="north west", additional_params=draw_params)
     return offset_node + inset_node
 
-def gen_marker_nodes(inset_markers, parent_name, parent_width_px, parent_height_px, parent_width, parent_height):
+def gen_marker_nodes(inset_markers, parent_name, rel_width, rel_height):
     marker_nodes = ''
     if inset_markers['list']!=[]: # only draw if list not empty
         crop_list = inset_markers['list']
@@ -521,12 +521,10 @@ def gen_marker_nodes(inset_markers, parent_name, parent_width_px, parent_height_
             if inset['lw'] > 0.0: # and if linewidth is reasonable
                 inset_pos = inset['pos']
                 inset_size = inset['size']
-                width_factor, height_factor = calculate.relative_position(parent_width_px, parent_height_px, parent_width, parent_height)
-                marker_nodes += draw_rectangle_on_img(parent_name=parent_name, crop_num=crop_num,
-                                                 parent_width_factor=width_factor, parent_height_factor=height_factor,
+                marker_nodes += draw_rectangle_on_img(parent_name, crop_num, rel_width, rel_height,
                                                  pos_x1=inset_pos[0], pos_y1=inset_pos[1],
-                                                 xoffset=inset_size[0], yoffset=inset_size[1], line_width=inset['lw'], #i_configs
-                                                 color=inset['color'], dashed=inset['dashed']) #i_configs
+                                                 xoffset=inset_size[0], yoffset=inset_size[1], line_width=inset['lw'], 
+                                                 color=inset['color'], dashed=inset['dashed'])
 
     return marker_nodes
 
@@ -610,7 +608,7 @@ def gen_one_img_block(data, row, col, str_appendix):
         parent_name='north-field-'+append
 
         tikz_content += gen_img_node(img_width, img_height, name='img-'+append, parent_name=parent_name, position='south', anchor='north',
-                                    img_path=elem['filename'], additional_params='')
+                                    img_path=elem['image'], additional_params='')
         tikz_content += gen_node_west(width=0.0, height=img_height, name='west-field-'+append, parent_name='img-'+append, offset=0.0, offset_name=None)
 
     else: # creating img block from left, add corresponding column spacing
@@ -619,7 +617,7 @@ def gen_one_img_block(data, row, col, str_appendix):
 
         parent_name='west-field-'+append
         tikz_content += gen_img_node(img_width, img_height, name='img-'+append, parent_name=parent_name, position='east', anchor='west',
-                                     img_path=elem['filename'], additional_params='')
+                                     img_path=elem['image'], additional_params='')
         tikz_content += gen_node_north(img_width, height=0.0, name='north-field-'+append, parent_name='img-'+append, offset=0.0, offset_name=None)
 
     # creating east and south nodes are independent of where the parent node was appended
@@ -633,8 +631,9 @@ def gen_one_img_block(data, row, col, str_appendix):
     # optional: add markers, labels, frames, or lines
     marker_specs = read_optional(elem, 'marker', default='')
     if marker_specs != '':
-        tikz_content += gen_marker_nodes(inset_markers=marker_specs, parent_name='img-'+append, parent_width_px=data['img_width_px'],
-                                    parent_height_px=data['img_height_px'], parent_width=img_width, parent_height=img_height)
+        rel_w, rel_h = calculate.relative_position(data['img_width_px'], data['img_height_px'], img_width, img_height)
+        tikz_content += gen_marker_nodes(inset_markers=marker_specs, parent_name='img-'+append, rel_width=rel_w, rel_height=rel_h)
+
     label_specs = read_optional(elem, 'label', default='')
     if label_specs != '':
         tikz_content += gen_label(label_specs, parent_name='img-'+append)
