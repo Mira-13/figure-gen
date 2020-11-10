@@ -77,7 +77,8 @@ def export_images(module, figure_idx, module_idx, path):
             elem["image"] = file_path
 
 def generate(module_data, figure_idx, module_idx, temp_folder, delete_gen_files=False, tex_packages=[]):
-    export_images(module_data, figure_idx, module_idx, path=temp_folder)
+    if module_data['type'] == 'grid':
+        export_images(module_data, figure_idx, module_idx, path=temp_folder)
     return module_data
 
 def combine(data, filename, temp_folder, delete_gen_files=False):
