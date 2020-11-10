@@ -1,6 +1,9 @@
 import base64
-import math
 from . import calculate
+
+class Error(Exception):
+    def __init__(self, message):
+        self.message = message
 
 def gen_module_unit_mm(width, height, offset_top=0, offset_left=0):
     m = '<div class="module" style="top: '+str(offset_top)+'mm; left: '+str(offset_left)+'mm; width: '+str(width)+'mm; height: '+str(height)+'mm;">'
@@ -21,12 +24,36 @@ def _gen_border(element, width, height, pos_top, pos_left):
 
     return _gen_rectangle(pos_top, pos_left, width, height, frame['line_width'], frame['color'])
 
-def _gen_image(element, width, height, pos_top, pos_left, to_path):
+def _embed_png(filename, width, height, pos_top, pos_left):
     img_block = f'<img class="element" style="top: {pos_top}mm; left: {pos_left}mm;'\
                 f'height: {height}mm; width: {width}mm;"'
-    b64data = base64.b64encode(open(element['filename'], "rb").read()).decode()
+    b64data = base64.b64encode(open(filename, "rb").read()).decode()
     src = ' src="' + "data:image/png;base64," + b64data + '"'
     return img_block + src + '/>' +'\n'
+
+def _embed_pdf(filename, width, height, pos_top, pos_left):
+    div_open = f'<div class="element" style="top: {pos_top}mm; left: {pos_left}mm; height: {height}mm; width: {width}mm;">' + '\n'
+    embed = f'<embed src="{filename}#view=FitH&scrollbar=0&toolbar=0&statusbar=0&messages=0&navpanes=0" width="100%" height="100%">' + '\n'
+    div_end = '</div>' + '\n'
+    return div_open + embed + div_end
+
+def _embed_html(filename, width, height, pos_top, pos_left):
+    div_open = f'<div class="element" style="top: {pos_top}mm; left: {pos_left}mm; height: {height}mm; width: {width}mm;">' + '\n'
+    iframe = f'<iframe src="{filename}" width="100%" height="100%" marginwidth="0" marginheight="0" frameborder="0" hspace="0" vspace="0"></iframe>'
+    div_end = '</div>' + '\n'
+    return div_open + iframe + div_end
+
+def _gen_image(element, width, height, pos_top, pos_left):
+    filename = element['image']
+    extension = filename[-4:]
+    if extension == '.png':
+        return _embed_png(filename, width, height, pos_top, pos_left)
+    if extension == '.pdf':
+        return _embed_pdf(filename, width, height, pos_top, pos_left)
+    if extension == 'html':
+        return _embed_html(filename, width, height, pos_top, pos_left)
+    #should never be triggered as we check files beforehand, but just in case
+    raise Error('HTML could not embed the following file: ' + filename) 
 
 def _gen_label(img_pos_top, img_pos_left, img_width, img_height, cfg, label_pos):
     try:
@@ -118,7 +145,7 @@ def _add_lines(element, img_pos_top, img_pos_left, img_width_px, img_height_px, 
         return div + svg + svg_lines + '</svg>' + '</div>'+'\n'
     return ''
 
-def gen_images(data, to_path):
+def gen_images(data):
     images = ''
     width = data['element_config']['img_width']
     height = data['element_config']['img_height']
@@ -128,7 +155,7 @@ def gen_images(data, to_path):
         col_idx = 1
         for element in row:
             pos_top, pos_left = calculate.img_pos(data, col_idx, row_idx)
-            images += _gen_image(element, width, height, pos_top, pos_left, to_path)
+            images += _gen_image(element, width, height, pos_top, pos_left)
             images += _add_lines(element, pos_top, pos_left, data['img_width_px'], data['img_height_px'], width, height)
             images += _gen_border(element, width, height, pos_top, pos_left)
             images += _gen_labels(element, width, height, pos_top, pos_left)
@@ -219,7 +246,7 @@ def _compute_bg_colors(bg_color_properties, num):
     else: # individual background colors
         return bg_color_properties
 
-def _row_col_titles(data, direction, title_properties, num, pos_fn):
+def _row_col_titles(direction, title_properties, num, pos_fn):
     result = ''
     if calculate.size_of(title_properties, direction)[0] != 0.0:
         bg_colors = _compute_bg_colors(title_properties[direction]['background_colors'], num)
@@ -239,7 +266,7 @@ def gen_row_titles(data):
     for direction in ['east', 'west']:
         def pos_fn (idx):
             return calculate.row_titles_pos(data, idx + 1, direction)
-        result += _row_col_titles(data, direction, data['row_titles'], data['num_rows'], pos_fn) + '\n'
+        result += _row_col_titles(direction, data['row_titles'], data['num_rows'], pos_fn) + '\n'
     return result
 
 def gen_column_titles(data):
@@ -247,7 +274,7 @@ def gen_column_titles(data):
     for direction in ['north', 'south']:
         def pos_fn (idx):
             return calculate.column_titles_pos(data, idx + 1, direction)
-        result += _row_col_titles(data, direction, data['column_titles'], data['num_columns'], pos_fn) + '\n'
+        result += _row_col_titles(direction, data['column_titles'], data['num_columns'], pos_fn) + '\n'
     return result
 
 def gen_south_captions(data):
