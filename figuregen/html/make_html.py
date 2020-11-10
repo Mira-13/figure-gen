@@ -3,7 +3,7 @@ from . import html_element, html_plot, chartjs
 '''
 in HTML format we
  - ignore background colors for whole figure (for now), the background color is white
- - do not support 'dashed' frames - if a frame is 'dashed' the frame will be normal (but still has a frame)
+ - do not support 'dashed' markers - if a marker is 'dashed' the marker will be normal (but still has a marker)
  - only support text rotation by 0° and +-90°
  - have plot defaults, that ignore some user defined input:
     * grid: lightgrey, fine lines
@@ -20,7 +20,7 @@ def html_header_and_styles():
         '<html>',
         '<head>',
 
-        '<script src="./scripts/Chart.min.js"></script>' # TODO actually copy the file
+        '<script src="./scripts/Chart.min.js"></script>', # TODO actually copy the file
 
         '<style type="text/css">',
         '.module { position: absolute; }',
