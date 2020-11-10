@@ -1,20 +1,15 @@
-import copy
-import numpy as np
-import pyexr
-import single_module
 import figuregen
-import figuregen.util
+import numpy as np
+import single_module
 
 # generate test images
 blue = np.tile([0.2,0.3,0.9], (32, 32, 1))
 yellow = np.tile([0.9,0.8,0.2], (32, 32, 1))
-pyexr.write("images//blue.exr", blue)
-pyexr.write("images//yellow.exr", yellow)
 
 # load the two images
 images = [
-    figuregen.util.image.lin_to_srgb(pyexr.read("images//blue.exr")),
-    figuregen.util.image.lin_to_srgb(pyexr.read("images//yellow.exr"))
+    figuregen.PNG(raw=blue),
+    figuregen.PNG(raw=yellow)
 ]
 
 # ---- Grid Module ----
@@ -30,17 +25,12 @@ grid1 = figuregen.Grid(2, 2)
 layout1 = grid1.get_layout()
 layout1.set_padding(top=0.2, right=0.5)
 
-e1_1 = grid1.get_element(0,0).set_image(images[0])
-e1_1.set_frame(0.3, [0,0,0])
-
-e1_2 = grid1.get_element(0,1).set_image(images[1])
-e1_2.set_frame(0.3, [0,0,0])
-
-e1_4 = grid1.get_element(1,1).set_image(images[1])
-e1_4.set_frame(0.3, [0,0,0])
-
-e1_3 = grid1.get_element(1,0).set_image(images[0])
-e1_3.set_frame(0.3, [0,0,0])
+# fill grid with image data
+for row in range(2):
+    for col in range(2):
+        img = images[col]
+        e = grid1.get_element(row,col).set_image(img)
+        e.set_frame(0.3, [0,0,0])
 
 grid1.set_col_titles('south', ['Blue', 'Yellow'])
 layout1.set_col_titles('south', field_size_mm=4., offset_mm=0.2, bg_color=[[200, 200, 255], [255, 255, 200]])

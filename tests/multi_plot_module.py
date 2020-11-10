@@ -12,4 +12,4 @@ multi_type_modules = [
 if __name__ == "__main__":
     figuregen.horizontal_figure(multi_type_modules, width_cm=18., filename='multiplot_test.pdf')
     figuregen.horizontal_figure(multi_type_modules, width_cm=18., filename='multiplot_test.pptx')
-    #figuregen.horizontal_figure(multi_type_modules, width_cm=18., filename='multiplot_test.html')
+    figuregen.horizontal_figure(multi_type_modules, width_cm=18., filename='multiplot_test.html')

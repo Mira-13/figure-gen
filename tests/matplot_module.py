@@ -33,5 +33,5 @@ plot_module.set_width_to_height_aspect_ratio(1.15)
 
 if __name__ == "__main__":
     figuregen.horizontal_figure([plot_module], width_cm=11., filename='matplot_test.pdf')
-    #figuregen.horizontal_figure([plot_module], width_cm=11., filename='matplot_test.pptx')
-    #figuregen.horizontal_figure([plot_module], width_cm=11., filename='matplot_test.html')
+    figuregen.horizontal_figure([plot_module], width_cm=11., filename='matplot_test.pptx')
+    figuregen.horizontal_figure([plot_module], width_cm=11., filename='matplot_test.html')

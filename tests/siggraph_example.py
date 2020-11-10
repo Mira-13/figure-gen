@@ -1,9 +1,8 @@
 import figuregen
-import figuregen.util
+from figuregen.util import image
 import os
 import pyexr
 import json
-import numpy as np
 
 idx = 2 # only pool scene will be in repo included
 scene = ['bookshelf', 'glossy-kitchen', 'pool', 'veach-door']
@@ -45,9 +44,9 @@ def get_image(scene, seconds, method=None, crop_args=None):
 
     img = pyexr.read(path)
     if crop_args is not None:
-        img = figuregen.util.image.crop(img, crop_args)
-        img = figuregen.util.image.zoom(img)
-    return figuregen.util.image.lin_to_srgb(img)
+        img = image.crop(img, crop_args)
+        img = image.zoom(img)
+    return image.lin_to_srgb(img)
 
 
 # ----- Helper for Comparision Module to generate content -----
@@ -108,7 +107,8 @@ def get_plot_data(scene, method_list):
 
 # ---------- REFERENCE Module ----------
 ref_grid = figuregen.Grid(1,1)
-reference = ref_grid.get_element(0,0).set_image(get_image(scene[idx], seconds[idx], method=None, crop_args=None))
+ref_img = get_image(scene[idx], seconds[idx], method=None, crop_args=None)
+reference = ref_grid.get_element(0,0).set_image(figuregen.PNG(raw=ref_img))
  
 # marker
 for crop in crops[idx]:
@@ -130,8 +130,9 @@ comp_grid = figuregen.Grid(num_rows, num_cols)
 # set images
 for row in range(0,num_rows):
     for col in range(0,num_cols):
+        img = get_image(scene[idx], seconds[idx], method=method_list[col], crop_args=crops[idx][row])
         e = comp_grid.get_element(row, col)
-        e.set_image(get_image(scene[idx], seconds[idx], method=method_list[col], crop_args=crops[idx][row]))
+        e.set_image(figuregen.PNG(raw=img))
 
 # titles
 comp_grid.set_col_titles('south', get_captions(scene[idx], method_titles, baseline, seconds[idx]))
@@ -159,6 +160,6 @@ plot_module.set_width_to_height_aspect_ratio(1.15)
 modules = [ref_grid, comp_grid, plot_module]
 
 if __name__ == "__main__":
-    figuregen.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.pdf')
-    #figuregen.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.pptx')
-    #figuregen.horizontal_figure(modules, width_cm=25., filename='siggraph/'+scene[idx]+'.html')
+    figuregen.horizontal_figure(modules, width_cm=25., filename=scene[idx]+'.pdf')
+    figuregen.horizontal_figure(modules, width_cm=25., filename=scene[idx]+'.pptx')
+    figuregen.horizontal_figure(modules, width_cm=25., filename=scene[idx]+'.html')

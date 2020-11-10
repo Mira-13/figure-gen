@@ -16,9 +16,9 @@ img_orange = np.tile([x / 255 for x in orange], (32, 64, 1))
 
 # load the two images
 images = [
-    img_blue,
-    img_yellow,
-    img_orange
+    figuregen.PNG(raw=img_blue),
+    figuregen.PNG(raw=img_yellow),
+    figuregen.PNG(raw=img_orange)
 ]
 
 n_rows = 1
@@ -29,7 +29,8 @@ top_grid = figuregen.Grid(num_rows=n_rows, num_cols=top_cols)
 # fill grid with image data
 for row in range(n_rows):
     for col in range(top_cols):
-        top_grid.get_element(row,col).set_image(images[col])
+        e = top_grid.get_element(row,col).set_image(images[col])
+        e.set_frame(linewidth=0.2, color=[0,0,0])
 
 # LAYOUT: Specify paddings (unit: mm)
 top_lay = top_grid.get_layout()
@@ -60,11 +61,11 @@ bottom_grids[-1].get_layout().set_padding(right=0.0) # remove last padding
 
 
 # ---------- V-STACK of Horizontal Figures (create figure) ----------
-grids = [
+v_grids = [
     [top_grid], 
     bottom_grids
     ]
 if __name__ == "__main__":
-    figuregen.figure(grids, width_cm=15., filename='v-stacked.pdf')
-    figuregen.figure(grids, width_cm=15., filename='v-stacked.pptx')
-    figuregen.figure(grids, width_cm=15., filename='v-stacked.html')
+    figuregen.figure(v_grids, width_cm=15., filename='v-stacked.pdf')
+    figuregen.figure(v_grids, width_cm=15., filename='v-stacked.pptx')
+    figuregen.figure(v_grids, width_cm=15., filename='v-stacked.html')

@@ -1,5 +1,5 @@
 import figuregen
-from figuregen import util
+from figuregen.util import image
 import numpy as np
 
 # ---------- Data Gathering ----------
@@ -18,12 +18,12 @@ img_orange = np.tile([x / 255 for x in orange], (320, 640, 1))
 # load images
 images = [
     [
-    util.image.SplitImage([img_blue, img_l_blue, img_yellow], degree=-20, weights=[0.5, 0.8, 0.5]),
-    util.image.SplitImage([img_yellow, img_orange], degree=15, vertical=False, weights=[0.5, 1.0])
+    image.SplitImage([img_blue, img_l_blue, img_yellow], degree=-20, weights=[0.5, 0.8, 0.5]),
+    image.SplitImage([img_yellow, img_orange], degree=15, vertical=False, weights=[0.5, 1.0])
     ],
     [
-    util.image.SplitImage([img_yellow, img_orange], weights=[1.0, 1.0], degree=30),
-    util.image.SplitImage([img_yellow, img_l_blue, img_blue], vertical=False, weights=[1, 2, 3], degree=0),
+    image.SplitImage([img_yellow, img_orange], weights=[1.0, 1.0], degree=30),
+    image.SplitImage([img_yellow, img_l_blue, img_blue], vertical=False, weights=[1, 2, 3], degree=0),
     ]
 ]
 
@@ -36,17 +36,18 @@ top_grid = figuregen.Grid(num_rows=n_rows, num_cols=top_cols)
 for row in range(n_rows):
     for col in range(top_cols):
         s_img = images[row][col]
-        e = top_grid.get_element(row,col).set_image(s_img.get_image())
+        raw_img = figuregen.PNG(raw=s_img.get_image())
+        e = top_grid.get_element(row,col).set_image(raw_img)
         e.draw_lines(s_img.get_start_positions(), s_img.get_end_positions(), linewidth_pt=0.5, color=[0,0,0])
 
 top_grid.set_col_titles('top', ['Horizontal Split', 'Vertical Split', 'C)', 'D)'])
 
 # LAYOUT: Specify paddings (unit: mm)
 top_lay = top_grid.get_layout()
-top_lay.set_padding(column=1.0)
+top_lay.set_padding(column=1.0, right=1.5)
 top_lay.set_col_titles('top', field_size_mm=5.0)
 
 if __name__ == "__main__":
     figuregen.horizontal_figure([top_grid], width_cm=15., filename='split_comparison.html')
     figuregen.horizontal_figure([top_grid], width_cm=15., filename='split_comparison.pptx')
-    figuregen.horizontal_figure([top_grid], width_cm=15., filename='split_comparison.pdf')
+    figuregen.horizontal_figure([top_grid], width_cm=15., filename='split_comparison.pdf', tex_packages=["[T1]{fontenc}", "{arev}"])

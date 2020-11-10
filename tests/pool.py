@@ -2,7 +2,6 @@ import figuregen
 import figuregen.util
 import os
 import pyexr
-import numpy as np
 
 scene, seconds = 'pool', 60
 method_list = ['path', 'upsmcmc', 'radiance', 'full', None]
@@ -58,7 +57,7 @@ def get_captions():
 
 # ---------- REFERENCE Module ----------
 ref_grid = figuregen.Grid(1,1)
-reference = ref_grid.get_element(0,0).set_image(ref_img)
+reference = ref_grid.get_element(0,0).set_image(figuregen.PNG(raw=ref_img))
  
 # marker
 for crop in crops:
@@ -80,8 +79,8 @@ comp_grid = figuregen.Grid(num_rows, num_cols)
 # set images
 for row in range(0,num_rows):
     for col in range(0,num_cols):
-        e = comp_grid.get_element(row, col)
-        e.set_image(get_image(method=method_list[col], crop_args=crops[row]))
+        img = figuregen.PNG(raw=get_image(method=method_list[col], crop_args=crops[row]))
+        e = comp_grid.get_element(row, col).set_image(img)
 
 # titles
 comp_grid.set_col_titles('top', get_captions())
@@ -92,4 +91,6 @@ c_layout.set_col_titles('top', field_size_mm=6., offset_mm=0.2, fontsize=8)
 
 # ------ create figure --------
 if __name__ == "__main__":
-    figuregen.horizontal_figure([ref_grid, comp_grid], width_cm=15., filename='siggraph/'+scene+'.pdf')
+    figuregen.horizontal_figure([ref_grid, comp_grid], width_cm=15., filename=scene+'.pdf')
+    figuregen.horizontal_figure([ref_grid, comp_grid], width_cm=15., filename=scene+'.pptx')
+    figuregen.horizontal_figure([ref_grid, comp_grid], width_cm=15., filename=scene+'.html')
