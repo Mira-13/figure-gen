@@ -9,6 +9,11 @@ in HTML format we
     * grid: lightgrey, fine lines
     * no upper and right axis
 '''
+
+class Error(Exception):
+    def __init__(self, message):
+        self.message = message
+
 def html_header_and_styles():
     header_lines = [
         '<!DOCTYPE html>',
@@ -31,9 +36,9 @@ def html_header_and_styles():
     return "\n".join(header_lines)
 
 
-def gen_grid_content(module_data, to_path):
+def gen_grid_content(module_data):
     body = ''
-    body += html_element.gen_images(module_data, to_path)
+    body += html_element.gen_images(module_data)
     body += html_element.gen_south_captions(module_data)
     body += html_element.gen_titles(module_data)
     body += html_element.gen_row_titles(module_data)
@@ -46,22 +51,36 @@ def gen_plot_content(module_data, id):
     body += html_plot.create_script(module_data, id)
     return body
 
-def gen_body_content(module_data, to_path, offset_top, offset_left, id):
+def gen_body_content(module_data, offset_top, offset_left, id):
     body = html_element.gen_module_unit_mm(module_data['total_width'], module_data['total_height'], offset_top, offset_left)
 
     if module_data['type'] == 'grid':
-        body += gen_grid_content(module_data, to_path)
+        body += gen_grid_content(module_data)
     else:
         body += gen_plot_content(module_data, id)
 
     return body + '\n' + '</div>'
 
-def generate(module_data, to_path, figure_idx, module_idx, temp_folder, delete_gen_files=False, tex_packages=[]):
+def export_images(module, figure_idx, module_idx, path):
+    for row in range(module["num_rows"]):
+        for col in range(module["num_columns"]):
+            elem = module["elements_content"][row][col]
+            file = elem["image"]
+
+            if file.is_raster_image : #export to png
+                filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
+                file_path = os.path.join(path, filename)
+                file.convert2png(file_path)
+            else:
+                file_path = file.filename # all types (PNG, PDF, & HTML) are valid
+
+            elem["image"] = file_path
+
+def generate(module_data, figure_idx, module_idx, temp_folder, delete_gen_files=False, tex_packages=[]):
+    export_images(module_data, figure_idx, module_idx, path=temp_folder)
     return module_data
 
 def combine(data, filename, temp_folder, delete_gen_files=False):
-    to_path = os.path.dirname(filename)
-
     html_code = html_header_and_styles()
     html_code += '<body>' + '\n'
 
@@ -79,7 +98,7 @@ def combine(data, filename, temp_folder, delete_gen_files=False):
         offset_left = 0
         module_index = 0
         for module in data[fig_idx]:
-            html_code += gen_body_content(module, to_path, offset_top=offset_top, offset_left=offset_left, id=module_index) + '\n'
+            html_code += gen_body_content(module, offset_top=offset_top, offset_left=offset_left, id=module_index) + '\n'
             offset_left += module['total_width']
             module_index += 1
         offset_top += data[fig_idx][0]['total_height']
@@ -89,4 +108,6 @@ def combine(data, filename, temp_folder, delete_gen_files=False):
     with open(filename, "w") as file:
         file.write(html_code)
 
+    # TODO only add script, if plot module is used
+    to_path = os.path.dirname(filename)
     chartjs.emit(to_path)

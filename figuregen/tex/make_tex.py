@@ -54,9 +54,9 @@ def create_header(background_color, tex_packages):
         raise Error(r'Figure generation: provided "tex_packages" needs to be of type list. Valid packages looks like {comment}, [T1]{fontec}. They do not include the prefix "\usepackage"!')
     if any(r"\usepackage" in e for e in tex_packages):
         raise Error(r'Figure generation: provided "tex_packages" contain somewhere the prefix "\usepackage". Valid packages looks like ["{comment}", "[T1]{fontenc}"].')
-    if tex_packages: # check if a list is not empty
+    if tex_packages != ["[T1]{fontenc}", "{libertine}"]:
         print('Warning: You have included LaTeX-Packages: '+ str(tex_packages) +'. If you encounter problems, provide a "temp_folder", which contains all generated LaTeX output files (e.g. log) for easier debugging.')
-    packs = ["{comment}", "{amsmath}", "{tikz}", "[T1]{fontenc}", "{libertine}"]
+    packs = ["{comment}", "{amsmath}", "{tikz}"] # "[T1]{fontenc}", "{libertine}"
     packs.extend(tex_packages)
     header += combine_pdfs.use_packages(packs)
     header += begin_tikz_document(background_color)
@@ -71,13 +71,25 @@ def write_into_tex_file(path, body_content, file_name, background_color, tex_pac
     f.write(whole_content)
     f.close()
 
-def delete_gen_images(data):
-    for row in data['elements_content']:
-        for elem in row:
-            os.remove(os.path.join(elem['filename']))
+def export_images(module, figure_idx, module_idx, path):
+    for row in range(module["num_rows"]):
+        for col in range(module["num_columns"]):
+            elem = module["elements_content"][row][col]
+            file = elem["image"]
 
+            if file.is_raster_image:
+                filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
+                file_path = os.path.join(path, filename)
+                file.convert2png(file_path)
+            elif file.img_type == 'PDF' or file.img_type == 'PNG':
+                file_path = file.filename
+            else:
+                raise Error('LaTeX backend only supports for images: ' \
+                    'raw image data, PNG, or PDF files. HTML is not supported. Given file: '+ str(file))
 
-def generate(module_data, to_path, figure_idx, module_idx, temp_folder, tex_packages=[]):
+            elem["image"] = file_path
+
+def generate(module_data, figure_idx, module_idx, temp_folder, tex_packages):
     '''
     tex_packages: valid packages looks like ["{comment}", "{amsmath}", "[T1]{fontenc}", "{libertine}"] (these are included per default). 
     If you want to add a package, please also do not include "\\usepackage", but what comes afterwards. 
@@ -86,6 +98,7 @@ def generate(module_data, to_path, figure_idx, module_idx, temp_folder, tex_pack
     pdf_filename = tex_filename.replace('tex', 'pdf')
 
     if module_data['type'] == 'grid':
+        export_images(module_data, figure_idx, module_idx, path=temp_folder)
         content = gen_content(module_data)
         write_into_tex_file(temp_folder, content, tex_filename, background_color=module_data['background_color'], tex_packages=tex_packages)
         compile_tex.compile(temp_folder, tex_filename, pdf_filename)

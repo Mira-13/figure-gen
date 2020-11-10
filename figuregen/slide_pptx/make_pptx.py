@@ -16,7 +16,26 @@ class Error(Exception):
     def __init__(self, message):
         self.message = message
 
-def generate(module_data, to_path, figure_idx, module_idx, temp_folder, delete_gen_files=True, tex_packages=[]):
+def export_images(module, figure_idx, module_idx, path):
+    for row in range(module["num_rows"]):
+        for col in range(module["num_columns"]):
+            elem = module["elements_content"][row][col]
+            file = elem["image"]
+
+            if file.is_raster_image or file.img_type == 'PDF': #export to png
+                filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
+                file_path = os.path.join(path, filename)
+                file.convert2png(file_path)
+            elif file.img_type == 'PNG':
+                file_path = file.filename
+            else:
+                raise Error('PPTX backend only supports for images: ' \
+                    'raw image data, PNG, or PDF files. HTML is not supported. Given file: '+ str(file))
+
+            elem["image"] = file_path
+
+def generate(module_data, figure_idx, module_idx, temp_folder, delete_gen_files=True, tex_packages=[]):
+    export_images(module_data, figure_idx, module_idx, path=temp_folder)
     return module_data
 
 def place_modules(data, to_path, slide):
