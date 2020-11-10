@@ -1,9 +1,8 @@
 import tempfile
 import os
 import copy
-import cv2
 
-from .tex import make_tex, calculate, combine_pdfs
+from .tex import make_tex, calculate
 from .slide_pptx import make_pptx
 from .html import make_html
 from . import default_layouts
@@ -18,12 +17,7 @@ backends = {
     "html": make_html
 }
 
-def png_export(img_raw, filename):
-    clipped = img_raw*255
-    clipped[clipped < 0] = 0
-    clipped[clipped > 255] = 255
-    cv2.imwrite(filename, cv2.cvtColor(clipped.astype('uint8'), cv2.COLOR_RGB2BGR))
-
+# ------- dictionary: overwrite, replace, merge & algin --------
 def overwrite(name: list, val, layout: dict):
     if len(name) == 1:
         layout[name[0]] = val
@@ -107,10 +101,9 @@ def merge_data_into_layout(data, layout):
             # add the image data itself (raw): matrix of rgb
             # assert ((data_elem["image"]).shape[2] == 3)
             try:
-                elem["filename"] = data_elem["image"]
+                elem["image"] = data_elem["image"]
             except KeyError:
                 raise Error('An element (row: '+str(row)+', column: '+str(col)+') of one of your grid modules has no set image!')
-
 
     # add column_titles
     for d in ['north', 'south']:
@@ -160,13 +153,15 @@ def merge_data_into_layout(data, layout):
         except: # set default: empty string
             layout['titles'][d]['content'] = ''
 
-    # set px size based on the first image
-    try:
-        first = layout["elements_content"][0][0]["filename"][0]["image"]
-    except:
-        first = layout["elements_content"][0][0]["filename"]
-    layout["img_width_px"] = first.shape[1]
-    layout["img_height_px"] = first.shape[0]
+    # set immage size (ratio), preferably in correct unit (px) if possible
+    img = layout["elements_content"][0][0]["image"]
+    if img.width_px is None:
+        layout["img_width_px"] = 1
+        layout["img_height_px"] = img.aspect_ratio
+    else: #if img.width_px is not None:
+        layout["img_width_px"] = img.width_px
+        layout["img_height_px"] = img.height_px
+        
     return layout
 
 def merge(modules: dict, layouts: dict):
@@ -231,38 +226,7 @@ def align_modules(modules, width):
         else:
             pass
 
-def export_raw_img_to_png(module, figure_idx, module_idx, path):
-    if module['type'] != 'grid':
-        return
-
-    img_append = '-'+ str(figure_idx+1)+'-'+str(module_idx+1)+'.png'
-
-    for row in range(module["num_rows"]):
-        for col in range(module["num_columns"]):
-            elem = module["elements_content"][row][col]
-
-            # the element can be either a list of multiple images, or one image
-            try:
-                file = elem["filename"][0]["image"]
-                is_multi = True
-            except:
-                is_multi = False
-
-            if is_multi:
-                for i in range(len(elem["filename"])):
-                    img_raw = elem["filename"][i]["image"]
-                    filename = 'image-'+str(row+1)+'-'+str(col+1)+'-'+str(i+1)+ img_append
-                    file_path = os.path.join(path, filename)
-                    png_export(img_raw, file_path)
-                    elem["filename"][i]["image"] = file_path
-            else:
-                img_raw = elem["filename"]
-                filename = 'image-'+str(row+1)+'-'+str(col+1)+ img_append
-                file_path = os.path.join(path, filename)
-                png_export(img_raw, file_path)
-                elem["filename"] = file_path
-
-def get_out_dir_and_backend(filename):
+def get_backend(filename):
     # Select the correct backend based on the filename
     extension = os.path.splitext(filename)[1].lower()
     if extension == ".pptx":
@@ -273,8 +237,7 @@ def get_out_dir_and_backend(filename):
         backend = 'tikz'
     else:
         raise ValueError(f"Could not derive backend from filename '{filename}'")
-    out_dir = os.path.dirname(filename)
-    return out_dir, backend, extension
+    return backend
 
 def align_horizontal_modules(modules, width_cm):
     layouts = []
@@ -286,7 +249,7 @@ def align_horizontal_modules(modules, width_cm):
     align_modules(merged_data, width_cm*10.)
     return merged_data
 
-def make_image_tmp_dir(intermediate_dir, backend, filename):
+def make_image_tmp_dir(intermediate_dir):
     # Create temporary folder for images, generated .tex files, LaTeX output, etc
     # Unless the user specified a folder for those files
     if intermediate_dir is not None and os.path.isdir(intermediate_dir):
@@ -295,9 +258,8 @@ def make_image_tmp_dir(intermediate_dir, backend, filename):
     else:
         temp_folder = tempfile.TemporaryDirectory()
         temp_dir = temp_folder.name
-    image_path = temp_dir
     
-    return image_path, temp_dir, temp_folder
+    return temp_dir, temp_folder
 
 
 def figure(modules, width_cm, filename, intermediate_dir, tex_packages):
@@ -311,24 +273,20 @@ def figure(modules, width_cm, filename, intermediate_dir, tex_packages):
         intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
         tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
     """
-    out_dir, backend, extension = get_out_dir_and_backend(filename)
+    backend = get_backend(filename)
 
     merged_data = []
     for fig_idx in range(len(modules)):
         merged_data.append(align_horizontal_modules(modules[fig_idx], width_cm))
 
-    image_path, temp_dir, temp_folder = make_image_tmp_dir(intermediate_dir, backend, filename)
+    temp_dir, temp_folder = make_image_tmp_dir(intermediate_dir)
 
-    # Export all .png images
     generated_data = []
     for fig_idx in range(len(modules)):
         generated_data.append([])
         for mod_idx in range(len(modules[fig_idx])):
             module = merged_data[fig_idx][mod_idx]
-            if module['type'] != 'plot':
-                export_raw_img_to_png(module, figure_idx=fig_idx, module_idx=mod_idx, path=image_path)
-            
-            generated_data[fig_idx].append(backends[backend].generate(module, to_path=out_dir,
+            generated_data[fig_idx].append(backends[backend].generate(module,
                                                             figure_idx=fig_idx, module_idx=mod_idx, 
                                                             temp_folder=temp_dir, tex_packages=tex_packages))
     
@@ -350,18 +308,16 @@ def horizontal_figure(modules, width_cm: float, filename, intermediate_dir, tex_
         tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
     """
 
-    out_dir, backend, extension = get_out_dir_and_backend(filename)
+    backend = get_backend(filename)
 
     merged_data = align_horizontal_modules(modules, width_cm)
 
-    image_path, temp_dir, temp_folder = make_image_tmp_dir(intermediate_dir, backend, filename)
+    temp_dir, temp_folder = make_image_tmp_dir(intermediate_dir)
 
-    # Export all .png images
     generated_data = []
     for i in range(len(modules)):
-        if merged_data[i]['type'] != 'plot':
-            export_raw_img_to_png(merged_data[i], figure_idx=0, module_idx=i, path=image_path)
-        generated_data.append(backends[backend].generate(merged_data[i], to_path=out_dir,
+        module = merged_data[i]
+        generated_data.append(backends[backend].generate(module, 
                                                         figure_idx=0, module_idx=i, 
                                                         temp_folder=temp_dir, tex_packages=tex_packages))
 
