@@ -61,7 +61,7 @@ class PDF(Image):
 
     def convert2png(self, out_filename, dpi=1000):
         from pdf2image import convert_from_path
-        images = convert_from_path(self.file, dpi=1000)
+        images = convert_from_path(self.file, dpi=dpi)
         img = np.array(images[0])
         cv2.imwrite(out_filename.replace('.pdf', '.png'), cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
         return out_filename.replace('.pdf', '.png')
