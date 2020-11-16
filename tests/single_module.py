@@ -29,7 +29,7 @@ layout.set_padding(top=0.5, bottom=1.5)
 # fill grid with image data
 for row in range(n_rows):
     for col in range(n_cols):
-        img = figuregen.PNG(raw=images[row])
+        img = figuregen.PNG(images[row])
         grid.get_element(row,col).set_image(img)
 
 # marker

@@ -8,8 +8,8 @@ yellow = np.tile([0.9,0.8,0.2], (32, 32, 1))
 
 # load the two images
 images = [
-    figuregen.PNG(raw=blue),
-    figuregen.PNG(raw=yellow)
+    figuregen.PNG(blue),
+    figuregen.PNG(yellow)
 ]
 
 # ---- Grid Module ----

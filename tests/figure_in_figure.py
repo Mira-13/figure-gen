@@ -10,7 +10,7 @@ test_html = False
 # PNG test
 blue=[82, 110, 186]
 img_blue = np.tile([x / 255 for x in blue], (32, 32, 1))
-img_png = figuregen.PNG(raw=img_blue)
+img_png = figuregen.PNG(img_blue)
 
 if test_html:
     # HTML test

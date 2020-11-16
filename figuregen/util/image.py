@@ -71,6 +71,7 @@ class SplitImage:
             This class allows to split several images and make one image out of them.
             The weights define how much space each image will take within that new image,
             and the degree along with vertical (boolean) decides how these images are split.
+            Returns one raw image data.
 
             args:
                 list_img (list of image arrays): at best provide two or three images. 

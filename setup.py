@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='figuregen',
-    version='0.4.0',
+    version='0.5.0',
     description='Figure Generator',
     long_description='This tool generates figures in pdf- (via LaTeX), html- and pptx-format. '\
     'It might help not only to create final figures, but also to analyze images faster: '\
@@ -17,7 +17,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     install_requires=[
         'matplotlib>=3.2.1',
         'python-pptx',

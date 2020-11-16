@@ -1,7 +1,6 @@
 from . import implementation
 import numpy as np
-import cv2      # convert2png
-import imageio  # read png file
+import cv2
 
 class Error(Exception):
     def __init__(self, message):
@@ -36,6 +35,9 @@ class Image:
         pass
 
 class PDF(Image):
+    '''
+        Additional dependencies: PyPDF2 and pdf2image (requires poppler)
+    '''
     def __init__(self, filename):
         self.file = filename
 
@@ -67,24 +69,21 @@ class PDF(Image):
         return out_filename.replace('.pdf', '.png')
 
 class PNG(Image):
-    def __init__(self, raw=None, filename=None):
+    def __init__(self, raw_image_or_filename):
         '''
-            Either provide raw image data OR a filename - not both.
+            Either provide raw image data OR a filename.
         '''
-        if raw is None and filename is None:
-            raise Error('PNG class: Either provide raw image data or a filename.')
-        elif raw is not None and filename is not None:
-            raise Error('PNG class: Either provide raw image data or a filename - not both.')
-
-        self.file = filename
-        self.raw = raw
-        if filename is None:
-            self.width = raw.shape[1]
-            self.height = raw.shape[0]
-        else:
-            img = imageio.imread(filename)
+        if isinstance(raw_image_or_filename, str):
+            self.file = raw_image_or_filename
+            self.raw = None
+            img = cv2.imread(self.file)
             self.width = img.shape[1]
             self.height = img.shape[0]
+        else:
+            self.file = None
+            self.raw = raw_image_or_filename
+            self.width = self.raw.shape[1]
+            self.height = self.raw.shape[0]
 
     @Image.width_px.getter
     def width_px(self):
@@ -283,7 +282,7 @@ class ElementView:
     def set_image(self, image: Image):
         if not isinstance(image, Image):
             try:
-                image = PNG(raw=image)
+                image = PNG(image)
             except:
                 raise Error('set_image needs an image of type figuregen.Image (e.g. figuregen.PNG)')
             print("Deprecation warning: interpreted image raw data as figuregen.PNG")

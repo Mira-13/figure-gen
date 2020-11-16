@@ -14,9 +14,10 @@ We support _grids_ (images that are grid-like arranged) and simple _line-plottin
 
 ## Dependencies
 
-- Python 3.5+
+- Python 3.6+
 - LaTeX with the following packages: tikz, standalone, graphicx, fontenc, libertine, inputenc, comment, amsmath, newverbs.
 
+(Optional) To include pdf files as image data, we offer a class figuregen.PDF. This class needs additional dependencies: PyPDF2, and pdf2image ([which requires poppler](https://pypi.org/project/pdf2image/)).
 
 ## Quickstart
 

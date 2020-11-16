@@ -108,7 +108,7 @@ def get_plot_data(scene, method_list):
 # ---------- REFERENCE Module ----------
 ref_grid = figuregen.Grid(1,1)
 ref_img = get_image(scene[idx], seconds[idx], method=None, crop_args=None)
-reference = ref_grid.get_element(0,0).set_image(figuregen.PNG(raw=ref_img))
+reference = ref_grid.get_element(0,0).set_image(figuregen.PNG(ref_img))
  
 # marker
 for crop in crops[idx]:
@@ -132,7 +132,7 @@ for row in range(0,num_rows):
     for col in range(0,num_cols):
         img = get_image(scene[idx], seconds[idx], method=method_list[col], crop_args=crops[idx][row])
         e = comp_grid.get_element(row, col)
-        e.set_image(figuregen.PNG(raw=img))
+        e.set_image(figuregen.PNG(img))
 
 # titles
 comp_grid.set_col_titles('south', get_captions(scene[idx], method_titles, baseline, seconds[idx]))

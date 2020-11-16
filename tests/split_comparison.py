@@ -36,7 +36,7 @@ top_grid = figuregen.Grid(num_rows=n_rows, num_cols=top_cols)
 for row in range(n_rows):
     for col in range(top_cols):
         s_img = images[row][col]
-        raw_img = figuregen.PNG(raw=s_img.get_image())
+        raw_img = figuregen.PNG(s_img.get_image())
         e = top_grid.get_element(row,col).set_image(raw_img)
         e.draw_lines(s_img.get_start_positions(), s_img.get_end_positions(), linewidth_pt=0.5, color=[0,0,0])
 

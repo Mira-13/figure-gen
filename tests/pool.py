@@ -57,7 +57,7 @@ def get_captions():
 
 # ---------- REFERENCE Module ----------
 ref_grid = figuregen.Grid(1,1)
-reference = ref_grid.get_element(0,0).set_image(figuregen.PNG(raw=ref_img))
+reference = ref_grid.get_element(0,0).set_image(figuregen.PNG(ref_img))
  
 # marker
 for crop in crops:
@@ -79,7 +79,7 @@ comp_grid = figuregen.Grid(num_rows, num_cols)
 # set images
 for row in range(0,num_rows):
     for col in range(0,num_cols):
-        img = figuregen.PNG(raw=get_image(method=method_list[col], crop_args=crops[row]))
+        img = figuregen.PNG(get_image(method=method_list[col], crop_args=crops[row]))
         e = comp_grid.get_element(row, col).set_image(img)
 
 # titles
