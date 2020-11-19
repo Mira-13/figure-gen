@@ -131,26 +131,5 @@ layouts = {
                 "background_colors": None
             }
         }
-    },
-
-    "plot": {
-        "width_to_height_aspect_ratio": 1.2,
-
-        "plot_config": {
-            "plot_linewidth_pt": 0.8,
-            "tick_linewidth_pt": 0.6,
-            "font": {
-                "tex_package": "libertine",
-                "font_family": "sans-serif",
-                "fontsize_pt": 7
-            },
-            "grid": {
-                "color": [ 230, 230, 230 ],
-                "linewidth_pt": 0.25,
-                "linestyle": "-"
-            },
-            "has_upper_axis": False,
-            "has_right_axis": False
-        }
     }
 }

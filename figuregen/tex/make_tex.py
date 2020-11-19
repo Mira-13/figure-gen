@@ -5,37 +5,38 @@ from . import tikz
 from . import calculate
 from . import compile_tex
 from . import combine_pdfs
-from ..mplot import make_plot
+from ..element_data import *
 
 class Error(Exception):
     def __init__(self, message):
         self.message = message
 
-def gen_content(data, str_appendix=''):
-    ''' TODO Describe me please
+class GridError(Exception):
+    def __init__(self, row, col, message):
+        self.message = f"Error in row {row}, column {col}: {message}"
 
-    A str_appendix is recommended if this script is used to combine the generated tikz code with another set of generated tikz code:
-    Allowing to merge two or multiple generated tikz is somewhat in progress and I am not sure if and when this will be completely supported.
+def gen_content(data):
+    ''' 
+    Generates LaTeX/TikZ content, basically  like a body for html, which includes images and 
+    titles/captions as well as their positions, sizes, and other properties.
     '''
     # img/element blocks
     # Usually an img/block consists only of an image node (with or without frames) and some paddings between other image nodes.
-    # However, it can also contain a complex subset of nodes (caption titles on each side) - if so desired.
-    content = tikz.gen_all_image_blocks(data, str_appendix)
+    # However, it can also contain south captions, markers, labels, etc. - if so desired.
+    content = tikz.gen_all_image_blocks(data)
 
     # titles that have content for each row or column
-    content += tikz.add_col_and_row_titles(data, str_appendix)
+    content += tikz.add_col_and_row_titles(data)
 
     # figure title (positions around the figure facing: north, south, east, west)
-    content += tikz.add_big_titles(data, str_appendix)
+    content += tikz.add_big_titles(data)
 
     # outer spacing
-    content += tikz.add_all_outer_paddings(data, str_appendix)
+    content += tikz.add_all_outer_paddings(data)
 
     # write into json height and width
     data['total_height'] = calculate.get_total_height(data)
     data['total_width'] = calculate.get_total_width(data)
-    # print('total width of generated tikz module: ', data['total_width'])
-    # print('total height of generated tikz module: ', data['total_height'])
 
     return content
 
@@ -77,15 +78,32 @@ def export_images(module, figure_idx, module_idx, path):
             elem = module["elements_content"][row][col]
             file = elem["image"]
 
-            if file.is_raster_image:
-                filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
-                file_path = os.path.join(path, filename)
-                file.convert2png(file_path)
-            elif file.img_type == 'PDF' or file.img_type == 'PNG':
-                file_path = file.filename
+            if isinstance(file, Plot):
+                try:
+                    filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.pdf'
+                    file_path = os.path.join(path, filename)
+                    try:
+                        file.make_pdf(module['element_config']['img_width'], module['element_config']['img_height'], file_path)
+                    except NotImplementedError():
+                        file_path.replace('.pdf', '.png')
+                        file.make_png(module['element_config']['img_width'], module['element_config']['img_height'], file_path)
+                except:
+                    raise GridError(row, col, 'Could not convert plot to .pdf!')
+            
+            elif isinstance(file, Image):
+                if file.is_raster_image:
+                    filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
+                    file_path = os.path.join(path, filename)
+                    file.convert2png(file_path)
+                elif isinstance(file, PDF) or isinstance(file, PNG):
+                    file_path = file.filename
+                else:
+                    raise Error('LaTeX backend only supports for images: ' \
+                        'raw image data, PNG, or PDF files. HTML is not supported. Given file: '+ str(file))
+
             else:
                 raise Error('LaTeX backend only supports for images: ' \
-                    'raw image data, PNG, or PDF files. HTML is not supported. Given file: '+ str(file))
+                        'raw image data, PNG, or PDF files. HTML is not supported. Given file: '+ str(file))
 
             elem["image"] = file_path
 
@@ -97,16 +115,10 @@ def generate(module_data, figure_idx, module_idx, temp_folder, tex_packages):
     tex_filename = f'gen_tex{figure_idx:03d}-{module_idx:04d}.tex'
     pdf_filename = tex_filename.replace('tex', 'pdf')
 
-    if module_data['type'] == 'grid':
-        export_images(module_data, figure_idx, module_idx, path=temp_folder)
-        content = gen_content(module_data)
-        write_into_tex_file(temp_folder, content, tex_filename, background_color=module_data['background_color'], tex_packages=tex_packages)
-        compile_tex.compile(temp_folder, tex_filename, pdf_filename)
-    elif module_data['type'] == 'plot':
-        make_plot.generate(module_data, temp_folder, pdf_filename)
-    else:
-        raise "unsupported module type '" + module_data['type'] + "'"
-    
+    export_images(module_data, figure_idx, module_idx, path=temp_folder)
+    content = gen_content(module_data)
+    write_into_tex_file(temp_folder, content, tex_filename, background_color=module_data['background_color'], tex_packages=tex_packages)
+    compile_tex.compile(temp_folder, tex_filename, pdf_filename)
     return pdf_filename
 
 def combine(data, filename, temp_folder):

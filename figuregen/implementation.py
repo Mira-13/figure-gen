@@ -6,6 +6,7 @@ from .tex import make_tex, calculate
 from .slide_pptx import make_pptx
 from .html import make_html
 from . import default_layouts
+from .element_data import Image, Plot
 
 class Error(Exception):
     def __init__(self, message):
@@ -29,7 +30,7 @@ def replace_option(name: str, val, layout: dict):
     path = name.split(sep='.')
     overwrite(path, val, layout)
 
-def modify_default_layout(user: dict, type: str):
+def modify_default_layout(user: dict, type='grid'):
     default = copy.deepcopy(default_layouts.layouts[type])
 
     for key,val in user.items():
@@ -37,17 +38,8 @@ def modify_default_layout(user: dict, type: str):
 
     return default
 
-def merge_plot_data_into_layout(data, layout):
-    layout['type'] = data['type']
-    layout["data"] = data['data']
-    layout["plot_color"] = data['plot_color']
-    layout["axis_labels"] = data['axis_labels']
-    layout["axis_properties"] = data['axis_properties']
-    layout["markers"] = data['markers']
-    return layout
-
 def merge_data_into_layout(data, layout):
-    layout['type'] = data['type']
+    # layout['type'] = data['type']
     directions = ["north", "south", "east", "west"]
 
     num_rows = len(data["elements"])
@@ -103,7 +95,7 @@ def merge_data_into_layout(data, layout):
             try:
                 elem["image"] = data_elem["image"]
             except KeyError:
-                raise Error('An element (row: '+str(row)+', column: '+str(col)+') of one of your grid modules has no set image!')
+                raise Error('An element (row: '+str(row)+', column: '+str(col)+') of one of your grids has no set image!')
 
     # add column_titles
     for d in ['north', 'south']:
@@ -153,12 +145,11 @@ def merge_data_into_layout(data, layout):
         except: # set default: empty string
             layout['titles'][d]['content'] = ''
 
-    # set immage size (ratio), preferably in correct unit (px) if possible
+    # set image size (ratio), preferably in correct unit (px) if possible
     img = layout["elements_content"][0][0]["image"]
-    if img.width_px is None:
-        layout["img_width_px"] = 1
-        layout["img_height_px"] = img.aspect_ratio
-    else: #if img.width_px is not None:
+    layout["img_width_px"] = 1
+    layout["img_height_px"] = img.aspect_ratio
+    if isinstance(img, Image) and img.width_px is not None:
         layout["img_width_px"] = img.width_px
         layout["img_height_px"] = img.height_px
         
@@ -167,10 +158,7 @@ def merge_data_into_layout(data, layout):
 def merge(modules: dict, layouts: dict):
     merged_dicts = []
     for i in range(len(modules)):
-        if modules[i]['type'] == 'plot':
-            merged_dicts.append(merge_plot_data_into_layout(modules[i], layouts[i]))
-        else:
-            merged_dicts.append(merge_data_into_layout(modules[i], layouts[i]))
+        merged_dicts.append(merge_data_into_layout(modules[i], layouts[i]))
     return merged_dicts
 
 
@@ -180,37 +168,24 @@ def align_modules(modules, width):
 
     if num_modules == 1:
         modules[0]["total_width"] = width
-        if modules[0]["type"] == "grid":
-            calculate.resize_to_match_total_width(modules[0])
-            modules[0]['total_height'] = calculate.get_total_height(modules[0])
-        elif modules[0]['type'] == 'plot':
-            modules[0]['total_height'] = width / modules[0]['width_to_height_aspect_ratio']
-        else:
-            pass
-        return
+        calculate.resize_to_match_total_width(modules[0])
+        modules[0]['total_height'] = calculate.get_total_height(modules[0])
 
     sum_inverse_aspect_ratios = 0
     inverse_aspect_ratios = []
     for m in modules:
-        if m["type"] == "grid":
-            image_aspect_ratio = m['img_height_px'] / float(m['img_width_px'])
-            a = m['num_rows'] / float(m['num_columns']) * image_aspect_ratio
-        elif m["type"] == "plot":
-            a = 1 / m['width_to_height_aspect_ratio']
-        else:
-            raise "unsupported module type '" + m['type'] + "'"
+        image_aspect_ratio = m['img_height_px'] / float(m['img_width_px'])
+        a = m['num_rows'] / float(m['num_columns']) * image_aspect_ratio
+    
         sum_inverse_aspect_ratios += 1/a
         inverse_aspect_ratios.append(1/a)
 
     sum_fixed_deltas = 0
     i = 0
     for m in modules:
-        if m["type"] == "grid":
-            w_fix = calculate.get_min_width(m)
-            h_fix = calculate.get_min_height(m)
-        else:
-            w_fix = 0
-            h_fix = 0
+        w_fix = calculate.get_min_width(m)
+        h_fix = calculate.get_min_height(m)
+        
         sum_fixed_deltas += w_fix - h_fix * inverse_aspect_ratios[i]
         i += 1
 
@@ -218,13 +193,8 @@ def align_modules(modules, width):
 
     for m in modules:
         m['total_height'] = height
-        if m["type"] == "grid":
-            calculate.resize_to_match_total_height(m)
-            m['total_width'] = calculate.get_total_width(m)
-        elif m['type'] == 'plot':
-            m['total_width'] = height * m['width_to_height_aspect_ratio']
-        else:
-            pass
+        calculate.resize_to_match_total_height(m)
+        m['total_width'] = calculate.get_total_width(m)
 
 def get_backend(filename):
     # Select the correct backend based on the filename
@@ -242,7 +212,7 @@ def get_backend(filename):
 def align_horizontal_modules(modules, width_cm):
     layouts = []
     for m in modules:
-        layouts.append(modify_default_layout(m.data['layout'], m.data['type']))
+        layouts.append(modify_default_layout(m.data['layout']))
 
     modules_data_list = [m.data for m in modules]
     merged_data = merge(modules_data_list, layouts)
@@ -264,11 +234,12 @@ def make_image_tmp_dir(intermediate_dir):
 
 def figure(modules, width_cm, filename, intermediate_dir, tex_packages):
     """
-    Creates a figure similar to horizontal_figure, except that each row is a horizontal figure, which
-    will get stacked vertically.
+    Grid rows: Creates a figure by putting grids next to each other, from left to right.
+    Grid columns: stacks rows vertically.
+    Aligns the height of the given grids such that they fit the given total width.
 
-    Args:
-        modules: a list of lists of dictionaries
+    args:
+        grids: a list of lists of Grids (figuregen.Grid), which stacks horizontal figures vertically
         width_cm: total width of the figure in centimeters
         intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
         tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
@@ -298,20 +269,17 @@ def figure(modules, width_cm, filename, intermediate_dir, tex_packages):
 
 def horizontal_figure(modules, width_cm: float, filename, intermediate_dir, tex_packages):
     """
-    Creates a figure by putting modules next to each other, from left to right.
-    Aligns the height of the given modules such that they fit the given total width.
+    Creates a figure by putting grids next to each other, from left to right.
+    Aligns the height of the given grids such that they fit the given total width.
 
     Args:
-        modules: a list of dictionaries, one for each module
+        grids: a list of Grids (figuregen.Grid)
         width_cm: total width of the figure in centimeters
         intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
         tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
     """
-
     backend = get_backend(filename)
-
     merged_data = align_horizontal_modules(modules, width_cm)
-
     temp_dir, temp_folder = make_image_tmp_dir(intermediate_dir)
 
     generated_data = []

@@ -1,18 +1,17 @@
 import os
-from . import html_element, html_plot, chartjs
+from . import html_element #, html_plot, chartjs # NOTE: currently chartjs is not used 
+from ..element_data import *
+
 '''
 in HTML format we
  - ignore background colors for whole figure (for now), the background color is white
  - do not support 'dashed' markers - if a marker is 'dashed' the marker will be normal (but still has a marker)
  - only support text rotation by 0° and +-90°
- - have plot defaults, that ignore some user defined input:
-    * grid: lightgrey, fine lines
-    * no upper and right axis
 '''
 
-class Error(Exception):
-    def __init__(self, message):
-        self.message = message
+class GridError(Exception):
+    def __init__(self, row, col, message):
+        self.message = f"Error in row {row}, column {col}: {message}"
 
 def html_header_and_styles():
     header_lines = [
@@ -20,7 +19,7 @@ def html_header_and_styles():
         '<html>',
         '<head>',
 
-        '<script src="./scripts/Chart.min.js"></script>', # TODO actually copy the file
+        #'<script src="./scripts/Chart.min.js"></script>', # NOTE: currently chartjs is not used 
 
         '<style type="text/css">',
         '.module { position: absolute; }',
@@ -37,28 +36,21 @@ def html_header_and_styles():
 
 
 def gen_grid_content(module_data):
-    body = ''
-    body += html_element.gen_images(module_data)
+    body = html_element.gen_images(module_data)
     body += html_element.gen_south_captions(module_data)
     body += html_element.gen_titles(module_data)
     body += html_element.gen_row_titles(module_data)
     body += html_element.gen_column_titles(module_data)
     return body
 
-def gen_plot_content(module_data, id):
-    body = ''
-    body += html_plot.create_canvas(module_data, id)
-    body += html_plot.create_script(module_data, id)
-    return body
+# def gen_plot_content(module_data, id): # NOTE: currently chartjs is not used 
+#     body = html_plot.create_canvas(module_data, id)
+#     body += html_plot.create_script(module_data, id)
+#     return body
 
 def gen_body_content(module_data, offset_top, offset_left, id):
     body = html_element.gen_module_unit_mm(module_data['total_width'], module_data['total_height'], offset_top, offset_left)
-
-    if module_data['type'] == 'grid':
-        body += gen_grid_content(module_data)
-    else:
-        body += gen_plot_content(module_data, id)
-
+    body += gen_grid_content(module_data)
     return body + '\n' + '</div>'
 
 def export_images(module, figure_idx, module_idx, path):
@@ -67,18 +59,34 @@ def export_images(module, figure_idx, module_idx, path):
             elem = module["elements_content"][row][col]
             file = elem["image"]
 
-            if file.is_raster_image : #export to png
-                filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
+            if isinstance(file, Plot):
+                filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.html'
                 file_path = os.path.join(path, filename)
-                file.convert2png(file_path)
+                w = module['element_config']['img_width']
+                h = module['element_config']['img_height']
+                try:
+                    file.make_html(w, h, file_path)
+                except NotImplementedError:
+                    file_path = file_path.replace('.html', '.png')
+                    try:
+                        file.make_png(w, h, file_path)
+                    except:
+                        raise GridError(row, col, 'Could not convert plot to html nor to png!')
+
+            elif isinstance(file, Image):
+                if file.is_raster_image : #export to png
+                    filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
+                    file_path = os.path.join(path, filename)
+                    file.convert2png(file_path)
+                else:
+                    file_path = file.filename # all types (PNG, PDF, & HTML) are valid
             else:
-                file_path = file.filename # all types (PNG, PDF, & HTML) are valid
+                raise NotImplementedError()
 
             elem["image"] = file_path
 
 def generate(module_data, figure_idx, module_idx, temp_folder, delete_gen_files=False, tex_packages=[]):
-    if module_data['type'] == 'grid':
-        export_images(module_data, figure_idx, module_idx, path=temp_folder)
+    export_images(module_data, figure_idx, module_idx, path=temp_folder)
     return module_data
 
 def combine(data, filename, temp_folder, delete_gen_files=False):
@@ -109,6 +117,6 @@ def combine(data, filename, temp_folder, delete_gen_files=False):
     with open(filename, "w") as file:
         file.write(html_code)
 
-    # TODO only add script, if plot module is used
-    to_path = os.path.dirname(filename)
-    chartjs.emit(to_path)
+    # NOTE: currently chartjs is not used 
+    # to_path = os.path.dirname(filename)
+    # chartjs.emit(to_path)

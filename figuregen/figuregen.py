@@ -1,149 +1,14 @@
 from . import implementation
+from .element_data import *
 import numpy as np
-import cv2
 
 class Error(Exception):
     def __init__(self, message):
         self.message = message
 
-class Image:
-    @property
-    def aspect_ratio(self):
-        pass
-
-    @property
-    def width_px(self):
-        return None
-
-    @property
-    def height_px(self):
-        return None
-
-    @property
-    def is_raster_image(self):
-        pass
-
-    @property
-    def img_type(self):
-        pass
-
-    @property
-    def filename(self):
-        pass
-
-    def convert2png(self, out_filename):
-        pass
-
-class PDF(Image):
-    '''
-        Additional dependencies: PyPDF2 and pdf2image (requires poppler)
-    '''
-    def __init__(self, filename):
-        self.file = filename
-
-    @Image.aspect_ratio.getter
-    def aspect_ratio(self):
-        from PyPDF2 import PdfFileReader
-        box = PdfFileReader(open(self.filename, "rb")).getPage(0).mediaBox
-        width_pt = box.upperRight[0]
-        height_pt = box.upperRight[1]
-        return float(float(height_pt) / float(width_pt))
-
-    @Image.is_raster_image.getter
-    def is_raster_image(self):
-        return False
-
-    @Image.img_type.getter
-    def img_type(self):
-        return 'PDF'
-
-    @Image.filename.getter
-    def filename(self):
-        return self.file
-
-    def convert2png(self, out_filename, dpi=1000):
-        from pdf2image import convert_from_path
-        images = convert_from_path(self.file, dpi=dpi)
-        img = np.array(images[0])
-        cv2.imwrite(out_filename.replace('.pdf', '.png'), cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
-        return out_filename.replace('.pdf', '.png')
-
-class PNG(Image):
-    def __init__(self, raw_image_or_filename):
-        '''
-            Either provide raw image data OR a filename.
-        '''
-        if isinstance(raw_image_or_filename, str):
-            self.file = raw_image_or_filename
-            self.raw = None
-            img = cv2.imread(self.file)
-            self.width = img.shape[1]
-            self.height = img.shape[0]
-        else:
-            self.file = None
-            self.raw = raw_image_or_filename
-            self.width = self.raw.shape[1]
-            self.height = self.raw.shape[0]
-
-    @Image.width_px.getter
-    def width_px(self):
-        return self.width
-
-    @Image.height_px.getter
-    def height_px(self):
-        return self.height
-
-    @Image.aspect_ratio.getter
-    def aspect_ratio(self):
-        return float(self.height / float(self.width))
-
-    @Image.is_raster_image.getter
-    def is_raster_image(self):
-        return (self.file is None)
-
-    @Image.img_type.getter
-    def img_type(self):
-        return 'PNG'
-
-    @Image.filename.getter
-    def filename(self):
-        return self.file
-
-    def convert2png(self, out_filename, dpi=1000):
-        if self.raw is None:
-            raise Error('This PNG cannot be converted nor exported to png.')
-        clipped = self.raw*255
-        clipped[clipped < 0] = 0
-        clipped[clipped > 255] = 255
-        cv2.imwrite(out_filename, cv2.cvtColor(clipped.astype('uint8'), cv2.COLOR_RGB2BGR))
-
-
-class HTML(Image):
-    def __init__(self, filename, aspect_ratio):
-        self.file = filename
-        self.a_ratio = float(aspect_ratio)
-
-    @Image.aspect_ratio.getter
-    def aspect_ratio(self):
-        return self.a_ratio
-
-    @Image.is_raster_image.getter
-    def is_raster_image(self):
-        return False
-
-    @Image.img_type.getter
-    def img_type(self):
-        return 'HTML'
-
-    @Image.filename.getter
-    def filename(self):
-        return self.file
-
-    def convert2png(self, out_filename, dpi=1000):
-        raise Error('Cannot convert HTML file to png (yet).')
-
-class Module:
-    pass
+class GridError(Exception):
+    def __init__(self, row, col, message):
+        self.message = f"Error in row {row}, column {col}: {message}"
 
 def _transfer_position(position):
     if position == 'top':
@@ -227,9 +92,7 @@ class LayoutView:
 
     def set_caption(self, height_mm, offset_mm=None, fontsize=None, txt_rotation=None, txt_color=None, line_space=None):
         '''
-        Currently we support only the south caption for all backends, which is why if the user sets a caption,
-        it will be the south caption.
-        In the future, this function could be a reference for north/east/west captions.
+        Writes text below/south (each) image of that grid.
         '''
         name = "element_config.captions.south"
         self._set_text_properties(name, 'south', height_mm,
@@ -238,6 +101,9 @@ class LayoutView:
 
     def set_title(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None,
                   txt_color=None, line_space=None, bg_color=None):
+        '''
+        Writes a grid/subfigure title.
+        '''
         name = 'titles.' + _transfer_position(position)
         self._set_text_properties(name, position, field_size_mm,
                              offset_mm, fontsize, txt_rotation, txt_color, line_space, bg_color)
@@ -271,20 +137,23 @@ class LayoutView:
 
 class ElementView:
     '''
-    A 'Grid' contains one or multiple elements depending on num_row and num_col. This class will help make changes
-    in the settings for each element.
+    A 'Grid' contains one or multiple elements depending on num_row and num_col. 
+    This class will help make changes in the settings for each element.
     You should however 'set_images' for each element, else unknown behaviour.
     '''
     def __init__(self, grid, row, col):
         self.elem = grid.data["elements"][row][col]
+        self.row = row
+        self.col = col
         self.layout = grid.get_layout()
 
-    def set_image(self, image: Image):
-        if not isinstance(image, Image):
+    def set_image(self, image: ElementData):
+        if not isinstance(image, ElementData):
             try:
                 image = PNG(image)
             except:
-                raise Error('set_image needs an image of type figuregen.Image (e.g. figuregen.PNG)')
+                raise GridError(self.row, self.col, 'set_image needs an image of type figuregen.Image (e.g. figuregen.PNG)' 
+                    'or of type figuregen.Plot (e.g. figuregen.MatplotLinePlot)')
             print("Deprecation warning: interpreted image raw data as figuregen.PNG")
         self.elem['image'] = image
         return self
@@ -299,19 +168,24 @@ class ElementView:
 
     def draw_lines(self, start_positions, end_positions, linewidth_pt=0.5, color=[0,0,0]):
         '''
-        start_positions/end_positions (list of tupels): defines the position of the line to draw on top of the image. 
-            Needs a tupel (x: row, y: column) in pixel.
+        start_positions/end_positions (list of tuples): defines the position of the line to draw 
+            on top of the image. Needs a tuple (x: row, y: column) in pixel.
         '''
+        # Validate arguments
         if linewidth_pt <= 0.0:
-            raise Error('draw_lines: invalid linewidth "'+str(linewidth_pt)+'". Please choose a positive linewidth_pt > 0.')
+            raise GridError(self.row, self.col, f'invalid linewidth: {linewidth_pt}. Please choose a '
+                    'positive linewidth_pt > 0.')
         if not isinstance(start_positions, list) or start_positions == []:
-            raise Error('draw_lines: the argument "start_positions" needs to be a list that is not empty. Given: '+ str(start_positions) +'.')
+            raise GridError(self.row, self.col, 'Invalid argument "start_positions" needs to be a '
+                    f'list that is not empty. Given: {start_positions}.')
         if not isinstance(end_positions, list) or end_positions == []:
-            raise Error('draw_lines: the argument "end_positions" needs to be a list that is not empty.Given: '+ str(end_positions) +'.')
+            raise GridError(self.row, self.col, 'Invalid argument "end_positions" needs to be a '
+                    f'list that is not empty. Given: {end_positions}.')
         if len(start_positions) != len(end_positions):
-            raise Error('draw_lines: You have more start positions than end positions (or reverse).')
+            raise GridError(self.row, self.col, 'You have more start positions than end positions (or reverse).')
         if len(start_positions[0]) != 2 or len(end_positions[0]) != 2:
-            raise Error('draw_lines: the argument "start_positions" and "end_positions" should be a list of tupels. Each tupel represents the x and y coordination in pixels.')
+            raise GridError(self.row, self.col, 'Invalid argument "start_positions"/"end_positions" should'
+                'be a list of tuples. Each tuple represents the x and y coordination in pixels.')
 
         try:
             self.elem["lines"].append({"from": start_positions[0], "to": end_positions[0], "color": color, "lw": linewidth_pt})
@@ -327,23 +201,29 @@ class ElementView:
         return self
 
     def set_marker(self, pos, size, color=[255,255,255], linewidth_pt=1.0, is_dashed=False):
+        '''
+            Draws a rectangle on top of an image.
+
+            args:
+                pos (tuple): starting position (left, top) in pixel
+                size (tuple): size of the rectangle (width, height) in pixel
+        '''
         if linewidth_pt <= 0.0:
             raise Error('set_marker: invalid linewidth "'+str(linewidth_pt)+'". Please choose a positive linewidth_pt > 0.')
 
         try:
-            test = self.elem["crop_marker"]["list"]
+            test = self.elem["crop_marker"][0]
         except:
-            self.elem["crop_marker"] = {}
-            self.elem["crop_marker"]["list"] = [] #TODO remove 'list' and only use 'crop_markers'
+            self.elem["crop_marker"] = []
 
-        self.elem["crop_marker"]["list"].append({"pos": pos, "size": size, "color": color, "lw": linewidth_pt, "dashed": is_dashed})
+        self.elem["crop_marker"].append({"pos": pos, "size": size, "color": color, "lw": linewidth_pt, "dashed": is_dashed})
         return self
 
     def set_caption(self, txt_content):
         '''
         A (south) caption is placed below an image.
         In case the corresponding field height is not set yet, we set a 'default' value. This makes sure, that
-        the content (provided by the user) will be shown. The user can set (overwrite) the layout for captions anytime.
+        the content (provided by the user) will be shown. The user can set/overwrite the layout for captions anytime.
         '''
         self.elem["captions"] = {}
         self.elem["captions"]["south"] = str(txt_content)
@@ -354,9 +234,20 @@ class ElementView:
 
     def set_label(self, txt_content, pos, width_mm=10., height_mm=3.0, offset_mm=[1.0, 1.0],
                   fontsize=6, bg_color=None, txt_color=[0,0,0], txt_padding_mm=1.0):
+        '''
+            Write text on top of an image.
+
+            args:
+                pos (str): e.g. 'bottom_right', 'top_left', 'top_center' (= 'top'), ...
+                offset_mm (tuple): defines where the label is placed exactly. 
+                        We recommend to set bg_color, if you want to experiment with offsets.
+                fontsize (float): unit point
+                bg/txt_color (list): rgb integers ranging from 0 to 255. 
+        '''
 
         if not(pos in ['bottom', 'top', 'bottom_left', 'bottom_right', 'bottom_center', 'top_left', 'top_right', 'top_center']):
-            raise Error("Label position '"+ pos +"' is invalid. Valid positions are: 'bottom_left', 'bottom_right', 'bottom_center' (= 'bottom'), 'top_left', 'top_right', or 'top_center' (= 'top').") 
+            raise Error("Label position '"+ pos +"' is invalid. Valid positions are: 'bottom_left',"
+                "'bottom_right', 'bottom_center' (= 'bottom'), 'top_left', 'top_right', or 'top_center' (= 'top').") 
         if pos == 'bottom' or pos == 'top':
             pos += '_center'
 
@@ -384,13 +275,12 @@ class ElementView:
         }
 
 
-class Grid(Module):
+class Grid:
     def __init__(self, num_rows, num_cols):
         '''
-        initialize empty matrix for elements and fill the matrix with 'image' content
+        initialize empty matrix for elements
         '''
         self.data = {
-            "type": "grid",
             "elements": [[{} for i in range(num_cols)] for i in range(num_rows)],
             "row_titles": {},
             "column_titles": {},
@@ -414,7 +304,7 @@ class Grid(Module):
         pos = _transfer_position(position)
         self.data["titles"][pos] = str(txt_content)
 
-        # check if caption layout is already set, if not, set a field_size, so that the user is not confused, why content isn't shown
+        # set a field_size (if not already done), so that the user is not confused, why content isn't shown
         self.get_layout()._set_field_size_if_not_set(name='titles.'+pos, pos=pos, field_size_mm=6.)
         return self
 
@@ -437,7 +327,7 @@ class Grid(Module):
             self.data['row_titles'][pos] = {}
             self.data['row_titles'][pos]['content'] = txt_list
 
-        # check if caption layout is already set, if not, set a field_size, so that the user is not confused, why content isn't shown
+        # set a field_size (if not already done), so that the user is not confused, why content isn't shown
         self.get_layout()._set_field_size_if_not_set(name='row_titles.'+pos, pos=pos, field_size_mm=3.)
         return self
 
@@ -460,160 +350,45 @@ class Grid(Module):
             self.data['column_titles'][pos] = {}
             self.data['column_titles'][pos]['content'] = txt_list
 
-        # check if caption layout is already set, if not, set a field_size, so that the user is not confused, why content isn't shown
+         # set a field_size (if not already done), so that the user is not confused, why content isn't shown
         self.get_layout()._set_field_size_if_not_set(name='column_titles.'+pos, pos=pos, field_size_mm=3.)
         return self
 
-
-class Plot(Module):
-    def __init__(self, p_data):
-        self.data = {
-            "type": "plot",
-            "data": p_data,
-            "plot_color": [
-                [232, 181, 88],
-                [5, 142, 78],
-                [94, 163, 188],
-                [181, 63, 106],
-                [255, 255, 255]
-            ],
-            "axis_labels": {},
-            "axis_properties": {},
-            "markers": {},
-            "layout": {}
-            }
-
-    def _interpret_rotation(self, rotation):
-        if rotation == 0:
-            return 'horizontal'
-        if rotation == 90 or rotation == -90:
-            return 'vertical'
-        if rotation in ['horizontal', 'vertical']:
-            return rotation
-        raise Error('Incorrect rotation value. Try: 0/(-)90 or "horizontal"/"vertical".')
-
-    def _check_axis(self, axis):
-        if not (axis in ['x', 'y']):
-            raise Error('Incorrect axis. Try: "x" or "y".')
-
-    def set_plot_colors(self, color_list):
-        '''
-        color list contains a list of colors. A color is defined as [r,g,b] while each channel
-        ranges from 0 to 255.
-        '''
-        self.data['plot_color'] = color_list
-
-    def set_axis_label(self, axis, txt, rotation=None):
-        self._check_axis(axis)
-
-        if rotation is not None:
-            rotation = self._interpret_rotation(rotation)
-        else:
-            if axis == 'x':
-                rotation = 'horizontal'
-            else:
-                rotation = 'vertical'
-
-        self.data['axis_labels'][axis] = {}
-        self.data['axis_labels'][axis]['text'] = txt
-        self.data['axis_labels'][axis]['rotation'] = rotation
-
-    def set_axis_props(self, axis, ticks, range=None, use_log_scale=True, use_scientific_notations=False):
-        '''
-        The user should find and define suitable ticks so that the labels and ticks don't overlap.
-        Would be nice to do that automatically at some point.
-        '''
-        self._check_axis(axis)
-        if range is not None and len(range) != 2:
-            raise Error('You need exactly two values to specify range: [min, max]')
-
-        self.data['axis_properties'][axis] = {}
-        if range is not None:
-            self.data['axis_properties'][axis]['range'] = range
-        self.data['axis_properties'][axis]['ticks'] = ticks
-        self.data['axis_properties'][axis]['use_log_scale'] = use_log_scale
-        self.data['axis_properties'][axis]['use_scientific_notations'] = use_scientific_notations
-
-    def set_marker_v_line(self, pos, color, linestyle, linewidth_pt=.8):
-        '''
-        Currently, we only implemented "vertical_lines"
-        linestyle allows matplotlib inputs, e.g. (0,(4,6)) is valid.
-        '''
-        try:
-            test = self.data['markers']['vertical_lines'][0]
-        except:
-            self.data['markers']['vertical_lines'] = []
-        self.data['markers']['vertical_lines'].append({
-            'pos': pos,
-            'color': color,
-            "linestyle": linestyle,
-            "linewidth_pt": linewidth_pt,
-        })
-
-    def set_font_props(self, fontsize_pt=None, font_family=None, tex_package=None):
-        if fontsize_pt is not None:
-            self.data['layout']["plot_config.font.fontsize_pt"] = fontsize_pt
-        if font_family is not None:
-            # TODO: maybe check if font_family has a valid value
-            self.data['layout']["plot_config.font.font_family"] = font_family
-        if tex_package is not None:
-            self.data['layout']["plot_config.font.tex_package"] = tex_package
-
-    def set_grid_props(self, color=None, linewidth_pt=None, linestyle=None):
-        if color is not None:
-            self.data['layout']["plot_config.grid.color"] = color
-        if linewidth_pt is not None:
-            self.data['layout']["plot_config.grid.linewidth_pt"] = linewidth_pt
-        if linestyle is not None:
-            self.data['layout']["plot_config.grid.linestyle"] = linestyle
-
-    def set_width_to_height_aspect_ratio(self, a):
-        self.data['layout']['width_to_height_aspect_ratio'] = a
-
-    def show_upper_axis(self):
-        self.data['layout']["plot_config.has_upper_axis"] = True
-
-    def show_right_axis(self):
-        self.data['layout']["plot_config.has_right_axis"] = True
-
-    def set_linewidth(self, plot_line_pt=None, tick_line_pt=None):
-        if plot_line_pt is not None:
-            self.data['layout']['plot_config.plot_linewidth_pt'] = plot_line_pt
-        if tick_line_pt is not None:
-            self.data['layout']['plot_config.tick_linewidth_pt'] = tick_line_pt
-
-
-def horizontal_figure(modules, width_cm: float, filename, intermediate_dir = None, tex_packages=["[T1]{fontenc}", "{libertine}"]):
+def horizontal_figure(grids, width_cm: float, filename, intermediate_dir = None, tex_packages=["[T1]{fontenc}", "{libertine}"]):
     """
-    Creates a figure by putting modules next to each other, from left to right.
-    Aligns the height of the given modules such that they fit the given total width.
+    Creates a figure by putting grids next to each other, from left to right.
+    Aligns the height of the given grids such that they fit the given total width.
 
-    Args:
-        modules: a list of dictionaries, one for each module
+    args:
+        grids: a list of Grids (figuregen.Grid)
         width_cm: total width of the figure in centimeters
         intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
         tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
     """
-    if not (any(isinstance(el, list) for el in modules)):
-        return implementation.horizontal_figure(modules, width_cm, filename, intermediate_dir, tex_packages)
+    if not (any(isinstance(el, list) for el in grids)):
+        return implementation.horizontal_figure(grids, width_cm, filename, intermediate_dir, tex_packages)
     
-    a = np.array(modules)
-    raise Error('horizontal_figure: provided modules needs a one-dimensional (simple) list. Given modules shape is: '+ str(a.shape) +'. If you want to stack horizontal figures vertically, then use "figure" and provide a list of lists.')
+    a = np.array(grids)
+    raise Error('horizontal_figure: provided grids needs a one-dimensional (simple) list. '
+        f'Given grids shape is: {a.shape}. If you want to stack horizontal figures vertically, '
+        'then use "figure" and provide a list of lists.')
 
-
-def figure(modules, width_cm: float, filename, intermediate_dir = None, tex_packages=["[T1]{fontenc}", "{libertine}"]):
+def figure(grids, width_cm: float, filename, intermediate_dir = None, tex_packages=["[T1]{fontenc}", "{libertine}"]):
     """
-    Creates a figure by putting modules next to each other, from left to right.
-    Aligns the height of the given modules such that they fit the given total width.
+    Grid rows: Creates a figure by putting grids next to each other, from left to right.
+    Grid columns: stacks rows vertically.
+    Aligns the height of the given grids such that they fit the given total width.
 
-    Args:
-        modules: a list of lists of dictionaries (type: Module), which stacks horizontal figures vertically
+    args:
+        grids: a list of lists of Grids (figuregen.Grid), which stacks horizontal figures vertically
         width_cm: total width of the figure in centimeters
         intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
         tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
     """
-    if any(isinstance(el, list) for el in modules):
-        return implementation.figure(modules, width_cm, filename, intermediate_dir, tex_packages)
+    if any(isinstance(el, list) for el in grids):
+        return implementation.figure(grids, width_cm, filename, intermediate_dir, tex_packages)
 
-    a = np.array(modules)
-    raise Error('figure: provided module needs a two-dimensional list. Given modules shape is: '+ str(a.shape) +'. Either provide a list of lists or use a simple list and call "horizontal_figure".')
+    a = np.array(grids)
+    raise Error('figure: provided argument ("grids") needs a two-dimensional list. '
+            f'Given grids shape is: {a.shape}. Either provide a list of lists or use a '
+            'simple list and call "horizontal_figure".')
