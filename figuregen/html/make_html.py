@@ -1,5 +1,5 @@
 import os
-from . import html_element #, html_plot, chartjs # NOTE: currently chartjs is not used 
+from . import html_element #, html_plot, chartjs # NOTE: currently chartjs is not used
 from ..element_data import *
 
 '''
@@ -19,7 +19,7 @@ def html_header_and_styles():
         '<html>',
         '<head>',
 
-        #'<script src="./scripts/Chart.min.js"></script>', # NOTE: currently chartjs is not used 
+        #'<script src="./scripts/Chart.min.js"></script>', # NOTE: currently chartjs is not used
 
         '<style type="text/css">',
         '.module { position: absolute; }',
@@ -27,6 +27,7 @@ def html_header_and_styles():
                            'display: flex; align-items: center; justify-content: center}',
         '.title-content { margin-top: 0; margin-bottom: 0; }',
         '.element { position: absolute; }',
+        'body { margin: 0; }'
         '</style>',
 
         '</head>',
@@ -43,7 +44,7 @@ def gen_grid_content(module_data):
     body += html_element.gen_column_titles(module_data)
     return body
 
-# def gen_plot_content(module_data, id): # NOTE: currently chartjs is not used 
+# def gen_plot_content(module_data, id): # NOTE: currently chartjs is not used
 #     body = html_plot.create_canvas(module_data, id)
 #     body += html_plot.create_script(module_data, id)
 #     return body
@@ -117,6 +118,6 @@ def combine(data, filename, temp_folder, delete_gen_files=False):
     with open(filename, "w") as file:
         file.write(html_code)
 
-    # NOTE: currently chartjs is not used 
+    # NOTE: currently chartjs is not used
     # to_path = os.path.dirname(filename)
     # chartjs.emit(to_path)
