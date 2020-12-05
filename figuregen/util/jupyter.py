@@ -20,8 +20,8 @@ def convert(pdfname):
     return pdfname.replace('.pdf', '.png')
 
 def displaypdf(pdfname):
-    img = convert(pdfname)
-    IPython.display.display(Image(pdfname.replace('.pdf', '.png')))
+    filename = convert(pdfname)
+    IPython.display.display(Image(filename))
 
 def loadhtml(html_file):
     with open(html_file) as f:
@@ -38,7 +38,7 @@ def loadhtml(html_file):
         for c, s in table.items():
             figure = figure.replace(f'class="{c}" style="', f'class="{c}" style="{s}')
             figure = figure.replace(f'class="{c}"', '')
-        
+
         return figure
 
 def displayhtml(html_file):
