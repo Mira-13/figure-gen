@@ -115,9 +115,15 @@ bottom_grids[-1].get_layout().set_padding(right=0.0) # remove last padding
 v_grids = [
     [top_grid], 
     bottom_grids
-    ]
+ ]
 
 if __name__ == "__main__":
-    figuregen.figure(v_grids, width_cm=18., filename='v-stacked.pdf', intermediate_dir='pups')
-    figuregen.figure(v_grids, width_cm=18., filename='v-stacked.pptx')
-    figuregen.figure(v_grids, width_cm=18., filename='v-stacked.html')
+    figuregen.figure(v_grids, width_cm=18., filename='vertical-stack.pdf')
+    figuregen.figure(v_grids, width_cm=18., filename='vertical-stack.pptx')
+    figuregen.figure(v_grids, width_cm=18., filename='vertical-stack.html')
+
+    try:
+        from figuregen.util import jupyter
+        jupyter.convert('vertical-stack.pdf', 300)
+    except:
+        print('Warning: pdf could not be converted to png')

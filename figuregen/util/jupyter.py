@@ -10,12 +10,12 @@ import numpy as np
 from IPython.core.display import HTML
 import re
 
-def loadpdf(pdfname):
-    images = convert_from_path(pdfname, dpi=1000)
+def loadpdf(pdfname, dpi=1000):
+    images = convert_from_path(pdfname, dpi=dpi)
     return np.array(images[0])
 
-def convert(pdfname):
-    img = loadpdf(pdfname)
+def convert(pdfname, dpi=1000):
+    img = loadpdf(pdfname, dpi)
     cv2.imwrite(pdfname.replace('.pdf', '.png'), cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
     return pdfname.replace('.pdf', '.png')
 
