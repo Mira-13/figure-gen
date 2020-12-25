@@ -161,6 +161,20 @@ def gen_line_node(parent_name, lines, rel_p_factor):
     end_clipping = '\\end{scope}'
     return begin_clipping + drawn_lines + end_clipping + '\n'
 
+def gen_clipped_img_node(width, height, img_path, name, frame_width_pt, parent_name=None, position=None, anchor='center'):
+    '''
+    This function will be used, if the image has a frame. We clip the image.
+    '''
+    comment = '% Begin Image: more precise a clipped image, because this will get a frame\n'
+    img_body = gen_plain_node(width, height, name, parent_name, position, anchor)
+    fwpt = str(frame_width_pt * 0.5)
+    begin_clipping = '\\begin{scope}\n\\clip ([xshift = '+fwpt+'pt, yshift = '+fwpt+'pt]'+name+'.south west) rectangle '\
+                        '([xshift = -'+fwpt+'pt, yshift = -'+fwpt+'pt]'+name+'.north east);\n'
+    img_content = gen_img_node(width, height, img_path, name+'-content', parent_name, position, anchor)
+    end_clipping = '\\end{scope}\n'
+    comment_2 = '% End Image: more precise a clipped image, because this will get a frame\n'
+    return comment + img_body + begin_clipping + img_content + end_clipping + comment_2 + '\n'
+
 def gen_img_node(width, height, img_path, name, parent_name=None, position=None, anchor='center'):
     '''
     Creates a node that contains an image. No cropping will be done to the image: The image can 
@@ -179,6 +193,23 @@ def gen_img_node(width, height, img_path, name, parent_name=None, position=None,
     return '\\node[anchor='+ anchor +', minimum width='+ str(width) +'mm, '\
             'minimum height='+ str(height) +'mm, inner sep = 0, outer sep = 0] ('+ name +') at '+ pos +\
             ' {\\includegraphics[width='+str(width)+'mm, height='+str(height)+'mm]{\\detokenize{'+ img_path +'}}}; \n'
+
+def gen_img_helper(elem, img_width, img_height, append, parent_name, position, anchor):
+    '''
+    If the image has a frame: 
+        crop the image, so that there is no ugly aliasing effect
+    else:
+        simple image node
+
+    This does not contain the frame node.
+    '''
+    frame_specs = read_optional(elem, 'frame', default='')
+    if frame_specs != '':
+        return gen_clipped_img_node(img_width, img_height, name='img-'+append, 
+                                frame_width_pt=frame_specs['line_width'], parent_name=parent_name, 
+                                position=position, anchor=anchor, img_path=elem['image'])
+    return gen_img_node(img_width, img_height, name='img-'+append, parent_name=parent_name, 
+                                position=position, anchor=anchor, img_path=elem['image'])
 
 def gen_frame_node(parent_width, parent_height, parent_name, color, linewidth):
     '''
@@ -603,7 +634,6 @@ def gen_label(label_config, parent_name):
 
     return l_content + '\n'
 
-
 def gen_one_img_block(data, row, col):
     '''
     An image block contains a node for the image.
@@ -636,8 +666,7 @@ def gen_one_img_block(data, row, col):
                                         offset_name='row-space-'+str(row-1)+'-'+str(row))
         parent_name='north-field-'+append
 
-        tikz_content += gen_img_node(img_width, img_height, name='img-'+append, parent_name=parent_name, 
-                                    position='south', anchor='north', img_path=elem['image'])
+        tikz_content += gen_img_helper(elem, img_width, img_height, append, parent_name, position='south', anchor='north')
         tikz_content += gen_node_west(width=0.0, height=img_height, name='west-field-'+append, 
                                     parent_name='img-'+append, offset=0.0, offset_name=None)
 
@@ -648,8 +677,7 @@ def gen_one_img_block(data, row, col):
                                     offset_name='column-space-'+str(row)+'-'+str(col-1)+'-'+str(col))
 
         parent_name='west-field-'+append
-        tikz_content += gen_img_node(img_width, img_height, name='img-'+append, parent_name=parent_name, 
-                                    position='east', anchor='west', img_path=elem['image'])
+        tikz_content += gen_img_helper(elem, img_width, img_height, append, parent_name, position='east', anchor='west')
         tikz_content += gen_node_north(img_width, height=0.0, name='north-field-'+append, 
                                     parent_name='img-'+append, offset=0.0, offset_name=None)
 
