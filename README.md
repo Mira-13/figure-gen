@@ -45,3 +45,9 @@ We are happy to recieve honest feedback. If something does not work or you think
 Please participate in our survey (2-3 min):
 https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAMAAAHGrp1UMDBNU0VaNVlXNjhDT1JVT1NXOUtNQlVYSy4u.
 
+## Examples
+
+Clicking on an image below leads to the test that created the corresponding figure.
+
+### Vertical stacks
+[<img src="tests/vertical-stack.png" width="600"/>](tests/vertical_stack.py)
