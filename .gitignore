@@ -5,6 +5,7 @@ gen_*.json
 !grid-layout.png
 !vertical-stack.png
 !split-comparison.png
+!pool-siggraph.png
 *.exr
 uploadpip.ps1
 
