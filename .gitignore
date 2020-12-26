@@ -4,6 +4,7 @@ gen_*.json
 *.png
 !grid-layout.png
 !vertical-stack.png
+!split-comparison.png
 *.exr
 uploadpip.ps1
 

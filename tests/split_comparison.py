@@ -48,6 +48,12 @@ top_lay.set_padding(column=1.0, right=1.5)
 top_lay.set_col_titles('top', field_size_mm=5.0)
 
 if __name__ == "__main__":
-    figuregen.horizontal_figure([top_grid], width_cm=15., filename='split_comparison.html')
-    figuregen.horizontal_figure([top_grid], width_cm=15., filename='split_comparison.pptx')
-    figuregen.horizontal_figure([top_grid], width_cm=15., filename='split_comparison.pdf', tex_packages=["[T1]{fontenc}", "{arev}"])
+    figuregen.horizontal_figure([top_grid], width_cm=15., filename='split-comparison.html')
+    figuregen.horizontal_figure([top_grid], width_cm=15., filename='split-comparison.pptx')
+    figuregen.horizontal_figure([top_grid], width_cm=15., filename='split-comparison.pdf', tex_packages=["[T1]{fontenc}", "{arev}"])
+
+    try:
+        from figuregen.util import jupyter
+        jupyter.convert('split-comparison.pdf', 300)
+    except:
+        print('Warning: pdf could not be converted to png')
