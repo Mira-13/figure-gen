@@ -53,5 +53,5 @@ Clicking on an image below leads to the test that created the corresponding figu
 [<img src="tests/vertical-stack.png" width="600"/>](tests/vertical_stack.py)
 ### Split Comparison
 [<img src="tests/split-comparison.png" width="600"/>](tests/split_comparison.py)
-### Grids and Plot (within grid)
+### Grids and Plots
 [<img src="tests/pool-siggraph.png" width="600"/>](tests/siggraph_example.py)
