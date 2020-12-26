@@ -102,6 +102,7 @@ def gen_text_node(width, height, text, parent_name, fontsize, position='center',
     width and height, the text is 'clipped off'. This makes sure that the text-field has the correct 
     size.
     '''
+    comment = '% Begin text node: we clip the text, so that it will not overlap with other content.\n'
     begin_clipping = '\\begin{scope}\n\\clip ('+parent_name+'.south west) rectangle ('+\
                         parent_name+'.north east);\n'
     type_field = parent_name.split('-')[0]
@@ -119,7 +120,6 @@ def gen_text_node(width, height, text, parent_name, fontsize, position='center',
     paddedtext = paddedtext.replace("\n", "\\strut\\\\")
     paddedtext += "\\strut"
 
-
     if alignment == "left":
         alignment = "raggedright"
     elif alignment == "right":
@@ -131,15 +131,17 @@ def gen_text_node(width, height, text, parent_name, fontsize, position='center',
         f'rotate={rotation}, {txt_color}inner sep=0, outer sep=0] at ({parent_name}.{position}) \n'
     node_content = '{\\begin{minipage}['+vert_algin+']['+str(height)+'mm]{'+str(width)+'mm} '+\
                     fontsize + ' \\selectfont \\'+alignment+' \n'+paddedtext+'\n\\end{minipage}};\n'
-    end_clipping = '\\end{scope}'
+    end_clipping = '\\end{scope}\n'
+    comment_2 = '% End text node\n'
 
-    return begin_clipping + node + node_content + end_clipping + '\n'
+    return comment + begin_clipping + node + node_content + end_clipping + comment_2 +'\n'
 
 def gen_line_node(parent_name, lines, rel_p_factor):
     '''
         We need to create a node to clip the drawn line within a node.
         For exmaple, if we want to draw on top of an image, we clip the drawing.
     '''
+    comment = '% Begin clipped line: draw a line on top of an image.\n'
     begin_clipping = '\\begin{scope}\n\\clip ('+parent_name+'.south west) rectangle ('+parent_name+\
                     '.north east);\n'
 
@@ -154,25 +156,26 @@ def gen_line_node(parent_name, lines, rel_p_factor):
             tmp_color = r'\definecolor{tempcolor}{RGB}{'+ f'{color[0]}, {color[1]}, {color[2]}' +'}\n'
 
         draw_color = 'tempcolor, ' if tmp_color != '' else ''
-        drawn_lines += tmp_color + f"\\draw[{draw_color}line width={line['lw']}] ([xshift={start[1]}mm, '\
-                    'yshift=-{start[0]}mm]{parent_name}.north west) -- ([xshift={end[1]}mm, '\
-                    'yshift=-{end[0]}mm]{parent_name}.north west);\n"
+        drawn_lines += tmp_color + f"\\draw[{draw_color}line width={line['lw']}] ([xshift={start[1]}mm, "\
+                    f"yshift=-{start[0]}mm]{parent_name}.north west) -- ([xshift={end[1]}mm, "\
+                    f"yshift=-{end[0]}mm]{parent_name}.north west);\n"
     
-    end_clipping = '\\end{scope}'
-    return begin_clipping + drawn_lines + end_clipping + '\n'
+    end_clipping = '\\end{scope}\n'
+    comment_2 = '% End clipped line\n'
+    return comment + begin_clipping + drawn_lines + end_clipping + comment_2 + '\n'
 
 def gen_clipped_img_node(width, height, img_path, name, frame_width_pt, parent_name=None, position=None, anchor='center'):
     '''
     This function will be used, if the image has a frame. We clip the image.
     '''
-    comment = '% Begin Image: more precise a clipped image, because this will get a frame\n'
+    comment = '% Begin clipped image: Because of round-off errors, frames would sometimes not cover the borders of the image. Therefore, we clip the image slightly.\n'
     img_body = gen_plain_node(width, height, name, parent_name, position, anchor)
     fwpt = str(frame_width_pt * 0.5)
     begin_clipping = '\\begin{scope}\n\\clip ([xshift = '+fwpt+'pt, yshift = '+fwpt+'pt]'+name+'.south west) rectangle '\
                         '([xshift = -'+fwpt+'pt, yshift = -'+fwpt+'pt]'+name+'.north east);\n'
     img_content = gen_img_node(width, height, img_path, name+'-content', parent_name, position, anchor)
     end_clipping = '\\end{scope}\n'
-    comment_2 = '% End Image: more precise a clipped image, because this will get a frame\n'
+    comment_2 = '% End clipped image\n'
     return comment + img_body + begin_clipping + img_content + end_clipping + comment_2 + '\n'
 
 def gen_img_node(width, height, img_path, name, parent_name=None, position=None, anchor='center'):
@@ -197,7 +200,8 @@ def gen_img_node(width, height, img_path, name, parent_name=None, position=None,
 def gen_img_helper(elem, img_width, img_height, append, parent_name, position, anchor):
     '''
     If the image has a frame: 
-        crop the image, so that there is no ugly aliasing effect
+        Because of round-off errors, frames would sometimes not cover the borders of the image. 
+        Therefore, we clip the image slightly.
     else:
         simple image node
 
