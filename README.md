@@ -51,3 +51,5 @@ Clicking on an image below leads to the test that created the corresponding figu
 
 ### Vertical stacks
 [<img src="tests/vertical-stack.png" width="600"/>](tests/vertical_stack.py)
+### Split Comparison
+[<img src="tests/split-comparison.png" width="600"/>](tests/split_comparison.py)
