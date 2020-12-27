@@ -55,3 +55,5 @@ Clicking on an image below leads to the test that created the corresponding figu
 [<img src="tests/split-comparison.png" width="600"/>](tests/split_comparison.py)
 ### Grids and Plots
 [<img src="tests/pool-siggraph.png" width="600"/>](tests/siggraph_example.py)
+### Grid with titles, labels, markers, and frames 
+[<img src="tests/single-grid.png" width="600"/>](tests/single_module.py)
