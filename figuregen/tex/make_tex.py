@@ -52,11 +52,13 @@ def create_header(background_color, tex_packages):
 
     # LaTeX package Error and Warning messages
     if not type(tex_packages) is list:
-        raise Error(r'Figure generation: provided "tex_packages" needs to be of type list. Valid packages looks like {comment}, [T1]{fontec}. They do not include the prefix "\usepackage"!')
+        raise Error('Figure generation: provided "tex_packages" needs to be of type list. '\
+            r'Valid packages looks like ["{comment}", "[T1]{fontenc}"]. They do not include the prefix "\usepackage"!')
     if any(r"\usepackage" in e for e in tex_packages):
-        raise Error(r'Figure generation: provided "tex_packages" contain somewhere the prefix "\usepackage". Valid packages looks like ["{comment}", "[T1]{fontenc}"].')
-    if tex_packages != ["[T1]{fontenc}", "{libertine}"]:
-        print('Warning: You have included LaTeX-Packages: '+ str(tex_packages) +'. If you encounter problems, provide a "temp_folder", which contains all generated LaTeX output files (e.g. log) for easier debugging.')
+        raise Error('Figure generation: provided "tex_packages" contain somewhere the prefix '\
+            r'"\usepackage". Valid packages looks like ["{comment}", "[T1]{fontenc}"].')
+    # if tex_packages != ["[T1]{fontenc}", "{libertine}"]:
+        # print('Info: You have included LaTeX-Packages: '+ str(tex_packages) +'. If you encounter problems, provide a "temp_folder", which contains all generated LaTeX output files (e.g. log) for easier debugging.')
     packs = ["{comment}", "{amsmath}", "{tikz}"] # "[T1]{fontenc}", "{libertine}"
     packs.extend(tex_packages)
     header += combine_pdfs.use_packages(packs)
