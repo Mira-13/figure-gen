@@ -74,7 +74,7 @@ class SplitImage:
             Returns one raw image data.
 
             args:
-                list_img (list of image arrays): at best provide two or three images. 
+                list_img (list of image arrays): provide preferably two or three images. 
                     You can provide more (but it might look ugly).
                 degree (integer): A value between -45° and 45°.
                 vertical (boolean): Either uses a vertical or horizontal splitting.
