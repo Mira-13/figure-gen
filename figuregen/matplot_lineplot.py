@@ -1,4 +1,8 @@
 from .element_data import *
+from .util import units
+
+import numpy as np
+
 import matplotlib
 matplotlib.use('pgf')
 import matplotlib.pyplot as plt
@@ -32,74 +36,45 @@ def _setup_fonts(plt, font_properties):
     "pgf.preamble": "\n".join([
             r"\usepackage[utf8]{inputenc}",
             r"\usepackage[T1]{fontenc}",
-            r"\usepackage{"+font_properties['tex_package']+"}"
+            r"\usepackage" + font_properties['tex_package']
         ])
     })
 
-def _calculate_inch_fig_size(width_mm, height_mm):
-    return (width_mm * 0.03937007874, height_mm * 0.03937007874)
-
-def _scaleRGB(rgb_list):
-    return (rgb_list[0] * 1.0/255.0, rgb_list[1] * 1.0/255.0, rgb_list[2] * 1.0/255.0)
-
-def _mplot_color(rgb_list):
-    r,g,b = rgb_list[0] / 255., rgb_list[1] / 255., rgb_list[2] / 255.
-    return (r,g,b)
-
 def _label_alignment(rotation : str):
-    if rotation=='horizontal': 
-        return 'top'
-    return 'bottom'
+    return 'top' if rotation == 'horizontal' else 'bottom'
 
 def _plot_lines(ax, data, colors, linewidth):
     i = 0
     for d in data:
-        color = _mplot_color(colors[i])
-        ax.plot(d[0], d[1], linewidth=linewidth, color=color) 
+        if colors is not None and len(colors) > i:
+            ax.plot(d[0], d[1], linewidth=linewidth, color=np.array(colors[i])/255.0)
+        else:
+            ax.plot(d[0], d[1], linewidth=linewidth)
         i += 1
 
-def _apply_axis_range(ax, axis, axis_properties):
-    try:
-        axis_range = axis_properties['range'][0], axis_properties['range'][1]
-    except:
-        axis_range = None
+def _apply_axis_range(ax, props):
+    if "range" in props["x"]:
+        ax.set_xlim([ props["x"]['range'][0], props["x"]['range'][1] ])
+    if "range" in props["y"]:
+        ax.set_ylim([ props["y"]['range'][0], props["y"]['range'][1] ])
 
-    if axis_range is not None:
-        if axis == 'x':
-            ax.set_xlim(axis_range)
-        else:
-            ax.set_ylim(axis_range)
-
-def _apply_x_axes_properties(ax, x_axis_props):
-    '''
-    Because matplotlib has different function names for each axes, we also need two functions for the two axes.
-    '''
-    if x_axis_props['use_log_scale']:
+def _apply_axes_properties(ax, props):
+    if props["x"]["use_log_scale"]:
         ax.set_xscale('log')
-
-    if x_axis_props['ticks'] is not None:
-        ax.set_xticks(x_axis_props['ticks'])
-        if not x_axis_props['use_scientific_notations']: # can only apply if we have specific ticks
-            ax.set_xticklabels(x_axis_props['ticks'])
-    
-    ax.xaxis.set_minor_formatter(FormatStrFormatter(""))
-
-def _apply_y_axes_properties(ax, y_axis_props):
-    '''
-    Because matplotlib has different function names for each axes, we also need two functions for the two axes.
-    '''
-
-    if y_axis_props['use_log_scale']:
+    if props["y"]["use_log_scale"]:
         ax.set_yscale('log')
 
-    if y_axis_props['ticks'] is not None:
-        ax.set_yticks(y_axis_props['ticks'])
-        if not y_axis_props['use_scientific_notations']: # can only apply if we have specific ticks
-            ax.set_yticklabels(y_axis_props['ticks'])
-    
-    ax.yaxis.set_minor_formatter(FormatStrFormatter(""))
+    def set_ticks(ax, props):
+        if props['ticks'] is not None:
+            ax.set_ticks(props['ticks'])
+            if not props['use_scientific_notations']: # can only apply if we have specific ticks
+                ax.set_ticklabels(props['ticks'])
+        ax.set_minor_formatter(FormatStrFormatter(""))
 
-def _set_labels(fig, ax, labels, fontsize, pad): 
+    set_ticks(ax.xaxis, props["x"])
+    set_ticks(ax.yaxis, props["y"])
+
+def _set_labels(fig, ax, labels, fontsize, pad):
     '''
     Sets fontsize (pt), labels and their rotation.
     The labels are placed at each end of the axes so that we don't waste too much space.
@@ -107,9 +82,9 @@ def _set_labels(fig, ax, labels, fontsize, pad):
     Currently the user needs to find suitable ticks, so that labels and ticks don't overlap!
     '''
     axis_labels = labels
-    ax.set_xlabel(axis_labels['x']['text'], fontsize=fontsize, ha="right", 
+    ax.set_xlabel(axis_labels['x']['text'], fontsize=fontsize, ha="right",
                   va=_label_alignment(axis_labels['x']['rotation']), rotation=axis_labels['x']['rotation'])
-    ax.set_ylabel(axis_labels['y']['text'], fontsize=fontsize, ha="right", 
+    ax.set_ylabel(axis_labels['y']['text'], fontsize=fontsize, ha="right",
                   va=_label_alignment(axis_labels['y']['rotation']), rotation=axis_labels['y']['rotation'])
 
     # compute axis size in points
@@ -129,23 +104,21 @@ def _set_labels(fig, ax, labels, fontsize, pad):
     ax.yaxis.set_label_coords(-(pad - lwY) / width, 1)
 
 def _apply_axes_properties_and_labels(fig, ax, axis_properties, labels, config, fontsize):
-    _apply_axis_range(ax, 'x', axis_properties)
-    _apply_axis_range(ax, 'y', axis_properties)
+    _apply_axis_range(ax, axis_properties)
 
-    if not config['has_right_axis']: 
+    if not config['has_right_axis']:
         ax.spines['right'].set_visible(False)
         ax.yaxis.set_ticks_position('left')
-    if not config['has_upper_axis']: 
+    if not config['has_upper_axis']:
         ax.spines['top'].set_visible(False)
         ax.xaxis.set_ticks_position('bottom')
 
     tick_lw_pt = config['tick_linewidth_pt']
     plt.tick_params(width=tick_lw_pt, length=(tick_lw_pt * 4), labelsize=fontsize, pad=(tick_lw_pt * 2))
     _set_labels(fig, ax, labels, fontsize, pad=(tick_lw_pt * 6))
-    # if use_scientific_notations True, displaystyle is used in pgf --> offset of ticks changes 
+    # if use_scientific_notations True, displaystyle is used in pgf --> offset of ticks changes
 
-    _apply_x_axes_properties(ax, axis_properties['x'])
-    _apply_y_axes_properties(ax, axis_properties['y'])
+    _apply_axes_properties(ax, axis_properties)
 
 def _place_marker(ax, marker_data):
     try:
@@ -154,7 +127,8 @@ def _place_marker(ax, marker_data):
         vlines = []
 
     for vl in vlines:
-        ax.axvline(x=vl['pos'], color=_scaleRGB(vl['color']), linewidth=vl['linewidth_pt'], linestyle=vl['linestyle'])
+        ax.axvline(x=vl['pos'], color=np.array(vl['color'])/255.0, linewidth=vl['linewidth_pt'],
+            linestyle=vl['linestyle'])
 
 
 # ------ FINALLY --------
@@ -181,13 +155,13 @@ class MatplotLinePlot(Plot):
             "has_upper_axis": False,
             "has_right_axis": False
         }
-        self._colors = [ 
-                            [232, 181, 88],
-                            [5, 142, 78],
-                            [94, 163, 188],
-                            [181, 63, 106], 
-                            [255, 255, 255]
-                        ]
+        self._colors = [
+            [232, 181, 88],
+            [5, 142, 78],
+            [94, 163, 188],
+            [181, 63, 106],
+            [20, 20, 20]
+        ]
 
     def get_colors(self):
         return self._colors
@@ -298,17 +272,18 @@ class MatplotLinePlot(Plot):
             self._config['tick_linewidth_pt'] = tick_line_pt
 
     def _make(self, width_mm, height_mm, filename):
-        _setup_fonts(plt, self._font) 
-        figsize = _calculate_inch_fig_size(width_mm, height_mm)
-        
+        _setup_fonts(plt, self._font)
+        figsize = units.mm_to_inches(np.array([width_mm, height_mm]))
+
         #constrained_layout: https://matplotlib.org/3.2.1/tutorials/intermediate/constrainedlayout_guide.html
         fig, ax = plt.subplots(figsize=figsize, constrained_layout=True)
-        fig.set_constrained_layout_pads(w_pad=0, h_pad=0,
-            hspace=0., wspace=0.)
+        fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0., wspace=0.)
 
         _plot_lines(ax, self._data, self._colors, self._config['plot_linewidth_pt'])
-        _apply_axes_properties_and_labels(fig, ax, self._axis_properties, self._labels, self._config, self._font['fontsize_pt'])
-        plt.grid(color=_scaleRGB(self._grid['color']), linestyle=self._grid['linestyle'], linewidth=self._grid['linewidth_pt'])
+        _apply_axes_properties_and_labels(fig, ax, self._axis_properties, self._labels,
+            self._config, self._font['fontsize_pt'])
+        plt.grid(color=np.array(self._grid['color'])/255.0, linestyle=self._grid['linestyle'],
+            linewidth=self._grid['linewidth_pt'])
         _place_marker(ax, self._markers)
         plt.savefig(filename, pad_inches=0.0, dpi=500)
 
