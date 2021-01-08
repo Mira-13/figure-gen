@@ -63,11 +63,8 @@ class LayoutView:
             self.layout['row_space'] = row
         return self
 
-    def _set_text_properties(self, name, position, field_size_mm,
-                             offset_mm=None, fontsize=None, txt_rotation=None, txt_color=None, line_space=None, bg_color=None):
-        '''
-        Internal function to avoid code dublication
-        '''
+    def _set_text_properties(self, name, position, field_size_mm, offset_mm=None, fontsize=None,
+                             txt_rotation=None, txt_color=None, line_space=None, bg_color=None):
         if _is_north_or_south(position):
             self.layout[name + ".height"] = field_size_mm
         else:
@@ -137,7 +134,7 @@ class LayoutView:
 
 class ElementView:
     '''
-    A 'Grid' contains one or multiple elements depending on num_row and num_col. 
+    A 'Grid' contains one or multiple elements depending on num_row and num_col.
     This class will help make changes in the settings for each element.
     You should however 'set_images' for each element, else unknown behaviour.
     '''
@@ -152,7 +149,7 @@ class ElementView:
             try:
                 image = PNG(image)
             except:
-                raise GridError(self.row, self.col, 'set_image needs an image of type figuregen.Image (e.g. figuregen.PNG)' 
+                raise GridError(self.row, self.col, 'set_image needs an image of type figuregen.Image (e.g. figuregen.PNG)'
                     'or of type figuregen.Plot (e.g. figuregen.MatplotLinePlot)')
             print("Deprecation warning: interpreted image raw data as figuregen.PNG")
         self.elem['image'] = image
@@ -168,7 +165,7 @@ class ElementView:
 
     def draw_lines(self, start_positions, end_positions, linewidth_pt=0.5, color=[0,0,0]):
         '''
-        start_positions/end_positions (list of tuples): defines the position of the line to draw 
+        start_positions/end_positions (list of tuples): defines the position of the line to draw
             on top of the image. Needs a tuple (x: row, y: column) in pixel.
         '''
         # Validate arguments
@@ -192,7 +189,7 @@ class ElementView:
         except:
             self.elem["lines"] = []
             self.elem["lines"].append({"from": start_positions[0], "to": end_positions[0], "color": color, "lw": linewidth_pt})
-        
+
         for i in range(1, len(start_positions)):
             self.elem["lines"].append({"from": start_positions[i], "to": end_positions[i], "color": color, "lw": linewidth_pt})
 
@@ -228,7 +225,8 @@ class ElementView:
         self.elem["captions"] = {}
         self.elem["captions"]["south"] = str(txt_content)
 
-        # check if caption layout is already set, if not, set a field_size, so that the user is not confused, why content isn't shown
+        # check if caption layout is already set, if not, set a field_size,
+        # so that the user is not confused, why content isn't shown
         self.layout._set_field_size_if_not_set(name='element_config.captions.south', pos='south', field_size_mm=6.)
         return self
 
@@ -239,15 +237,15 @@ class ElementView:
 
             args:
                 pos (str): e.g. 'bottom_right', 'top_left', 'top_center' (= 'top'), ...
-                offset_mm (tuple): defines where the label is placed exactly. 
+                offset_mm (tuple): defines where the label is placed exactly.
                         We recommend to set bg_color, if you want to experiment with offsets.
                 fontsize (float): unit point
-                bg/txt_color (list): rgb integers ranging from 0 to 255. 
+                bg/txt_color (list): rgb integers ranging from 0 to 255.
         '''
 
         if not(pos in ['bottom', 'top', 'bottom_left', 'bottom_right', 'bottom_center', 'top_left', 'top_right', 'top_center']):
             raise Error("Label position '"+ pos +"' is invalid. Valid positions are: 'bottom_left',"
-                "'bottom_right', 'bottom_center' (= 'bottom'), 'top_left', 'top_right', or 'top_center' (= 'top').") 
+                "'bottom_right', 'bottom_center' (= 'bottom'), 'top_left', 'top_right', or 'top_center' (= 'top').")
         if pos == 'bottom' or pos == 'top':
             pos += '_center'
 
@@ -319,7 +317,7 @@ class Grid:
         if not isinstance(txt_list, list):
             raise Error ("'set_row_titles': Please give a list of strings, not a simple string. The length of the list should cover the number of rows.")
         if len(txt_list) < self.rows:
-            raise Error ("'set_rows_titles': length of provided list is less than number of rows.")  
+            raise Error ("'set_rows_titles': length of provided list is less than number of rows.")
 
         try:
             self.data['row_titles'][pos]['content'] = txt_list
@@ -342,7 +340,7 @@ class Grid:
         if not isinstance(txt_list, list):
             raise Error ("'set_col_titles': Please give a list of strings, not a simple string. The length of the list should cover the number of columns.")
         if len(txt_list) < self.cols:
-            raise Error ("'set_col_titles': length of provided list is less than number of columns.")  
+            raise Error ("'set_col_titles': length of provided list is less than number of columns.")
 
         try:
             self.data['column_titles'][pos]['content'] = txt_list
@@ -353,25 +351,6 @@ class Grid:
          # set a field_size (if not already done), so that the user is not confused, why content isn't shown
         self.get_layout()._set_field_size_if_not_set(name='column_titles.'+pos, pos=pos, field_size_mm=3.)
         return self
-
-def horizontal_figure(grids, width_cm: float, filename, intermediate_dir = None, tex_packages=["[T1]{fontenc}", "{libertine}"]):
-    """
-    Creates a figure by putting grids next to each other, from left to right.
-    Aligns the height of the given grids such that they fit the given total width.
-
-    args:
-        grids: a list of Grids (figuregen.Grid)
-        width_cm: total width of the figure in centimeters
-        intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
-        tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
-    """
-    if not (any(isinstance(el, list) for el in grids)):
-        return implementation.horizontal_figure(grids, width_cm, filename, intermediate_dir, tex_packages)
-    
-    a = np.array(grids)
-    raise Error('horizontal_figure: provided grids needs a one-dimensional (simple) list. '
-        f'Given grids shape is: {a.shape}. If you want to stack horizontal figures vertically, '
-        'then use "figure" and provide a list of lists.')
 
 def figure(grids, width_cm: float, filename, intermediate_dir = None, tex_packages=["[T1]{fontenc}", "{libertine}"]):
     """
@@ -392,3 +371,16 @@ def figure(grids, width_cm: float, filename, intermediate_dir = None, tex_packag
     raise Error('figure: provided argument ("grids") needs a two-dimensional list. '
             f'Given grids shape is: {a.shape}. Either provide a list of lists or use a '
             'simple list and call "horizontal_figure".')
+
+def horizontal_figure(grids, width_cm: float, filename, intermediate_dir = None, tex_packages=["[T1]{fontenc}", "{libertine}"]):
+    """
+    Creates a figure by putting grids next to each other, from left to right.
+    Aligns the height of the given grids such that they fit the given total width.
+
+    args:
+        grids: a list of Grids (figuregen.Grid)
+        width_cm: total width of the figure in centimeters
+        intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
+        tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
+    """
+    figure([grids], width_cm, filename, intermediate_dir, tex_packages)
