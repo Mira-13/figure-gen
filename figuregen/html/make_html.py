@@ -71,7 +71,7 @@ def export_images(module, figure_idx, module_idx, path):
                     file_path = file_path.replace('.html', '.png')
                     try:
                         file.make_png(w, h, file_path)
-                    except:
+                    except NotImplementedError:
                         raise GridError(row, col, 'Could not convert plot to html nor to png!')
 
             elif isinstance(file, Image):

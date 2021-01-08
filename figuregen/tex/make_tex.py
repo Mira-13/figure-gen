@@ -16,8 +16,8 @@ class GridError(Exception):
         self.message = f"Error in row {row}, column {col}: {message}"
 
 def gen_content(data):
-    ''' 
-    Generates LaTeX/TikZ content, basically  like a body for html, which includes images and 
+    '''
+    Generates LaTeX/TikZ content, basically  like a body for html, which includes images and
     titles/captions as well as their positions, sizes, and other properties.
     '''
     # img/element blocks
@@ -86,12 +86,12 @@ def export_images(module, figure_idx, module_idx, path):
                     file_path = os.path.join(path, filename)
                     try:
                         file.make_pdf(module['element_config']['img_width'], module['element_config']['img_height'], file_path)
-                    except NotImplementedError():
+                    except NotImplementedError:
                         file_path.replace('.pdf', '.png')
                         file.make_png(module['element_config']['img_width'], module['element_config']['img_height'], file_path)
-                except:
+                except NotImplementedError:
                     raise GridError(row, col, 'Could not convert plot to .pdf!')
-            
+
             elif isinstance(file, Image):
                 if file.is_raster_image:
                     filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
@@ -111,8 +111,8 @@ def export_images(module, figure_idx, module_idx, path):
 
 def generate(module_data, figure_idx, module_idx, temp_folder, tex_packages):
     '''
-    tex_packages: valid packages looks like ["{comment}", "{amsmath}", "[T1]{fontenc}", "{libertine}"] (these are included per default). 
-    If you want to add a package, please also do not include "\\usepackage", but what comes afterwards. 
+    tex_packages: valid packages looks like ["{comment}", "{amsmath}", "[T1]{fontenc}", "{libertine}"] (these are included per default).
+    If you want to add a package, please also do not include "\\usepackage", but what comes afterwards.
     '''
     tex_filename = f'gen_tex{figure_idx:03d}-{module_idx:04d}.tex'
     pdf_filename = tex_filename.replace('tex', 'pdf')

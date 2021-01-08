@@ -28,9 +28,9 @@ def export_images(module, figure_idx, module_idx, path):
                     filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
                     file_path = os.path.join(path, filename)
                     file.make_png(w, h, file_path)
-                except:
+                except NotImplementedError:
                     raise GridError(row, col, 'Could not convert plot to .png!')
-                
+
             elif isinstance(file, Image):
                 if file.is_raster_image or isinstance(file, PDF): #export to png
                     filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
@@ -44,7 +44,7 @@ def export_images(module, figure_idx, module_idx, path):
             else:
                 raise GridError(row, col, 'PPTX backend only supports for images: ' \
                     'raw image data, PNG, or PDF files. HTML is not supported. Given file: '+ str(file))
-                    
+
             elem["image"] = file_path
 
 def generate(module_data, figure_idx, module_idx, temp_folder, delete_gen_files=True, tex_packages=[]):
@@ -75,7 +75,7 @@ def combine(data, filename, temp_folder, delete_gen_files=True):
     figure_height = 0.
     for d in data:
         figure_height += d[0]['total_height']
-    
+
     if figure_height < 25.4: # mm
         figure_height = 25.4
         print("Warning: pptx computed height is less than the minimum of 2,54cm. The slide heights will be set on 2,54cm.")
