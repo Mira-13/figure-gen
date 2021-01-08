@@ -140,7 +140,7 @@ class MatplotLinePlot(Plot):
         self._axis_properties = {}
         self._markers = {}
         self._font = {
-            "tex_package": "libertine",
+            "tex_package": "{libertine}",
             "font_family": "sans-serif",
             "fontsize_pt": 7
         }
