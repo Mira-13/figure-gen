@@ -162,6 +162,10 @@ class MatplotLinePlot(Plot):
             [181, 63, 106],
             [20, 20, 20]
         ]
+        self.set_axis_label("x", "")
+        self.set_axis_label("y", "")
+        self.set_axis_properties("x", [], use_log_scale=False)
+        self.set_axis_properties("y", [], use_log_scale=False)
 
     def get_colors(self):
         return self._colors
