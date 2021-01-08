@@ -134,6 +134,12 @@ def _place_marker(ax, marker_data):
 # ------ FINALLY --------
 class MatplotLinePlot(Plot):
     def __init__(self, aspect_ratio, data) -> None:
+        """Creates a line plot using matplotlib with a pgf (i.e. LaTeX) backend
+
+        Args:
+            aspect_ratio (float): Height/width ratio of the plotting area (used for alignment and grid sizing)
+            data (list): A list of plot lines. Each element is a pair of two equal-sized lists: the x and y coordinates.
+        """
         self.aspect_ratio = aspect_ratio
         self._data = data
         self._labels = {}
