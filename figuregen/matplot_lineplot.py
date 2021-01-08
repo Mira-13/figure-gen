@@ -2,11 +2,14 @@ from .element_data import *
 from .util import units
 
 import numpy as np
+from threading import Lock
 
 import matplotlib
 matplotlib.use('pgf')
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
+
+matplot_mutex = Lock()
 
 # ------ HELPER -------
 def _check_axis(axis):
@@ -282,20 +285,24 @@ class MatplotLinePlot(Plot):
             self._config['tick_linewidth_pt'] = tick_line_pt
 
     def _make(self, width_mm, height_mm, filename):
-        _setup_fonts(plt, self._font)
-        figsize = units.mm_to_inches(np.array([width_mm, height_mm]))
+        matplot_mutex.acquire()
+        try:
+            _setup_fonts(plt, self._font)
+            figsize = units.mm_to_inches(np.array([width_mm, height_mm]))
 
-        #constrained_layout: https://matplotlib.org/3.2.1/tutorials/intermediate/constrainedlayout_guide.html
-        fig, ax = plt.subplots(figsize=figsize, constrained_layout=True)
-        fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0., wspace=0.)
+            #constrained_layout: https://matplotlib.org/3.2.1/tutorials/intermediate/constrainedlayout_guide.html
+            fig, ax = plt.subplots(figsize=figsize, constrained_layout=True)
+            fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0., wspace=0.)
 
-        _plot_lines(ax, self._data, self._colors, self._config['plot_linewidth_pt'])
-        _apply_axes_properties_and_labels(fig, ax, self._axis_properties, self._labels,
-            self._config, self._font['fontsize_pt'])
-        plt.grid(color=np.array(self._grid['color'])/255.0, linestyle=self._grid['linestyle'],
-            linewidth=self._grid['linewidth_pt'])
-        _place_marker(ax, self._markers)
-        plt.savefig(filename, pad_inches=0.0, dpi=500)
+            _plot_lines(ax, self._data, self._colors, self._config['plot_linewidth_pt'])
+            _apply_axes_properties_and_labels(fig, ax, self._axis_properties, self._labels,
+                self._config, self._font['fontsize_pt'])
+            plt.grid(color=np.array(self._grid['color'])/255.0, linestyle=self._grid['linestyle'],
+                linewidth=self._grid['linewidth_pt'])
+            _place_marker(ax, self._markers)
+            plt.savefig(filename, pad_inches=0.0, dpi=500)
+        finally:
+            matplot_mutex.release()
 
     def make_png(self, width_mm, height_mm, filename):
         self._make(width_mm, height_mm, filename)

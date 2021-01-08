@@ -152,7 +152,7 @@ def merge_data_into_layout(data, layout):
     if isinstance(img, Image) and img.width_px is not None:
         layout["img_width_px"] = img.width_px
         layout["img_height_px"] = img.height_px
-        
+
     return layout
 
 def merge(modules: dict, layouts: dict):
@@ -160,7 +160,6 @@ def merge(modules: dict, layouts: dict):
     for i in range(len(modules)):
         merged_dicts.append(merge_data_into_layout(modules[i], layouts[i]))
     return merged_dicts
-
 
 def align_modules(modules, width):
     num_modules = len(modules)
@@ -176,7 +175,7 @@ def align_modules(modules, width):
     for m in modules:
         image_aspect_ratio = m['img_height_px'] / float(m['img_width_px'])
         a = m['num_rows'] / float(m['num_columns']) * image_aspect_ratio
-    
+
         sum_inverse_aspect_ratios += 1/a
         inverse_aspect_ratios.append(1/a)
 
@@ -185,7 +184,7 @@ def align_modules(modules, width):
     for m in modules:
         w_fix = calculate.get_min_width(m)
         h_fix = calculate.get_min_height(m)
-        
+
         sum_fixed_deltas += w_fix - h_fix * inverse_aspect_ratios[i]
         i += 1
 
@@ -228,7 +227,7 @@ def make_image_tmp_dir(intermediate_dir):
     else:
         temp_folder = tempfile.TemporaryDirectory()
         temp_dir = temp_folder.name
-    
+
     return temp_dir, temp_folder
 
 
@@ -252,15 +251,23 @@ def figure(modules, width_cm, filename, intermediate_dir, tex_packages):
 
     temp_dir, temp_folder = make_image_tmp_dir(intermediate_dir)
 
+    from concurrent.futures import ThreadPoolExecutor
     generated_data = []
-    for fig_idx in range(len(modules)):
-        generated_data.append([])
-        for mod_idx in range(len(modules[fig_idx])):
-            module = merged_data[fig_idx][mod_idx]
-            generated_data[fig_idx].append(backends[backend].generate(module,
-                                                            figure_idx=fig_idx, module_idx=mod_idx, 
-                                                            temp_folder=temp_dir, tex_packages=tex_packages))
-    
+    with ThreadPoolExecutor() as executor:
+        # Launch futures for each module
+        for fig_idx in range(len(modules)):
+            generated_data.append([])
+            for mod_idx in range(len(modules[fig_idx])):
+                module = merged_data[fig_idx][mod_idx]
+                future = executor.submit(backends[backend].generate, module, figure_idx=fig_idx,
+                    module_idx=mod_idx, temp_folder=temp_dir, tex_packages=tex_packages)
+                generated_data[fig_idx].append(future)
+
+        # Replace all futures by their results
+        for fig_idx in range(len(modules)):
+            for mod_idx in range(len(modules[fig_idx])):
+                generated_data[fig_idx][mod_idx] = generated_data[fig_idx][mod_idx].result()
+
     backends[backend].combine(generated_data, filename, temp_folder=temp_dir)
 
     if temp_folder is not None:
@@ -285,8 +292,8 @@ def horizontal_figure(modules, width_cm: float, filename, intermediate_dir, tex_
     generated_data = []
     for i in range(len(modules)):
         module = merged_data[i]
-        generated_data.append(backends[backend].generate(module, 
-                                                        figure_idx=0, module_idx=i, 
+        generated_data.append(backends[backend].generate(module,
+                                                        figure_idx=0, module_idx=i,
                                                         temp_folder=temp_dir, tex_packages=tex_packages))
 
     backends[backend].combine([generated_data], filename, temp_folder=temp_dir)

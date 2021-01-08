@@ -1,5 +1,6 @@
 import os
 import shutil
+import threading
 
 from . import tikz
 from . import calculate
@@ -74,40 +75,48 @@ def write_into_tex_file(path, body_content, file_name, background_color, tex_pac
     f.write(whole_content)
     f.close()
 
+def _export_image(module, figure_idx, module_idx, path, row, col):
+    elem = module["elements_content"][row][col]
+    file = elem["image"]
+
+    if isinstance(file, Plot):
+        try:
+            filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.pdf'
+            file_path = os.path.join(path, filename)
+            try:
+                file.make_pdf(module['element_config']['img_width'], module['element_config']['img_height'], file_path)
+            except NotImplementedError:
+                file_path.replace('.pdf', '.png')
+                file.make_png(module['element_config']['img_width'], module['element_config']['img_height'], file_path)
+        except NotImplementedError:
+            raise GridError(row, col, 'Could not convert plot to .pdf!')
+
+    elif isinstance(file, Image):
+        if file.is_raster_image:
+            filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
+            file_path = os.path.join(path, filename)
+            file.convert2png(file_path)
+        elif isinstance(file, PDF) or isinstance(file, PNG):
+            file_path = file.filename
+        else:
+            raise Error('LaTeX backend only supports for images: ' \
+                'raw image data, PNG, or PDF files. HTML is not supported. Given file: '+ str(file))
+
+    else:
+        raise Error('LaTeX backend only supports for images: ' \
+                'raw image data, PNG, or PDF files. HTML is not supported. Given file: '+ str(file))
+
+    elem["image"] = file_path
+
 def export_images(module, figure_idx, module_idx, path):
+    threads = []
     for row in range(module["num_rows"]):
         for col in range(module["num_columns"]):
-            elem = module["elements_content"][row][col]
-            file = elem["image"]
-
-            if isinstance(file, Plot):
-                try:
-                    filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.pdf'
-                    file_path = os.path.join(path, filename)
-                    try:
-                        file.make_pdf(module['element_config']['img_width'], module['element_config']['img_height'], file_path)
-                    except NotImplementedError:
-                        file_path.replace('.pdf', '.png')
-                        file.make_png(module['element_config']['img_width'], module['element_config']['img_height'], file_path)
-                except NotImplementedError:
-                    raise GridError(row, col, 'Could not convert plot to .pdf!')
-
-            elif isinstance(file, Image):
-                if file.is_raster_image:
-                    filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
-                    file_path = os.path.join(path, filename)
-                    file.convert2png(file_path)
-                elif isinstance(file, PDF) or isinstance(file, PNG):
-                    file_path = file.filename
-                else:
-                    raise Error('LaTeX backend only supports for images: ' \
-                        'raw image data, PNG, or PDF files. HTML is not supported. Given file: '+ str(file))
-
-            else:
-                raise Error('LaTeX backend only supports for images: ' \
-                        'raw image data, PNG, or PDF files. HTML is not supported. Given file: '+ str(file))
-
-            elem["image"] = file_path
+            t = threading.Thread(target=_export_image, args=(module, figure_idx, module_idx, path, row, col))
+            t.start()
+            threads.append(t)
+    for t in threads:
+        t.join()
 
 def generate(module_data, figure_idx, module_idx, temp_folder, tex_packages):
     '''
