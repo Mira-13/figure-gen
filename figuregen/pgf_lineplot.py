@@ -6,7 +6,7 @@ import subprocess
 import shutil
 
 class PgfLinePlot(Plot):
-    def __init__(self, aspect_ratio, data) -> None:
+    def __init__(self, aspect_ratio, data, dpi=300) -> None:
         """Creates a line plot using LaTeX with the pgfplots package
 
         Args:
@@ -15,6 +15,7 @@ class PgfLinePlot(Plot):
         """
         self.aspect_ratio = aspect_ratio
         self._data = data
+        self._markers = {}
         self.set_font(7, "{libertine}")
         self.set_linewidth(0.8, 0.6)
         self._colors = [
@@ -31,6 +32,7 @@ class PgfLinePlot(Plot):
         self.set_axis_properties("x", [], use_log_scale=False)
         self.set_axis_properties("y", [], use_log_scale=False)
         self.set_padding(5, 5)
+        self._dpi = 300
 
     def get_colors(self):
         return self._colors
@@ -79,6 +81,42 @@ class PgfLinePlot(Plot):
         if left_mm is not None:
             self._pad_left_mm = left_mm
 
+    def set_v_line(self, pos, color, linestyle=[], linewidth_pt=.8):
+        ''' Adds a vertical line to the plot
+            Args:
+                color: the sRGB color of the line, each value in range [0, 255]
+                linestyle: a list of dash lengths following the pattern: [on, off, on, off, ...].
+                           An empty list corresponds to a solid line
+        '''
+        try:
+            test = self._markers['vertical_lines'][0]
+        except:
+            self._markers['vertical_lines'] = []
+        self._markers['vertical_lines'].append({
+            'pos': pos,
+            'color': color,
+            "linestyle": linestyle,
+            "linewidth_pt": linewidth_pt,
+        })
+
+    def set_h_line(self, pos, color, linestyle=[], linewidth_pt=.8):
+        ''' Adds a horizontal line to the plot
+            Args:
+                color: the sRGB color of the line, each value in range [0, 255]
+                linestyle: a list of dash lengths following the pattern: [on, off, on, off, ...].
+                           An empty list corresponds to a solid line
+        '''
+        try:
+            test = self._markers['horizontal_lines'][0]
+        except:
+            self._markers['horizontal_lines'] = []
+        self._markers['horizontal_lines'].append({
+            'pos': pos,
+            'color': color,
+            "linestyle": linestyle,
+            "linewidth_pt": linewidth_pt,
+        })
+
     @staticmethod
     def _compile_tex(tex, name, intermediate_dir = None):
         """ Compiles the given LaTeX code.
@@ -111,6 +149,17 @@ class PgfLinePlot(Plot):
             return "\\empty"
         tick_str = [f"{t}" for t in ticks]
         return "{" + ",".join(tick_str) + "}"
+
+    @staticmethod
+    def _dash_pattern_to_str(pattern):
+        if pattern is None:
+            return "{}"
+        names = ["on", "off"]
+        result = "{"
+        for i in range(len(pattern)):
+            result += f"{names[i % 2]} {pattern[i]}"
+        result += "}"
+        return result
 
     def _make_tex(self, width, height):
         tex_code = ""
@@ -160,7 +209,24 @@ class PgfLinePlot(Plot):
         if self._colors is not None:
             i = 0
             for clr in self._colors:
-                preamble_lines.append("\\definecolor{color" + f"{i}" + "}{RGB}{" + f"{clr[0]},{clr[1]},{clr[2]}" + "}")
+                preamble_lines.append("\\definecolor{color" + f"{i}" + "}{RGB}{"
+                    + f"{clr[0]},{clr[1]},{clr[2]}" + "}")
+                i += 1
+
+        if 'vertical_lines' in self._markers:
+            i = 0
+            for m in self._markers['vertical_lines']:
+                clr = m["color"]
+                preamble_lines.append("\\definecolor{vertlinecolor" + f"{i}" + "}{RGB}{"
+                    + f"{clr[0]},{clr[1]},{clr[2]}" + "}")
+                i += 1
+
+        if 'horizontal_lines' in self._markers:
+            i = 0
+            for m in self._markers['horizontal_lines']:
+                clr = m["color"]
+                preamble_lines.append("\\definecolor{horzlinecolor" + f"{i}" + "}{RGB}{"
+                    + f"{clr[0]},{clr[1]},{clr[2]}" + "}")
                 i += 1
 
         tex_code += "\n".join(preamble_lines) + "\n"
@@ -228,6 +294,7 @@ class PgfLinePlot(Plot):
         body_start_lines.append("]")
         tex_code += "\n".join(body_start_lines) + "\n"
 
+        # Add the actual plot lines
         for line_idx in range(len(self._data)):
             plot_code = [
                 "\\addplot[",
@@ -244,6 +311,36 @@ class PgfLinePlot(Plot):
             plot_code.append("};")
             tex_code += "\n".join(plot_code) + "\n"
 
+        # Add vertical and horizontal markers
+        if "vertical_lines" in self._markers:
+            i = 0
+            for m in self._markers["vertical_lines"]:
+                codelines = [
+                    "\\draw[",
+                    f"  vertlinecolor{i},",
+                    f"  line width={m['linewidth_pt']}pt,",
+                    "  dash pattern=" + self._dash_pattern_to_str(m["linestyle"]) + ",",
+                    "]",
+                    "({axis cs:" + f"{m['pos']}" + ",0}|-{rel axis cs:0,1}) -- ({axis cs:"
+                        + f"{m['pos']}" + ",0}|-{rel axis cs:0,0});"
+                ]
+                tex_code += "\n".join(codelines) + "\n"
+                i += 1
+        if "horizontal_lines" in self._markers:
+            i = 0
+            for m in self._markers["horizontal_lines"]:
+                codelines = [
+                    "\\draw[",
+                    f"  horzlinecolor{i},",
+                    f"  line width={m['linewidth_pt']}pt,",
+                    "  dash pattern=" + self._dash_pattern_to_str(m["linestyle"]) + ",",
+                    "]",
+                    "({rel axis cs:1,0}|-{axis cs:0," + f"{m['pos']}" +
+                        "}) -- ({rel axis cs:0,0}|-{axis cs:0," + f"{m['pos']}" + "});"
+                ]
+                tex_code += "\n".join(codelines) + "\n"
+                i += 1
+
         body_end_lines = [
             "\\end{axis}",
             "\\end{tikzpicture}",
@@ -257,6 +354,10 @@ class PgfLinePlot(Plot):
         tex = self._make_tex(width, height)
         self._compile_tex(tex, filename.replace(".pdf", ""))
 
+    # TODO add dpi property to PgfLinePlot class!
     def make_png(self, width, height, filename):
-        # TODO compile pdf and convert the result to .png
-        raise NotImplementedError()
+        self.make_pdf(width, height, filename.replace(".png", ".pdf"))
+
+        from pdf2image import convert_from_path
+        convert_from_path(filename.replace(".png", ".pdf"), dpi=self._dpi, transparent=True, fmt="png",
+            output_file=filename.replace(".png", ""), single_file=True)
