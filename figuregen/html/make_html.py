@@ -1,4 +1,5 @@
 import os
+import threading
 from . import html_element #, html_plot, chartjs # NOTE: currently chartjs is not used
 from ..element_data import *
 
@@ -54,37 +55,45 @@ def gen_body_content(module_data, offset_top, offset_left, id):
     body += gen_grid_content(module_data)
     return body + '\n' + '</div>'
 
+def _export_image(module, figure_idx, module_idx, path, row, col):
+    elem = module["elements_content"][row][col]
+    file = elem["image"]
+
+    if isinstance(file, Plot):
+        filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.html'
+        file_path = os.path.join(path, filename)
+        w = module['element_config']['img_width']
+        h = module['element_config']['img_height']
+        try:
+            file.make_html(w, h, file_path)
+        except NotImplementedError:
+            file_path = file_path.replace('.html', '.png')
+            try:
+                file.make_png(w, h, file_path)
+            except NotImplementedError:
+                raise GridError(row, col, 'Could not convert plot to html nor to png!')
+
+    elif isinstance(file, Image):
+        if file.is_raster_image : #export to png
+            filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
+            file_path = os.path.join(path, filename)
+            file.convert2png(file_path)
+        else:
+            file_path = file.filename # all types (PNG, PDF, & HTML) are valid
+    else:
+        raise NotImplementedError()
+
+    elem["image"] = file_path
+
 def export_images(module, figure_idx, module_idx, path):
+    threads = []
     for row in range(module["num_rows"]):
         for col in range(module["num_columns"]):
-            elem = module["elements_content"][row][col]
-            file = elem["image"]
-
-            if isinstance(file, Plot):
-                filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.html'
-                file_path = os.path.join(path, filename)
-                w = module['element_config']['img_width']
-                h = module['element_config']['img_height']
-                try:
-                    file.make_html(w, h, file_path)
-                except NotImplementedError:
-                    file_path = file_path.replace('.html', '.png')
-                    try:
-                        file.make_png(w, h, file_path)
-                    except NotImplementedError:
-                        raise GridError(row, col, 'Could not convert plot to html nor to png!')
-
-            elif isinstance(file, Image):
-                if file.is_raster_image : #export to png
-                    filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
-                    file_path = os.path.join(path, filename)
-                    file.convert2png(file_path)
-                else:
-                    file_path = file.filename # all types (PNG, PDF, & HTML) are valid
-            else:
-                raise NotImplementedError()
-
-            elem["image"] = file_path
+            t = threading.Thread(target=_export_image, args=(module, figure_idx, module_idx, path, row, col))
+            t.start()
+            threads.append(t)
+    for t in threads:
+        t.join()
 
 def generate(module_data, figure_idx, module_idx, temp_folder, delete_gen_files=False, tex_packages=[]):
     export_images(module_data, figure_idx, module_idx, path=temp_folder)
