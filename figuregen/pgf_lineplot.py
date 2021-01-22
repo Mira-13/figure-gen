@@ -161,7 +161,23 @@ class PgfLinePlot(Plot):
         result += "}"
         return result
 
+    def _clip_ticks(self, axis):
+        # Ensure that all ticks fall within the range, otherwise LaTeX will not compile
+        if 'range' in self._axis_properties[axis]:
+            if self._axis_properties[axis]['ticks'] is not None:
+                clipped = []
+                for t in self._axis_properties[axis]['ticks']:
+                    if t > self._axis_properties[axis]['range'][0] and t < self._axis_properties[axis]['range'][1]:
+                        clipped.append(t)
+                self._axis_properties[axis]['ticks'] = clipped
+
+    def _clean(self):
+        self._clip_ticks("x")
+        self._clip_ticks("y")
+
     def _make_tex(self, width, height):
+        self._clean()
+
         tex_code = ""
 
         preamble_lines = [
@@ -254,13 +270,15 @@ class PgfLinePlot(Plot):
             "    grid style=dashed,",
             "    axis line on top,",
             "    xlabel style={",
+            "        inner sep=3pt,",
             "        at=(current axis.right of origin), anchor=north east,",
             "        text width=\\width,",
             "        align=right,",
             "    },",
             "    ylabel style={",
+            "        inner sep=3pt,",
             "        at=(current axis.above origin), anchor=south east, ",
-            "        rotate=0,",
+            "        rotate=90,",
             "        text width=\\height,",
             "        align=right,",
             "    },",
@@ -276,6 +294,18 @@ class PgfLinePlot(Plot):
             f"        line width={self._tick_linewidth_pt}pt,",
             "        color=black",
             "    },",
+            "    x tick label style={",
+            "        /pgf/number format/.cd,",
+            "        scaled x ticks = false,",
+            "        fixed," if not self._axis_properties["x"]['use_scientific_notations'] else "",
+            "        /tikz/.cd",
+            "    },",
+            "    y tick label style={",
+            "        /pgf/number format/.cd,",
+            "        scaled y ticks = false,",
+            "        fixed," if not self._axis_properties["y"]['use_scientific_notations'] else "",
+            "        /tikz/.cd",
+            "    },",
         ]
 
         if self._axis_properties["x"]['use_scientific_notations']:
@@ -283,8 +313,10 @@ class PgfLinePlot(Plot):
 
         if 'range' in self._axis_properties['x']:
             body_start_lines.append(f"    xmin={self._axis_properties['x']['range'][0]}, xmax={self._axis_properties['x']['range'][1]},")
+            body_start_lines.append(f"    restrict x to domain={self._axis_properties['x']['range'][0]}:{self._axis_properties['x']['range'][1]},")
         if 'range' in self._axis_properties['y']:
             body_start_lines.append(f"    ymin={self._axis_properties['y']['range'][0]}, ymax={self._axis_properties['y']['range'][1]},")
+            body_start_lines.append(f"    restrict y to domain={self._axis_properties['y']['range'][0]}:{self._axis_properties['y']['range'][1]},")
 
         if self._axis_properties["x"]['use_log_scale']:
             body_start_lines.append("    xmode=log,")
