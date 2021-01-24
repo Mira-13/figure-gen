@@ -11,7 +11,7 @@ def sum_caption_spacing(data, position, muliplied): # e.g. multiplied = num_cols
     sum = 0
     caption = data['element_config']['captions'][position]
     spacing = _get_space_type(position)
-    
+
     if (caption[spacing] > 0.0):
         sum = caption['offset'] + caption[spacing]
     return sum * muliplied
@@ -36,7 +36,7 @@ def sum_col_title_spacing(data, position):
 
 # CALCULATIONS FOR HEIGHTS AND WIDTHS
 def relative_position(img_width_px, img_height_px, img_used_width, img_used_height):
-    width_factor = img_used_width * 1/img_width_px 
+    width_factor = img_used_width * 1/img_width_px
     height_factor = img_used_height * 1/img_height_px
     return width_factor, height_factor
 
@@ -65,7 +65,7 @@ def get_min_width(data):
     min_width += sum_title_spacing(data, 'west')
     min_width += sum_row_title_spacing(data, 'east')
     min_width += sum_row_title_spacing(data, 'west')
-    
+
     return min_width
 
 def get_min_height(data):
@@ -89,7 +89,7 @@ def get_min_height(data):
 
 def get_fixed_inner_height(data):
     '''
-    Fixed inner height is the sum of spacing between all images, which also includes element captions 
+    Fixed inner height is the sum of spacing between all images, which also includes element captions
     '''
     num_rows = data['num_rows']
 
@@ -101,7 +101,7 @@ def get_fixed_inner_height(data):
 
 def get_fixed_inner_width(data):
     '''
-    Fixed inner width is the sum of spacing between all images, which also includes element captions 
+    Fixed inner width is the sum of spacing between all images, which also includes element captions
     '''
     num_columns = data['num_columns']
 
@@ -127,25 +127,25 @@ def get_body_height(data):
 
 def get_total_width(data):
     '''
-    Includes everything that takes up width: padding, images, captions, row titles, 
+    Includes everything that takes up width: padding, images, captions, row titles,
     east/west titles and all corresponding offsets
     '''
     total_width = get_body_width(data)
     total_width += sum_caption_spacing(data, 'east', 1) # add to inner body one more
     total_width += sum_caption_spacing(data, 'west', 1) # same reason as above
-    
+
     # add outer titles
     total_width += sum_row_title_spacing(data, 'east')
     total_width += sum_row_title_spacing(data, 'west')
     total_width += sum_title_spacing(data, 'east')
     total_width += sum_title_spacing(data, 'west')
-    
+
     total_width += data['padding']['west'] + data['padding']['east']
-    return total_width 
+    return total_width
 
 def get_total_height(data):
     '''
-    Includes everything that takes up height: padding, images, captions, column titles, 
+    Includes everything that takes up height: padding, images, captions, column titles,
     north/south titles and all corresponding offsets
     '''
     total_height = get_body_height(data)
@@ -157,7 +157,7 @@ def get_total_height(data):
     total_height += sum_col_title_spacing(data, 'south')
     total_height += sum_title_spacing(data, 'north')
     total_height += sum_title_spacing(data, 'south')
-    
+
     total_height += data['padding']['north'] + data['padding']['south']
     return total_height
 
@@ -181,21 +181,20 @@ def resize_to_match_total_width(data):
     width_to_height_ratio = data['img_height_px'] / data['img_width_px']
 
     min_width = get_min_width(data)
-    width_left_per_img = (total_width - min_width) / num_cols
-    if width_left_per_img < 1.0:
-        if width_left_per_img < 0.0:
-            print('consider less columns or allow as total_width more than '+ str(total_width) + 
-            ', because the image width of all images are below 0.0 ' + data['units']+ '. ')
-        else: 
-            print('consider less columns or allow as total_width more than '+ str(total_width) + 
-            ', because the image width of all images are below 1.0 ' + data['units']+ 
-            '. If that is fine by you then ignore this message.')
+    width_per_img = (total_width - min_width) / num_cols
+    if width_per_img < 1.0:
+        if width_per_img < 0.0:
+            print(f'Warning: Element width computed to be negative. Probably due to an extreme aspect ratio.'
+                  f'Total height: ({total_width} - {min_width}) / {num_cols} = {width_per_img}')
+        else:
+            print(f'Warning: Width per element is {width_per_img} which is less than 1.0 {data["units"]}.'
+                   'Probably due to an extreme aspect ratio.')
 
-    # force width/height ratio of origin img 
-    data['element_config']['img_width'] = width_left_per_img
-    h = width_left_per_img * float(width_to_height_ratio) # w_to_h_ratio was of type decimal, which is more precise
+    # force width/height ratio of origin img
+    data['element_config']['img_width'] = width_per_img
+    h = width_per_img * float(width_to_height_ratio) # w_to_h_ratio was of type decimal, which is more precise
     data['element_config']['img_height'] = h
-    return width_left_per_img, h
+    return width_per_img, h
 
 def resize_to_match_total_height(data):
     '''
@@ -204,25 +203,23 @@ def resize_to_match_total_height(data):
 
     Note: If float() is too unprecise, use Decimal()
     '''
-    # TODO test function at some point
     num_rows = data['num_rows']
-    total_height = data['total_height'] 
+    total_height = data['total_height']
     heigth_to_width_ratio = data['img_width_px'] / data['img_height_px']
 
     min_height = get_min_height(data)
-    height_left_per_img = (total_height - min_height) / num_rows
-    if height_left_per_img < 1.0:
-        if height_left_per_img < 0.0:
-            print('consider less rows or allow as total_height more than '+ str(total_height) + 
-            ', because the image height of the images are below 0.0 ' + data['units']+ '. ')
-        else: 
-            print('consider less rows or allow as total_height more than '+ str(total_height) + 
-            ', because the image height of the images are below 1.0 ' + data['units']+ 
-            '. If that is fine by you then ignore this message.')
-    
-    # force width/height ratio of origin img 
-    data['element_config']['img_width'] = height_left_per_img * heigth_to_width_ratio
-    data['element_config']['img_height'] = height_left_per_img
+    height_per_img = (total_height - min_height) / num_rows
+    if height_per_img < 1.0:
+        if height_per_img < 0.0:
+            print(f'Warning: Element height computed to be negative. Probably due to an extreme aspect ratio.'
+                  f'Total height: ({total_height} - {min_height}) / {num_rows} = {height_per_img}')
+        else:
+            print(f'Warning: Height per element is {height_per_img} which is less than 1.0 {data["units"]}.'
+                   'Probably due to an extreme aspect ratio.')
+
+    # force width/height ratio of origin img
+    data['element_config']['img_width'] = height_per_img * heigth_to_width_ratio
+    data['element_config']['img_height'] = height_per_img
 # END CALCULATIONS
 
 def align_heights(data_to_be_aligned, data):
