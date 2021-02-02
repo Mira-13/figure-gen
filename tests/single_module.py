@@ -2,7 +2,7 @@ import numpy as np
 import figuregen
 
 # --- define colors and images ---
-colors = [ 
+colors = [
     [232, 181, 88], #yellow
     [5, 142, 78], #green
     [94, 163, 188], #light-blue
@@ -36,7 +36,7 @@ layout.set_padding(top=0.5, bottom=1.5)
 
 # marker
 grid.get_element(0,0).set_marker(pos=[32,12], size=[15,10], color=colors[4])
-grid.get_element(0,0).set_marker(pos=[1,1], size=[15,10], color=colors[-1], linewidth_pt=0.9, 
+grid.get_element(0,0).set_marker(pos=[1,1], size=[15,10], color=colors[-1], linewidth_pt=0.9,
                                 is_dashed=True)
 
 # frame
@@ -53,11 +53,11 @@ layout.set_caption(height_mm=4.0, fontsize=9, txt_color=[170,170,170])
 
 # labels (examples, each element can have in total 6 labels on each valid position)
 e4 = grid.get_element(1,0)
-e4.set_label("bottom center", pos='bottom_center', width_mm=25., height_mm=4.0, offset_mm=[1.0, 1.0], 
+e4.set_label("bottom center", pos='bottom_center', width_mm=25., height_mm=4.0, offset_mm=[1.0, 1.0],
                   fontsize=9, bg_color=None)
-e4.set_label("top\\\\right", pos='top_right', width_mm=8., height_mm=7.0, offset_mm=[1.0, 1.0], 
+e4.set_label("top\\\\right", pos='top_right', width_mm=8., height_mm=7.0, offset_mm=[1.0, 1.0],
                   fontsize=9, bg_color=[255,255,255], txt_padding_mm=0.4)
-e4.set_label("top\\\\left", pos='top_left', width_mm=8., height_mm=7.0, offset_mm=[1.0, 1.0], 
+e4.set_label("top\\\\left", pos='top_left', width_mm=8., height_mm=7.0, offset_mm=[1.0, 1.0],
                   fontsize=9, bg_color=colors[-1], txt_color=[255,255,255], txt_padding_mm=1.5)
 
 # grid specific titles

@@ -24,8 +24,8 @@ else:
     img_test = figuregen.PDF(pdffile)
 
 images = [
-    img_test, 
-    img_png, 
+    img_test,
+    img_png,
 ]
 
 # ---- GRIDS ----

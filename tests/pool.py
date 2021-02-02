@@ -9,7 +9,7 @@ method_titles = ['PT', 'VCM+MLT', 'Method A', 'Method B', 'Reference']
 baseline = 2
 
 # left, top, width, height
-crops = [[400, 120, 40, 30], [595, 81, 40, 30], [123, 300, 40, 30]] 
+crops = [[400, 120, 40, 30], [595, 81, 40, 30], [123, 300, 40, 30]]
 
 # ---------- Data Gathering: images -------------
 def get_image(method=None, crop_args=None):
@@ -25,7 +25,7 @@ def get_image(method=None, crop_args=None):
         img = figuregen.util.image.zoom(img)
     return figuregen.util.image.lin_to_srgb(img)
 
-ref_img = get_image() 
+ref_img = get_image()
 m_images = [get_image(m) for m in method_list[:-1]]
 
 #-------- Data Gathering: errors & captions ----------
@@ -58,7 +58,7 @@ def get_captions():
 # ---------- REFERENCE Module ----------
 ref_grid = figuregen.Grid(1,1)
 reference = ref_grid.get_element(0,0).set_image(figuregen.PNG(ref_img))
- 
+
 # marker
 for crop in crops:
     reference.set_marker(pos=[crop[0], crop[1]], size=[crop[2], crop[3]], color=[255, 255, 255], linewidth_pt=0.6)

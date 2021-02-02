@@ -10,7 +10,7 @@ scene = ['bookshelf', 'glossy-kitchen', 'pool']
 seconds = [120, 90, 60]
 baseline = 2
 method_list = ['path', 'upsmcmc', 'radiance', 'full', None]
-method_titles = ['Method A)', 'Method B)', 'Method C)', 'Method D)', 'Reference'] 
+method_titles = ['Method A)', 'Method B)', 'Method C)', 'Method D)', 'Reference']
 
 crops = [
     [ # bookshelf
@@ -26,11 +26,11 @@ crops = [
         image.Cropbox(top=81, left=595, height=30, width=40, scale=5)
     ]
 ]
-colors = [ 
+colors = [
     [232, 181, 88],
     [5, 142, 78],
     [94, 163, 188],
-    [181, 63, 106], 
+    [181, 63, 106],
     [255, 255, 255]
 ]
 
@@ -80,13 +80,13 @@ def get_captions(scene, method_titles, baseline, seconds):
 def load_error(scene, method, metric='MRSE*', clip=True):
     with open('errors/%s/%s__%s.json' % (scene, scene, method)) as json_file:
         data = json.load(json_file)
-    
+
     x = data['timesteps']
     y = [ e[metric] for e in data['data'] ]
-    
+
     si = 0
     x, y = x[si:], y[si:]
-    
+
     rmin = 0
     ddx, ddy = [], []
     for i in range(len(y)):
@@ -94,7 +94,7 @@ def load_error(scene, method, metric='MRSE*', clip=True):
             ddx.append(x[i])
             ddy.append(y[i])# * x[i])
             rmin = y[i]
-    
+
     return (ddx, ddy)
 
 def get_plot_data(scene, method_list):
@@ -106,7 +106,7 @@ def get_plot_data(scene, method_list):
 ref_grid = figuregen.Grid(1,1)
 ref_img = get_image(scene[idx], seconds[idx])
 reference = ref_grid.get_element(0,0).set_image(figuregen.PNG(ref_img))
- 
+
 # marker
 for crop in crops[idx]:
     reference.set_marker(pos=crop.get_marker_pos(), size=crop.get_marker_size(),

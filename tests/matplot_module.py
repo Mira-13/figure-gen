@@ -24,7 +24,7 @@ plot.set_axis_properties('y', range=None, ticks=[5, 10, 30, 50], use_log_scale=T
 plot.set_v_line(pos=10.5, color=[242, 113, 0], linestyle=(0,(4,6)), linewidth_pt=0.6)
 plot.set_colors(plot_color)
 
-# ----- PLOT Module ----- 
+# ----- PLOT Module -----
 plot_module = figuregen.Grid(1,1)
 plot_module.get_element(0,0).set_image(plot)
 
