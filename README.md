@@ -42,9 +42,6 @@ python -m pip install figuregen
 
 We are happy to recieve honest feedback. If something does not work or you think there is a missing feature, please let us know.
 
-Please participate in our survey (2-3 min):
-https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAMAAAHGrp1UMDBNU0VaNVlXNjhDT1JVT1NXOUtNQlVYSy4u.
-
 ## Examples
 
 Clicking on an image below leads to the test that created the corresponding figure.
