@@ -288,6 +288,9 @@ class Grid:
         self.rows = num_rows
         self.cols = num_cols
 
+    def __getitem__(self, rowcol):
+        return self.get_element(*rowcol)
+
     def get_element(self, row, col):
         return ElementView(self, row, col)
 
