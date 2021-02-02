@@ -221,19 +221,3 @@ def resize_to_match_total_height(data):
     data['element_config']['img_width'] = height_per_img * heigth_to_width_ratio
     data['element_config']['img_height'] = height_per_img
 # END CALCULATIONS
-
-def align_heights(data_to_be_aligned, data):
-    data_to_be_aligned['padding']['north'] = data['padding']['north']
-    data_to_be_aligned['padding']['south'] = data['padding']['south']
-
-    data_to_be_aligned['titles']['north']['height'] = data['titles']['north']['height']
-    data_to_be_aligned['titles']['north']['offset'] = data['titles']['north']['offset']
-    data_to_be_aligned['titles']['south']['height'] = data['titles']['south']['height']
-    data_to_be_aligned['titles']['south']['offset'] = data['titles']['north']['offset']
-
-    data_to_be_aligned['column_titles']['north']['height'] = data['column_titles']['north']['height']
-    data_to_be_aligned['column_titles']['north']['offset'] = data['column_titles']['north']['offset']
-    data_to_be_aligned['column_titles']['south']['height'] = data['column_titles']['south']['height']
-    data_to_be_aligned['column_titles']['south']['offset'] = data['column_titles']['south']['offset']
-
-    return data_to_be_aligned

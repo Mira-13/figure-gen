@@ -31,9 +31,9 @@ def _apply_fill_color(shape, color):
 
 def _add_frame_on_top(slide, pos_top, pos_left, width_inch, height_inch, color, thickness_pt):
     '''
-    Frames are rectangles placed on top of an image element. 
-    A frame has: 
-        - no background color, 
+    Frames are rectangles placed on top of an image element.
+    A frame has:
+        - no background color,
         - no text
     '''
     t_inch = calculate.pt_to_inch(thickness_pt)
@@ -41,7 +41,7 @@ def _add_frame_on_top(slide, pos_top, pos_left, width_inch, height_inch, color, 
 
     shape.line.color.rgb = RGBColor(color[0], color[1], color[2])
     shape.line.width = Pt(thickness_pt)
-    #shape.line.join_type = 'Miter' # Removes rounded edges, but is not supported, yet (sadly) 
+    #shape.line.join_type = 'Miter' # Removes rounded edges, but is not supported, yet (sadly)
     shape.fill.background()
 
 def _apply_text_alignment(paragraph, alignment):
@@ -93,17 +93,17 @@ def add_text(slide, pos_top, pos_left, width_inch, height_inch, text, txt_rotati
 
     Careful: pptx package does not support text rotation, yet.
     However, we support the rotation (+-) 90° by doing some workarounds:
-    - we switch height and width of the rectangle, and 
+    - we switch height and width of the rectangle, and
     - rotate the whole shape afterwards
     --> the shape, including it's content (text) is therefore rotated.
-    Other rotation values are not supported, except for 0°. 
+    Other rotation values are not supported, except for 0°.
     '''
     if txt_rotation == 90.0 or txt_rotation == -90.0:
         # The shape is rotated about its center. We want a rotation about the top left corner instead.
         # Since we only allow 90° rotations, we can correct for that with a simple translation
         pos_top += height_inch / 2. - width_inch / 2.
         pos_left -= height_inch / 2. - width_inch / 2.
-        
+
         # swap height and width
         height_inch, width_inch = width_inch, height_inch
 
@@ -121,10 +121,10 @@ def _add_label(slide, img_pos_top, img_pos_left, img_width_inch, img_height_inch
         cfg = cfg[label_pos]
     except KeyError:
         return
-                
+
     alignment = label_pos.split('_')[-1]
     is_top = (label_pos.split('_')[0] == 'top')
-       
+
     rect_width, rect_height = calculate.mm_to_inch(cfg['width_mm'])*factor, calculate.mm_to_inch(cfg['height_mm'])*factor
 
     # determine the correct offsets depending on wether it is in the corner or center
@@ -197,7 +197,7 @@ def _add_lines(slide, element, img_pos_top, img_pos_left, img_width_px, img_heig
 
 def images_and_frames_and_labels(slide, data, factor, offset_width_mm, offset_top_mm):
     '''
-    Reads module data and puts images on the slide. 
+    Reads module data and puts images on the slide.
     args:
         factor; is slide_width / figure_width, which is used to position elements on the slide accordingly
     '''
@@ -215,7 +215,7 @@ def images_and_frames_and_labels(slide, data, factor, offset_width_mm, offset_to
 
             if _has_frame(element):
                 _add_frame_on_top(slide, pos_top, pos_left, width_inch, height_inch, color=element['frame']['color'], thickness_pt=element['frame']['line_width'])
-            
+
             try: # place labels
                 cfg = element['label']
             except:
@@ -231,8 +231,8 @@ def titles(slide, data, factor, offset_left_mm, offset_top_mm=0.0):
         position, size = calculate.titles_pos(data, direction, factor, offset_left_mm, offset_top_mm)
         if size[0] != 0.0 and size[1] != 0.0:
             title = data['titles'][direction]
-            add_text(slide, position[0], position[1], size[0], size[1], 
-                     title['content'], title['rotation'], title['fontsize'], 
+            add_text(slide, position[0], position[1], size[0], size[1],
+                     title['content'], title['rotation'], title['fontsize'],
                      title['text_color'], title['background_color'])
 
 def _compute_bg_colors(bg_color_properties, num):
@@ -250,16 +250,16 @@ def _row_col_titles(slide, data, direction, title_properties, num, pos_fn):
         for i in range(num):
             position, size = pos_fn(i)
             add_text(slide, *position, *size, t['content'][i], t['rotation'], t['fontsize'], t['text_color'], bg_colors[i])
-  
+
 def row_titles(slide, data, factor, offset_left_mm, offset_top_mm=0.0):
     for direction in ['east', 'west']:
-        def pos_fn (idx): 
+        def pos_fn (idx):
             return calculate.row_titles_pos(data, idx + 1, direction, factor, offset_left_mm, offset_top_mm)
         _row_col_titles(slide, data, direction, data['row_titles'], data['num_rows'], pos_fn)
 
 def col_titles(slide, data, factor, offset_left_mm, offset_top_mm=0.0):
     for direction in ['north', 'south']:
-        def pos_fn (idx): 
+        def pos_fn (idx):
             return calculate.column_titles_pos(data, idx + 1, direction, factor, offset_left_mm, offset_top_mm)
         _row_col_titles(slide, data, direction, data['column_titles'], data['num_columns'], pos_fn)
 
@@ -272,13 +272,13 @@ def south_captions(slide, data, factor, offset_left_mm, offset_top_mm=0.0):
     size = calculate.img_size_inches(data, factor)[0], calculate.mm_to_inch(capt_prop['height']) * factor
     if size[0] == 0.0:
         return
-    
+
     rowIndex = 1
     for row in data['elements_content']:
         colIndex = 1
         for elem in row:
             position = calculate.south_caption_pos(data, colIndex, rowIndex, factor, offset_left_mm, offset_top_mm)
             txt_content = elem['captions']['south']
-            add_text(slide, *position, *size, txt_content, capt_prop['rotation'], capt_prop['fontsize'], capt_prop['text_color']) 
+            add_text(slide, *position, *size, txt_content, capt_prop['rotation'], capt_prop['fontsize'], capt_prop['text_color'])
             colIndex += 1
         rowIndex += 1
