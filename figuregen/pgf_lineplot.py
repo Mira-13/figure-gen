@@ -6,12 +6,13 @@ import subprocess
 import shutil
 
 class PgfLinePlot(Plot):
-    def __init__(self, aspect_ratio, data, dpi=300) -> None:
+    def __init__(self, aspect_ratio, data, dpi=300, axis_lines="left") -> None:
         """Creates a line plot using LaTeX with the pgfplots package
 
-        Args:
+        Arguments:
             aspect_ratio (float): Height/width ratio of the plotting area (used for alignment and grid sizing)
             data (list): A list of plot lines. Each element is a pair of two equal-sized lists: the x and y coordinates.
+            axis_lines (str): Either "left" (arrows on the left and bottom always) or "middle" (arrows at 0 coordinate)
         """
         self.aspect_ratio = aspect_ratio
         self._data = data
@@ -32,7 +33,8 @@ class PgfLinePlot(Plot):
         self.set_axis_properties("x", [], use_log_scale=False)
         self.set_axis_properties("y", [], use_log_scale=False)
         self.set_padding(5, 5)
-        self._dpi = 300
+        self._dpi = dpi
+        self._axis_lines = axis_lines
 
     def get_colors(self):
         return self._colors
@@ -46,7 +48,7 @@ class PgfLinePlot(Plot):
 
     def set_axis_label(self, axis, txt):
         self._labels[axis] = {}
-        self._labels[axis]['text'] = txt
+        self._labels[axis]['text'] = txt.replace("\n", "\\\\{}")
 
     def set_axis_properties(self, axis, ticks, range=None, use_log_scale=True, use_scientific_notations=False):
         '''
@@ -81,12 +83,14 @@ class PgfLinePlot(Plot):
         if left_mm is not None:
             self._pad_left_mm = left_mm
 
-    def set_v_line(self, pos, color, linestyle=[], linewidth_pt=.8):
+    def set_v_line(self, pos, color, linestyle=[], linewidth_pt=.8, phase_shift=0):
         ''' Adds a vertical line to the plot
-            Args:
-                color: the sRGB color of the line, each value in range [0, 255]
-                linestyle: a list of dash lengths following the pattern: [on, off, on, off, ...].
-                           An empty list corresponds to a solid line
+            
+        Args:
+            color: the sRGB color of the line, each value in range [0, 255]
+            linestyle: a list of dash lengths following the pattern: [on, off, on, off, ...].
+                       An empty list corresponds to a solid line
+            phase_shift: offset added to the dash pattern
         '''
         try:
             test = self._markers['vertical_lines'][0]
@@ -97,9 +101,10 @@ class PgfLinePlot(Plot):
             'color': color,
             "linestyle": linestyle,
             "linewidth_pt": linewidth_pt,
+            "linephase": phase_shift,
         })
 
-    def set_h_line(self, pos, color, linestyle=[], linewidth_pt=.8):
+    def set_h_line(self, pos, color, linestyle=[], linewidth_pt=.8, phase_shift=0):
         ''' Adds a horizontal line to the plot
             Args:
                 color: the sRGB color of the line, each value in range [0, 255]
@@ -115,6 +120,7 @@ class PgfLinePlot(Plot):
             'color': color,
             "linestyle": linestyle,
             "linewidth_pt": linewidth_pt,
+            "linephase": phase_shift,
         })
 
     @staticmethod
@@ -151,15 +157,16 @@ class PgfLinePlot(Plot):
         return "{" + ",".join(tick_str) + "}"
 
     @staticmethod
-    def _dash_pattern_to_str(pattern):
+    def _dash_pattern_to_str(pattern, phase):
         if pattern is None:
             return "{}"
         names = ["on", "off"]
-        result = "{"
+        seq = "dash pattern = {"
         for i in range(len(pattern)):
-            result += f"{names[i % 2]} {pattern[i]}"
-        result += "}"
-        return result
+            seq += f"{names[i % 2]} {pattern[i]} "
+        seq += "},"
+        phase = "dash phase = {" + str(phase) + "},"
+        return seq + phase
 
     def _clip_ticks(self, axis):
         # Ensure that all ticks fall within the range, otherwise LaTeX will not compile
@@ -244,6 +251,7 @@ class PgfLinePlot(Plot):
                 preamble_lines.append("\\definecolor{horzlinecolor" + f"{i}" + "}{RGB}{"
                     + f"{clr[0]},{clr[1]},{clr[2]}" + "}")
                 i += 1
+        preamble_lines.append("\\definecolor{gridcolor}{RGB}{220,220,220}")
 
         tex_code += "\n".join(preamble_lines) + "\n"
 
@@ -256,29 +264,31 @@ class PgfLinePlot(Plot):
             "    scale only axis,",
             "    height=\\height-\\padbot,",
             "    width=\\width-\\padleft,",
-            "    axis lines = middle,",
+            f"    axis lines = {self._axis_lines},",
             "    xlabel near ticks,",
             "    xlabel={" + self._labels["x"]["text"] + "},",
             "    ylabel={" + self._labels["y"]["text"] + "},",
             f"    xtick={self._ticks_to_str('x')},",
             f"    ytick={self._ticks_to_str('y')},",
+            "    yminorticks=false,",
+            "    xminorticks=false,",
             "    yticklabel style={inner sep=1pt},", # distance between y tick labels and the marker
             "    xticklabel style={inner sep=1pt},", # distance between x tick labels and the marker
             "    legend pos=north west,",
             "    ymajorgrids=true,",
             "    xmajorgrids=true,",
-            "    grid style=dashed,",
+            "    grid style={solid, line width=0.25pt, gridcolor},",
             "    axis line on top,",
             "    xlabel style={",
             "        inner sep=3pt,",
-            "        at=(current axis.right of origin), anchor=north east,",
+            "        at={(ticklabel* cs:1.05)}, anchor=north east,",
             "        text width=\\width,",
             "        align=right,",
             "    },",
             "    ylabel style={",
             "        inner sep=3pt,",
-            "        at=(current axis.above origin), anchor=south east, ",
-            "        rotate=90,",
+            "        at={(ticklabel* cs:1.05)}, anchor=south east, ",
+            "        rotate=0,",
             "        text width=\\height,",
             "        align=right,",
             "    },",
@@ -308,15 +318,15 @@ class PgfLinePlot(Plot):
             "    },",
         ]
 
-        if self._axis_properties["x"]['use_scientific_notations']:
+        if not self._axis_properties["x"]['use_scientific_notations']:
             body_start_lines.append("    log ticks with fixed point,")
 
         if 'range' in self._axis_properties['x']:
             body_start_lines.append(f"    xmin={self._axis_properties['x']['range'][0]}, xmax={self._axis_properties['x']['range'][1]},")
-            body_start_lines.append(f"    restrict x to domain={self._axis_properties['x']['range'][0]}:{self._axis_properties['x']['range'][1]},")
+            # body_start_lines.append(f"    restrict x to domain={self._axis_properties['x']['range'][0]}:{self._axis_properties['x']['range'][1]},")
         if 'range' in self._axis_properties['y']:
             body_start_lines.append(f"    ymin={self._axis_properties['y']['range'][0]}, ymax={self._axis_properties['y']['range'][1]},")
-            body_start_lines.append(f"    restrict y to domain={self._axis_properties['y']['range'][0]}:{self._axis_properties['y']['range'][1]},")
+            # body_start_lines.append(f"    restrict y to domain={self._axis_properties['y']['range'][0]}:{self._axis_properties['y']['range'][1]},")
 
         if self._axis_properties["x"]['use_log_scale']:
             body_start_lines.append("    xmode=log,")
@@ -351,7 +361,7 @@ class PgfLinePlot(Plot):
                     "\\draw[",
                     f"  vertlinecolor{i},",
                     f"  line width={m['linewidth_pt']}pt,",
-                    "  dash pattern=" + self._dash_pattern_to_str(m["linestyle"]) + ",",
+                    self._dash_pattern_to_str(m["linestyle"], m["linephase"]),
                     "]",
                     "({axis cs:" + f"{m['pos']}" + ",0}|-{rel axis cs:0,1}) -- ({axis cs:"
                         + f"{m['pos']}" + ",0}|-{rel axis cs:0,0});"
@@ -365,7 +375,7 @@ class PgfLinePlot(Plot):
                     "\\draw[",
                     f"  horzlinecolor{i},",
                     f"  line width={m['linewidth_pt']}pt,",
-                    "  dash pattern=" + self._dash_pattern_to_str(m["linestyle"]) + ",",
+                    self._dash_pattern_to_str(m["linestyle"], m["linephase"]),
                     "]",
                     "({rel axis cs:1,0}|-{axis cs:0," + f"{m['pos']}" +
                         "}) -- ({rel axis cs:0,0}|-{axis cs:0," + f"{m['pos']}" + "});"
@@ -384,12 +394,11 @@ class PgfLinePlot(Plot):
 
     def make_pdf(self, width, height, filename):
         tex = self._make_tex(width, height)
-        self._compile_tex(tex, filename.replace(".pdf", ""))
+        self._compile_tex(tex, filename)
+        return filename + ".pdf"
 
-    # TODO add dpi property to PgfLinePlot class!
-    def make_png(self, width, height, filename):
-        self.make_pdf(width, height, filename.replace(".png", ".pdf"))
-
+    def make_raster(self, width, height, filename):
+        fn = self.make_pdf(width, height, filename)
         from pdf2image import convert_from_path
-        convert_from_path(filename.replace(".png", ".pdf"), dpi=self._dpi, transparent=True, fmt="png",
-            output_file=filename.replace(".png", ""), single_file=True)
+        convert_from_path(fn, dpi=self._dpi, transparent=True, fmt="png", output_file=filename, single_file=True)
+        return filename + ".png"

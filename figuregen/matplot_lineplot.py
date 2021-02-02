@@ -304,8 +304,10 @@ class MatplotLinePlot(Plot):
         finally:
             matplot_mutex.release()
 
-    def make_png(self, width_mm, height_mm, filename):
-        self._make(width_mm, height_mm, filename)
+    def make_raster(self, width_mm, height_mm, filename):
+        self._make(width_mm, height_mm, filename + ".png")
+        return filename + ".png"
 
     def make_pdf(self, width_mm, height_mm, filename):
-        self._make(width_mm, height_mm, filename)
+        self._make(width_mm, height_mm, filename + ".pdf")
+        return filename + ".pdf"

@@ -57,33 +57,17 @@ def gen_body_content(module_data, offset_top, offset_left, id):
 
 def _export_image(module, figure_idx, module_idx, path, row, col):
     elem = module["elements_content"][row][col]
-    file = elem["image"]
+    width, height = module['element_config']['img_width'], module['element_config']['img_height']
 
-    if isinstance(file, Plot):
-        filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.html'
-        file_path = os.path.join(path, filename)
-        w = module['element_config']['img_width']
-        h = module['element_config']['img_height']
-        try:
-            file.make_html(w, h, file_path)
-        except NotImplementedError:
-            file_path = file_path.replace('.html', '.png')
-            try:
-                file.make_png(w, h, file_path)
-            except NotImplementedError:
-                raise GridError(row, col, 'Could not convert plot to html nor to png!')
+    assert isinstance(elem["image"], ElementData), "Element is of the wrong type."
 
-    elif isinstance(file, Image):
-        if file.is_raster_image : #export to png
-            filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
-            file_path = os.path.join(path, filename)
-            file.convert2png(file_path)
-        else:
-            file_path = file.filename # all types (PNG, PDF, & HTML) are valid
-    else:
-        raise NotImplementedError()
+    prefix = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}'
+    prefix = os.path.join(path, prefix)
 
-    elem["image"] = file_path
+    try:
+        elem["image"] = elem["image"].make_html(width, height, prefix)
+    except NotImplementedError:
+        elem["image"] = elem["image"].make_raster(width, height, prefix)
 
 def export_images(module, figure_idx, module_idx, path):
     threads = []

@@ -28,7 +28,12 @@ def _embed_png(filename, width, height, pos_top, pos_left):
     img_block = f'<img class="element" style="top: {pos_top}mm; left: {pos_left}mm;'\
                 f'height: {height}mm; width: {width}mm;"'
     b64data = base64.b64encode(open(filename, "rb").read()).decode()
-    src = ' src="' + "data:image/png;base64," + b64data + '"'
+    if filename[-4:] == ".png":
+        src = ' src="' + "data:image/png;base64," + b64data + '"'
+    elif filename[-4:] == ".jpg":
+        src = ' src="' + "data:image/jpeg;base64," + b64data + '"'
+    else:
+        raise Error('HTML could not embed the following image format: ' + filename) 
     return img_block + src + '/>' +'\n'
 
 def _embed_pdf(filename, width, height, pos_top, pos_left):
@@ -46,14 +51,12 @@ def _embed_html(filename, width, height, pos_top, pos_left):
 def _gen_image(element, width, height, pos_top, pos_left):
     filename = element['image']
     extension = filename[-4:]
-    if extension == '.png':
-        return _embed_png(filename, width, height, pos_top, pos_left)
     if extension == '.pdf':
         return _embed_pdf(filename, width, height, pos_top, pos_left)
-    if extension == 'html':
+    elif extension == 'html':
         return _embed_html(filename, width, height, pos_top, pos_left)
-    #should never be triggered as we check files beforehand, but just in case
-    raise Error('HTML could not embed the following file: ' + filename) 
+    else:
+        return _embed_png(filename, width, height, pos_top, pos_left)
 
 def _gen_label(img_pos_top, img_pos_left, img_width, img_height, cfg, label_pos):
     try:

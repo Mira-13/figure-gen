@@ -18,33 +18,14 @@ class GridError(Exception):
 
 def _export_image(module, figure_idx, module_idx, path, row, col):
     elem = module["elements_content"][row][col]
-    file = elem["image"]
+    width, height = module['element_config']['img_width'], module['element_config']['img_height']
 
-    if isinstance(file, Plot):
-        w = module['element_config']['img_width']
-        h = module['element_config']['img_height']
-        try:
-            filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
-            file_path = os.path.join(path, filename)
-            file.make_png(w, h, file_path)
-        except NotImplementedError:
-            raise GridError(row, col, 'Could not convert plot to .png!')
+    assert isinstance(elem["image"], ElementData), "Element is of the wrong type."
 
-    elif isinstance(file, Image):
-        if file.is_raster_image or isinstance(file, PDF): #export to png
-            filename = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}.png'
-            file_path = os.path.join(path, filename)
-            file.convert2png(file_path)
-        elif isinstance(file, PNG):
-            file_path = file.filename
-        else:
-            raise GridError(row, col, 'PPTX backend only supports for images: ' \
-                'raw image data, PNG, or PDF files. HTML is not supported. Given file: '+ str(file))
-    else:
-        raise GridError(row, col, 'PPTX backend only supports for images: ' \
-            'raw image data, PNG, or PDF files. HTML is not supported. Given file: '+ str(file))
+    prefix = f'img-{row+1}-{col+1}-{figure_idx+1}-{module_idx+1}'
+    prefix = os.path.join(path, prefix)
 
-    elem["image"] = file_path
+    elem["image"] = elem["image"].make_raster(width, height, prefix)
 
 def export_images(module, figure_idx, module_idx, path):
     threads = []
