@@ -159,13 +159,18 @@ class PNG(RasterImage):
 
 class JPEG(RasterImage):
     ''' A raster image that will be converted to .jpg '''
-    def __init__(self, raw_image_or_filename):
+    def __init__(self, raw_image_or_filename, quality=85):
         self.ext = ".jpg"
+        self.quality = quality
         RasterImage.__init__(self, raw_image_or_filename)
 
     def make_raster(self, width, height, base_filename) -> str:
         filename = base_filename + self.ext
-        self.convert(filename)
+        clipped = self.raw*255
+        clipped[clipped < 0] = 0
+        clipped[clipped > 255] = 255
+        cv2.imwrite(filename, cv2.cvtColor(clipped.astype('uint8'), cv2.COLOR_RGB2BGR), 
+            [int(cv2.IMWRITE_JPEG_QUALITY), self.quality])
         return filename
 
 class HTML(Image):
