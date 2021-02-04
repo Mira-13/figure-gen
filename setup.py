@@ -21,7 +21,6 @@ setuptools.setup(
     install_requires=[
         'matplotlib>=3.2.1',
         'python-pptx',
-        'pyexr',
         'scipy',
         'opencv-python'
     ],
