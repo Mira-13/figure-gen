@@ -1,7 +1,7 @@
 import figuregen
 from figuregen.util import image
 import os
-import pyexr
+import simpleimageio
 import json
 
 # ---------- Data Gathering ----------
@@ -41,7 +41,7 @@ def get_image(scene, seconds, method=None, cropbox=None):
         sec_string = '-'+str(seconds)+'s-'
         path = os.path.join('images', scene, scene+sec_string+method+".exr")
 
-    img = pyexr.read(path)
+    img = simpleimageio.read(path)
     if isinstance(cropbox, image.Cropbox):
         img = cropbox.crop(img)
     return image.lin_to_srgb(img)

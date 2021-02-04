@@ -1,6 +1,6 @@
 import figuregen
 from figuregen import util
-import pyexr
+import simpleimageio
 import os
 
 # ---------- Data Gathering ----------
@@ -10,12 +10,12 @@ method_filenames = [os.path.join('images', 'pool', f) for f in method_filenames]
 
 def get_image(filename=None, cropbox=None):
     '''
-    Example how to load and process image data (pyexr to srgb).
+    Example how to load and process image data (simpleimageio to srgb).
 
     return:
         srgb image
     '''
-    img = pyexr.read(filename)
+    img = simpleimageio.read(filename)
     if isinstance(cropbox, util.image.Cropbox):
         img = cropbox.crop(img)
     return util.image.lin_to_srgb(img)

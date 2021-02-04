@@ -1,7 +1,7 @@
 import figuregen
 import figuregen.util
 import os
-import pyexr
+import simpleimageio
 
 scene, seconds = 'pool', 60
 method_list = ['path', 'upsmcmc', 'radiance', 'full', None]
@@ -19,7 +19,7 @@ def get_image(method=None, crop_args=None):
         sec_string = '-'+str(seconds)+'s-'
         path = os.path.join('images', scene, scene+sec_string+method+".exr")
 
-    img = pyexr.read(path)
+    img = simpleimageio.read(path)
     if crop_args is not None:
         img = figuregen.util.image.crop(img, crop_args)
         img = figuregen.util.image.zoom(img)
