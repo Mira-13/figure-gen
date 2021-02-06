@@ -74,11 +74,11 @@ class SplitImage:
             Returns one raw image data.
 
             args:
-                list_img (list of image arrays): provide preferably two or three images. 
+                list_img (list of image arrays): provide preferably two or three images.
                     You can provide more (but it might look ugly).
                 degree (integer): A value between -45° and 45°.
                 vertical (boolean): Either uses a vertical or horizontal splitting.
-                weights (list of floats): Matches the weights to each image in list_img. 
+                weights (list of floats): Matches the weights to each image in list_img.
             '''
             self.degree = degree
             if self.degree > 45 or self.degree < -45:
@@ -132,12 +132,12 @@ class SplitImage:
                         start = 0
                     else:
                         start = int(cur_pos + offset)
-                    
+
                     if i == len(list_img) - 1:
                         end = self.img_height
                     else:
                         end = int(cur_pos + self.weights[i] * self.img_height + offset)
-                    
+
                     start = max(0, start)
                     end = min(self.img_height, end)
 
@@ -147,7 +147,7 @@ class SplitImage:
                         self.start_pos.append((start, col))
                     if col == self.img_width-1 and end != self.img_height:
                         self.end_pos.append((end, col))
-                
+
                 cur_pos += self.weights[i] * self.img_height
 
         else:
@@ -172,7 +172,7 @@ class SplitImage:
 
                     self.split_image[row,start:end] = list_img[i][row,start:end]
 
-                    
+
 
                 cur_pos += self.weights[i] * self.img_width
 
@@ -219,14 +219,6 @@ class SplitImage:
 
     def get_weights(self):
         return self.weights
-
-
-def scale_and_convert_rgb(rgb_list, scale=255):
-    r = round(rgb_list[0] * 1/scale, 2)
-    g = round(rgb_list[1] * 1/scale, 2)
-    b = round(rgb_list[2] * 1/scale, 2)
-    return '{'+str(r)+","+str(g)+","+ str(b)+'}'
-
 
 def squared_error(img, ref):
     return (img - ref)**2
