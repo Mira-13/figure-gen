@@ -1,6 +1,7 @@
 from . import implementation
 from .element_data import *
 import numpy as np
+import copy
 
 class Error(Exception):
     def __init__(self, message):
@@ -275,8 +276,7 @@ class ElementView:
 
 class Grid:
     def __init__(self, num_rows, num_cols):
-        '''
-        initialize empty matrix for elements
+        ''' Create an empty grid
         '''
         self.data = {
             "elements": [[{} for i in range(num_cols)] for i in range(num_rows)],
@@ -294,13 +294,31 @@ class Grid:
     def get_element(self, row, col):
         return ElementView(self, row, col)
 
+    @property
+    def layout(self):
+        return self.get_layout()
+
     def get_layout(self):
         return LayoutView(self)
 
-    def set_title(self, position, txt_content):
+    def copy_layout(self, other: 'Grid') -> None:
+        ''' Copies the layout of another grid. Useful to quickly align paddings and font settings.
+
+        Args:
+            other: the Grid object to copy the layout from
         '''
-        position: string (valid input: 'north'/'west'/... or 'top'/'right'/...)
-        The corresponding field will be set to some value in case the user didn't set it yet.
+        assert isinstance(other, Grid)
+        self.data["layout"] = copy.deepcopy(other.data["layout"])
+
+    def set_title(self, position, txt_content) -> 'Grid':
+        '''
+        If the user has not specified the title size in the layout yet, it will be set to a default value of 6mm.
+
+        Args:
+            position: one of 'north'/'west'/... or 'top'/'right'/...
+
+        Returns:
+            This object (for chaining purposes)
         '''
         pos = _transfer_position(position)
         self.data["titles"][pos] = str(txt_content)
@@ -309,18 +327,18 @@ class Grid:
         self.get_layout()._set_field_size_if_not_set(name='titles.'+pos, pos=pos, field_size_mm=6.)
         return self
 
-    def set_row_titles(self, position, txt_list):
+    def set_row_titles(self, position: str, txt_list: list):
         '''
-        position: string (valid: 'west'/'east' or 'right'/'left')
-        txt_list: string list of num_rows
+        Args:
+            position: string (valid: 'west'/'east' or 'right'/'left')
+            txt_list: string list with one title for each row
         '''
         pos = _transfer_position(position)
         if pos in ['north', 'south']:
             raise Error("Invalid position for row_title. Try: 'west'/'east' or 'right'/'left'")
-        if not isinstance(txt_list, list):
-            raise Error ("'set_row_titles': Please give a list of strings, not a simple string. The length of the list should cover the number of rows.")
-        if len(txt_list) < self.rows:
-            raise Error ("'set_rows_titles': length of provided list is less than number of rows.")
+
+        assert isinstance(txt_list, list), "Please provide a list of strings, not a simple string."
+        assert len(txt_list) >= self.rows, "Please provide a title for every row."
 
         try:
             self.data['row_titles'][pos]['content'] = txt_list
