@@ -1,26 +1,16 @@
 import numpy as np
-import scipy.ndimage
 
 from simpleimageio import lin_to_srgb, luminance, exposure, average_color_channels, zoom
 
-class Error(Exception):
-    def __init__(self, message):
-        self.message = message
-
-def crop(img, crop_args):
+def crop(img, *crop_args):
     '''
-    crop_args: list of 4 elements: left, top, width, height.
+    crop_args: list or tuple of 4 elements: left, top, width, height.
     '''
-    left, top = crop_args[0], crop_args[1]
-    width, height = crop_args[2], crop_args[3]
+    left, top, width, height = crop_args
 
-    # check if out of bounds
-    img_width = img.shape[1]
-    img_height = img.shape[0]
-    if img_width < left + width:
-        raise Error("Incorrect usage of 'crop' function. Crop is out of bounds: image width < left offset + crop width.")
-    if img_height < top + height:
-        raise Error("Incorrect usage of 'crop' function. Crop is out of bounds: image height < top offset + crop height.")
+    assert top >= 0 and left >= 0, "crop is outside the image"
+    assert left + width <= img.shape[1], "crop is outside the image"
+    assert top + height <= img.shape[0], "crop is outside the image"
 
     return img[top:top+height,left:left+width,:]
 
@@ -35,7 +25,7 @@ class Cropbox:
         self.scale = scale
 
     def crop(self, image):
-        c = crop(image, [self.left, self.top, self.width, self.height])
+        c = crop(image, self.left, self.top, self.width, self.height)
         return zoom(c, self.scale)
 
     def get_marker_pos(self):
@@ -65,9 +55,7 @@ class SplitImage:
                 'You might want to switch vertical from True to False or reverse.')
             self.is_vertical = vertical
             self.num_img = len(list_img)
-            if self.num_img <= 1:
-                raise Error('You provided too few images (less than 2), which means, \
-            there is nothing to split.')
+            assert self.num_img > 1, "at least two images are required"
 
             self.weights = self._normalize_weights(weights)
             self.img_width = list_img[0].shape[1]
@@ -91,9 +79,8 @@ class SplitImage:
     def _normalize_weights(self, weights):
         if weights is None:
             weights = self._calculate_default_weights()
-        elif len(weights) != self.num_img:
-            raise Error("Each image needs it's own weight. Please make sure that the length of the list \
-        containing weights is as long as the number of images.")
+
+        assert len(weights) == self.num_img, "need one weight per image"
 
         # normalize weight scaling
         weights /= np.sum(weights)

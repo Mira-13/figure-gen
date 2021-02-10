@@ -21,7 +21,7 @@ setuptools.setup(
     install_requires=[
         'matplotlib>=3.2.1',
         'python-pptx',
-        'scipy',
+        'simpleimageio',
         'opencv-python'
     ],
     zip_safe=False
