@@ -21,24 +21,15 @@ We support _grids_ (images that are grid-like arranged) and simple _line-plottin
 
 ## Quickstart
 
-To get an inspiration on how to create figures, you might have a look at our tests or our [tutorial](Tutorial.ipynb).
-
-### Linux / Mac OS
+You can install the figure generator and all dependencies with a simple:
 
 ```
 python -m pip install figuregen
 ```
 
-### Windows
+Examples and inspiration for creating your own figures can be found in [our tests](tests) or the [Jupyter tutorial](Tutorial.ipynb).
 
-Download the pre-built OpenEXR binaries: https://www.lfd.uci.edu/~gohlke/pythonlibs/#openexr
-Open Powershell in the folder where the downloaded binary file is and run:
-``` 
-python -m pip install .\OpenEXR-_VERSION_.whl
-python -m pip install figuregen
-```
-
-## Feedback 
+## Feedback
 
 We are happy to recieve honest feedback. If something does not work or you think there is a missing feature, please let us know.
 
@@ -52,5 +43,5 @@ Clicking on an image below leads to the test that created the corresponding figu
 [<img src="tests/split-comparison.png" width="600"/>](tests/split_comparison.py)
 ### Grids and Plots
 [<img src="tests/pool-siggraph.png" width="600"/>](tests/siggraph_example.py)
-### Grid with titles, labels, markers, and frames 
+### Grid with titles, labels, markers, and frames
 [<img src="tests/single-grid.png" width="600"/>](tests/single_module.py)
