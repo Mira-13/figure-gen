@@ -1,4 +1,5 @@
 import cv2
+import simpleimageio
 import numpy as np
 
 class Error(Exception):
@@ -141,9 +142,7 @@ class RasterImage(Image):
         return float(self.height / float(self.width))
 
     def convert(self, out_filename):
-        clipped = self.raw*255
-        clipped[clipped < 0] = 0
-        clipped[clipped > 255] = 255
+        clipped = simpleimageio.to_byte_image(self.raw)
         cv2.imwrite(out_filename, cv2.cvtColor(clipped.astype('uint8'), cv2.COLOR_RGB2BGR))
 
 class PNG(RasterImage):
@@ -166,10 +165,8 @@ class JPEG(RasterImage):
 
     def make_raster(self, width, height, base_filename) -> str:
         filename = base_filename + self.ext
-        clipped = self.raw*255
-        clipped[clipped < 0] = 0
-        clipped[clipped > 255] = 255
-        cv2.imwrite(filename, cv2.cvtColor(clipped.astype('uint8'), cv2.COLOR_RGB2BGR), 
+        clipped = simpleimageio.to_byte_image(self.raw)
+        cv2.imwrite(filename, cv2.cvtColor(clipped.astype('uint8'), cv2.COLOR_RGB2BGR),
             [int(cv2.IMWRITE_JPEG_QUALITY), self.quality])
         return filename
 
