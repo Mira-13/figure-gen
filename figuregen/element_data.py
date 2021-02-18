@@ -142,8 +142,11 @@ class RasterImage(Image):
         return float(self.height / float(self.width))
 
     def convert(self, out_filename):
-        clipped = simpleimageio.to_byte_image(self.raw)
-        cv2.imwrite(out_filename, cv2.cvtColor(clipped.astype('uint8'), cv2.COLOR_RGB2BGR))
+        if self.file is None:
+            clipped = simpleimageio.to_byte_image(self.raw)
+            cv2.imwrite(out_filename, cv2.cvtColor(clipped.astype('uint8'), cv2.COLOR_RGB2BGR))
+        else:
+            cv2.imwrite(out_filename, self.raw)
 
 class PNG(RasterImage):
     ''' A raster image that will be converted to .png '''
