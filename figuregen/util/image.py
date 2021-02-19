@@ -28,8 +28,16 @@ class Cropbox:
         c = crop(image, self.left, self.top, self.width, self.height)
         return zoom(c, self.scale)
 
+    @property
+    def marker_pos(self):
+        return self.get_marker_pos()
+
     def get_marker_pos(self):
         return [self.left, self.top]
+
+    @property
+    def marker_size(self):
+        return self.get_marker_size()
 
     def get_marker_size(self):
         return [self.right - self.left, self.bottom - self.top]
