@@ -59,7 +59,7 @@ class LayoutView:
         return self
 
     def _set_text_properties(self, field, position, field_size_mm, offset_mm=None, fontsize=None,
-                             txt_rotation=None, txt_color=None, line_space=None, bg_color=None):
+                             txt_rotation=None, txt_color=None, line_space=None):
         if _is_north_or_south(position):
             field["height"] = field_size_mm
         else:
@@ -75,11 +75,6 @@ class LayoutView:
             field["text_color"] = txt_color
         if line_space is not None:
             field["line_space"] = line_space
-        if bg_color is not None:
-            if 'row_titles' in name.split('.') or 'column_titles' in name.split('.'):
-                field["background_colors"] = bg_color
-            else:
-                field["background_color"] = bg_color
         return self
 
     def set_caption(self, height_mm, offset_mm=None, fontsize=None, txt_rotation=None, txt_color=None, line_space=None):

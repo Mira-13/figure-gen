@@ -4,6 +4,7 @@ import os
 from .figuregen import *
 from . import calculate as calc
 from .element_data import *
+from .tikz import TikzBackend
 
 @dataclass
 class Bounds:

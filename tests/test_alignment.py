@@ -1,9 +1,9 @@
 import unittest
-import figuregen
-import figuregen.calculate as calc
 import numpy as np
 
-from figuregen.newimpl import TikzBackend, figure
+import figuregen
+import figuregen.calculate as calc
+from figuregen.tikz import TikzBackend
 
 colors = [
     [232, 181, 88], #yellow
