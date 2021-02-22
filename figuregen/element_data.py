@@ -9,6 +9,7 @@ class Error(Exception):
 class ElementData:
     @property
     def aspect_ratio(self):
+        """ Aspect ratio (height / width) of the grid element. """
         pass
 
     def make_raster(self, width, height, base_filename) -> str:

@@ -1,5 +1,6 @@
 import numpy as np
 import figuregen
+import unittest
 
 # --- define colors and images ---
 colors = [
@@ -82,6 +83,10 @@ if __name__ == "__main__":
     figuregen.horizontal_figure([grid], width_cm=18., filename='single-grid.pdf')
     figuregen.horizontal_figure([grid], width_cm=18., filename='single-grid.pptx')
     figuregen.horizontal_figure([grid], width_cm=18., filename='single-grid.html')
+
+    # Test the new backend on this figure
+    from figuregen.newimpl import TikzBackend, figure
+    figure([[grid]], width_cm=18., filename='single-grid.pdf', backend=TikzBackend())
 
     try:
         from figuregen.util import jupyter

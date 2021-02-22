@@ -1,4 +1,5 @@
 from . import implementation
+from .default_layouts import layouts as _default_layout
 from .element_data import *
 import numpy as np
 import copy
@@ -145,6 +146,14 @@ class ElementView:
         self.col = col
         self.layout = grid.get_layout()
 
+    @property
+    def image(self) -> ElementData:
+        return self.elem['image']
+
+    @image.setter
+    def image(self, image: ElementData):
+        self.set_image(image)
+
     def set_image(self, image: ElementData):
         if not isinstance(image, ElementData):
             try:
@@ -283,16 +292,24 @@ class Grid:
             "row_titles": {},
             "column_titles": {},
             "titles": {},
-            "layout": {}
+            "layout": copy.deepcopy(_default_layout["grid"])
         }
         self.rows = num_rows
         self.cols = num_cols
 
-    def __getitem__(self, rowcol):
+    def __getitem__(self, rowcol) -> ElementView:
         return self.get_element(*rowcol)
 
-    def get_element(self, row, col):
+    def get_element(self, row, col) -> ElementView:
         return ElementView(self, row, col)
+
+    @property
+    def aspect_ratio(self):
+        """ Aspect ratio (height / width) of all images in the grid.
+        Currently assumes that the user set them correctly such that they are all equal to
+        the top left image.
+        """
+        return self[0, 0].image.aspect_ratio
 
     @property
     def layout(self):
