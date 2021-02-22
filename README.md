@@ -27,7 +27,7 @@ You can install the figure generator and all dependencies with a simple:
 python -m pip install figuregen
 ```
 
-Examples and inspiration for creating your own figures can be found in [our tests](tests) or the [Jupyter tutorial](Tutorial.ipynb).
+Examples and inspiration for creating your own figures can be found in [our examples](examples) or the [Jupyter tutorial](Tutorial.ipynb).
 
 ## Feedback
 
@@ -38,10 +38,10 @@ We are happy to recieve honest feedback. If something does not work or you think
 Clicking on an image below leads to the test that created the corresponding figure.
 
 ### Vertical stacks
-[<img src="tests/vertical-stack.png" width="600"/>](tests/vertical_stack.py)
+[<img src="examples/vertical-stack.png" width="600"/>](examples/vertical_stack.py)
 ### Split Comparison
-[<img src="tests/split-comparison.png" width="600"/>](tests/split_comparison.py)
+[<img src="examples/split-comparison.png" width="600"/>](examples/split_comparison.py)
 ### Grids and Plots
-[<img src="tests/pool-siggraph.png" width="600"/>](tests/siggraph_example.py)
+[<img src="examples/pool-siggraph.png" width="600"/>](examples/siggraph_example.py)
 ### Grid with titles, labels, markers, and frames
-[<img src="tests/single-grid.png" width="600"/>](tests/single_module.py)
+[<img src="examples/single-grid.png" width="600"/>](examples/single_module.py)
