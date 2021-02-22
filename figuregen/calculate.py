@@ -39,7 +39,7 @@ def sum_col_title_spacing(layout: LayoutView, position):
         return layout.layout['column_titles'][position]['height'] + layout.layout['column_titles'][position]['offset']
     return 0
 
-def compute_min_width(grid: Grid):
+def min_width(grid: Grid):
     '''
     Minimum width is the sum of all fixed space/padding based on the json-config file, including titles, offsets, paddings, etc.
     So basically: everything except for the images.
@@ -55,7 +55,7 @@ def compute_min_width(grid: Grid):
     min_width += sum_row_title_spacing(grid.layout, 'west')
     return min_width
 
-def compute_fixed_inner_width(grid: Grid):
+def fixed_inner_width(grid: Grid):
     '''
     Fixed inner width is the sum of spacing between all images, which also includes element captions
     '''
@@ -64,19 +64,19 @@ def compute_fixed_inner_width(grid: Grid):
     inner_width += sum_caption_spacing(grid.layout,'west', grid.cols - 1)
     return inner_width
 
-def compute_body_width(grid: Grid, image_size: Size):
+def body_width(grid: Grid, image_size: Size):
     '''
     body means: all images and their spaces/padding inbetween the images.
     Not included are: column/row titles and titles as well as their corresping offsets.
     '''
-    return compute_fixed_inner_width(grid) + grid.cols * image_size.width_mm
+    return fixed_inner_width(grid) + grid.cols * image_size.width_mm
 
-def compute_total_width(grid: Grid, image_size: Size):
+def total_width(grid: Grid, image_size: Size):
     '''
     Includes everything that takes up width: padding, images, captions, row titles,
     east/west titles and all corresponding offsets
     '''
-    total_width = compute_body_width(grid, image_size)
+    total_width = body_width(grid, image_size)
     total_width += sum_caption_spacing(grid.layout, 'east', 1) # add to inner body one more
     total_width += sum_caption_spacing(grid.layout, 'west', 1) # same reason as above
 
@@ -89,7 +89,7 @@ def compute_total_width(grid: Grid, image_size: Size):
     total_width += grid.layout['padding']['west'] + grid.layout['padding']['east']
     return total_width
 
-def compute_min_height(grid: Grid):
+def min_height(grid: Grid):
     '''
     Minimum height is the sum of all fixed space/padding based on the json-config file, including titles, offsets, paddings, etc.
     So basically: everything except for the images.
@@ -105,7 +105,7 @@ def compute_min_height(grid: Grid):
     min_height += sum_col_title_spacing(grid.layout, 'south')
     return min_height
 
-def compute_fixed_inner_height(grid: Grid):
+def fixed_inner_height(grid: Grid):
     '''
     Fixed inner height is the sum of spacing between all images, which also includes element captions
     '''
@@ -115,19 +115,19 @@ def compute_fixed_inner_height(grid: Grid):
 
     return inner_height
 
-def compute_body_height(grid: Grid, image_size: Size):
+def body_height(grid: Grid, image_size: Size):
     '''
     body means: all images and their spaces/padding inbetween the images.
     Not included are: column/row titles and titles as well as their corresping offsets.
     '''
-    return compute_fixed_inner_height(grid) + grid.rows * image_size.height_mm
+    return fixed_inner_height(grid) + grid.rows * image_size.height_mm
 
-def compute_total_height(grid: Grid, image_size: Size):
+def total_height(grid: Grid, image_size: Size):
     '''
     Includes everything that takes up height: padding, images, captions, column titles,
     north/south titles and all corresponding offsets
     '''
-    total_height = compute_body_height(grid, image_size)
+    total_height = body_height(grid, image_size)
     total_height += sum_caption_spacing(grid.layout, 'north', 1) # add to inner body one more
     total_height += sum_caption_spacing(grid.layout, 'south', 1) # add to inner body one more
 
@@ -140,29 +140,60 @@ def compute_total_height(grid: Grid, image_size: Size):
     total_height += grid.layout.layout['padding']['north'] + grid.layout.layout['padding']['south']
     return total_height
 
-def compute_element_size_from_width(grid: Grid, total_width: float) -> Size:
+def element_size_from_width(grid: Grid, total_width: float) -> Size:
     """ Computes the size of all individual images in the grid based on the given total width. """
-    min_width = compute_min_width(grid)
-    width_per_img = (total_width - min_width) / grid.cols
+    min_w = min_width(grid)
+    width_per_img = (total_width - min_w) / grid.cols
     if width_per_img < 1.0:
         if width_per_img < 0.0:
             print(f'Warning: Element width computed to be negative. Probably due to an extreme aspect ratio.'
-                  f'Total height: ({total_width} - {min_width}) / {grid.cols} = {width_per_img}')
+                  f'Total height: ({total_width} - {min_w}) / {grid.cols} = {width_per_img}')
         else:
             print(f'Warning: Width per element is {width_per_img}, which is less than 1mm.'
                    'Probably due to an extreme aspect ratio or too many elements.')
 
     return Size(width_per_img, width_per_img * grid.aspect_ratio)
 
-def compute_element_size_from_height(grid: Grid, total_height: float) -> Size:
+def element_size_from_height(grid: Grid, total_height: float) -> Size:
     """ Computes the size of all individual images in the grid based on the given total height. """
-    min_height = compute_min_height(grid)
-    height_per_img = (total_height - min_height) / grid.rows
+    min_h = min_height(grid)
+    height_per_img = (total_height - min_h) / grid.rows
     if height_per_img < 1.0:
         if height_per_img < 0.0:
             print(f'Warning: Element height computed to be negative. Probably due to an extreme aspect ratio.'
-                  f'Total height: ({total_height} - {min_height}) / {grid.rows} = {height_per_img}')
+                  f'Total height: ({total_height} - {min_h}) / {grid.rows} = {height_per_img}')
         else:
             print(f'Warning: Height per element is {height_per_img} which is less than 1mm.'
                    'Probably due to an extreme aspect ratio or too many elements.')
     return Size(height_per_img * grid.aspect_ratio, height_per_img)
+
+def size_of(data_part, direction: str):
+    assert direction in data_part
+
+    def _get_size(space, offset):
+        if space == 0.0:
+            return 0.0, 0.0
+        return space, offset
+
+    if direction == 'north' or direction == 'south':
+        return _get_size(data_part[direction]['height'], data_part[direction]['offset'])
+    elif direction == 'east' or direction == 'west':
+        return _get_size(data_part[direction]['width'], data_part[direction]['offset'])
+    else:
+        raise Error("Error: Invalid direction value: " + direction +". (html module)")
+
+def image_pos(grid: Grid, image_size: Size, column, row):
+    """ Computes the position of an image in the given grid, relative to the grid's top left corner. """
+    title_top = sum(size_of(grid.layout.layout['titles'], 'north'))
+    title_left = sum(size_of(grid.layout.layout['titles'], 'west'))
+    col_title_top = sum(size_of(grid.layout.layout['column_titles'], 'north'))
+    row_title_left = sum(size_of(grid.layout.layout['row_titles'], 'west'))
+    img_south_capt = sum(size_of(grid.layout.layout['element_config']['captions'], 'south')) * (row)
+
+    top = grid.layout.layout['padding']['north'] + title_top + col_title_top
+    top += (grid.layout.layout['row_space'] + image_size.height_mm)*(row) + img_south_capt
+
+    left =  grid.layout.layout['padding']['west'] + title_left + row_title_left
+    left += (grid.layout.layout['column_space'] + image_size.width_mm)*(column)
+
+    return top, left

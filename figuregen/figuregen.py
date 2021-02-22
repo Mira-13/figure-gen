@@ -40,62 +40,54 @@ class LayoutView:
     def __init__(self, grid):
         self.layout = grid.data['layout']
 
-    def get_set_props(self, name):
-        try:
-            val = self.layout[name]
-        except:
-            return None
-        return val
-
     def set_padding(self, top=None, left=None, bottom=None, right=None, column=None, row=None):
         '''
         unit: mm (float) for top/left/bottom/right, same for column/row
         '''
         if top is not None:
-            self.layout['padding.north'] = top
+            self.layout['padding']['north'] = top
         if left is not None:
-            self.layout['padding.west'] = left
+            self.layout['padding']['west'] = left
         if bottom is not None:
-            self.layout['padding.south'] = bottom
+            self.layout['padding']['south'] = bottom
         if right is not None:
-            self.layout['padding.east'] = right
+            self.layout['padding']['east'] = right
         if column is not None:
             self.layout['column_space'] = column
         if row is not None:
             self.layout['row_space'] = row
         return self
 
-    def _set_text_properties(self, name, position, field_size_mm, offset_mm=None, fontsize=None,
+    def _set_text_properties(self, field, position, field_size_mm, offset_mm=None, fontsize=None,
                              txt_rotation=None, txt_color=None, line_space=None, bg_color=None):
         if _is_north_or_south(position):
-            self.layout[name + ".height"] = field_size_mm
+            field["height"] = field_size_mm
         else:
-            self.layout[name + ".width"] = field_size_mm
+            field["width"] = field_size_mm
 
         if offset_mm is not None:
-            self.layout[name +".offset"] = offset_mm
+            field["offset"] = offset_mm
         if txt_rotation is not None:
-            self.layout[name + ".rotation"] = txt_rotation
+            field["rotation"] = txt_rotation
         if fontsize is not None:
-            self.layout[name + ".fontsize"] = fontsize
+            field["fontsize"] = fontsize
         if txt_color is not None:
-            self.layout[name + ".text_color"] = txt_color
+            field["text_color"] = txt_color
         if line_space is not None:
-            self.layout[name + ".line_space"] = line_space
+            field["line_space"] = line_space
         if bg_color is not None:
             if 'row_titles' in name.split('.') or 'column_titles' in name.split('.'):
-                self.layout[name + ".background_colors"] = bg_color
+                field["background_colors"] = bg_color
             else:
-                self.layout[name + ".background_color"] = bg_color
+                field["background_color"] = bg_color
         return self
 
     def set_caption(self, height_mm, offset_mm=None, fontsize=None, txt_rotation=None, txt_color=None, line_space=None):
         '''
         Writes text below/south (each) image of that grid.
         '''
-        name = "element_config.captions.south"
-        self._set_text_properties(name, 'south', height_mm,
-                             offset_mm, fontsize, txt_rotation, txt_color, line_space, bg_color=None)
+        field = self.layout["element_config"]["captions"]["south"]
+        self._set_text_properties(field, 'south', height_mm, offset_mm, fontsize, txt_rotation, txt_color, line_space)
         return self
 
     def set_title(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None,
@@ -103,36 +95,43 @@ class LayoutView:
         '''
         Writes a grid/subfigure title.
         '''
-        name = 'titles.' + _transfer_position(position)
-        self._set_text_properties(name, position, field_size_mm,
-                             offset_mm, fontsize, txt_rotation, txt_color, line_space, bg_color)
+
+        field = self.layout['titles'][_transfer_position(position)]
+        self._set_text_properties(field, position, field_size_mm, offset_mm, fontsize, txt_rotation,
+            txt_color, line_space)
+        if bg_color is not None:
+            field["background_color"] = bg_color
         return self
 
     def set_row_titles(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None,
                        txt_color=None, line_space=None, bg_color=None):
-        name = 'row_titles.' + _transfer_position(position)
-        self._set_text_properties(name, position, field_size_mm,
-                             offset_mm, fontsize, txt_rotation, txt_color, line_space, bg_color)
+        field = self.layout['row_titles'][_transfer_position(position)]
+        self._set_text_properties(field, position, field_size_mm, offset_mm, fontsize, txt_rotation,
+            txt_color, line_space)
+        if bg_color is not None:
+            field["background_colors"] = bg_color
         return self
 
     def set_col_titles(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None,
                        txt_color=None, line_space=None, bg_color=None):
-        name = 'column_titles.' + _transfer_position(position)
-        self._set_text_properties(name, position, field_size_mm,
-                             offset_mm, fontsize, txt_rotation, txt_color, line_space, bg_color)
+        field = self.layout['column_titles'][_transfer_position(position)]
+        self._set_text_properties(field, position, field_size_mm, offset_mm, fontsize, txt_rotation,
+            txt_color, line_space)
+        if bg_color is not None:
+            field["background_colors"] = bg_color
         return self
 
-    def _set_field_size_if_not_set(self, name, pos, field_size_mm=5):
+    def _set_field_size_if_not_set(self, component, pos, field_size_mm=5):
         '''
         Makes sure, that the corresponding field_size of new added content will be set (not zero) and, therefore,
         visible for the user.
         '''
         if _is_north_or_south(pos):
-            field_size = self.get_set_props(name+'.height')
+            field_size = component[pos]['height']
         else:
-            field_size = self.get_set_props(name+'.width')
-        if field_size is None:
-            self._set_text_properties(name, pos, field_size_mm)
+            field_size = component[pos]['width']
+        if field_size is None or field_size == 0:
+            self._set_text_properties(component, pos, field_size_mm)
 
 class ElementView:
     '''
@@ -237,7 +236,7 @@ class ElementView:
 
         # check if caption layout is already set, if not, set a field_size,
         # so that the user is not confused, why content isn't shown
-        self.layout._set_field_size_if_not_set(name='element_config.captions.south', pos='south', field_size_mm=6.)
+        self.layout._set_field_size_if_not_set(self.layout.layout['element_config']['captions'], pos='south', field_size_mm=6.)
         return self
 
     def set_label(self, txt_content, pos, width_mm=10., height_mm=3.0, offset_mm=[1.0, 1.0],
@@ -341,7 +340,7 @@ class Grid:
         self.data["titles"][pos] = str(txt_content)
 
         # set a field_size (if not already done), so that the user is not confused, why content isn't shown
-        self.get_layout()._set_field_size_if_not_set(name='titles.'+pos, pos=pos, field_size_mm=6.)
+        self.get_layout()._set_field_size_if_not_set(self.layout.layout['titles'], pos=pos, field_size_mm=6.)
         return self
 
     def set_row_titles(self, position: str, txt_list: list):
@@ -364,7 +363,7 @@ class Grid:
             self.data['row_titles'][pos]['content'] = txt_list
 
         # set a field_size (if not already done), so that the user is not confused, why content isn't shown
-        self.get_layout()._set_field_size_if_not_set(name='row_titles.'+pos, pos=pos, field_size_mm=3.)
+        self.get_layout()._set_field_size_if_not_set(self.layout.layout['row_titles'], pos=pos, field_size_mm=3.)
         return self
 
     def set_col_titles(self, position, txt_list):
@@ -387,7 +386,7 @@ class Grid:
             self.data['column_titles'][pos]['content'] = txt_list
 
          # set a field_size (if not already done), so that the user is not confused, why content isn't shown
-        self.get_layout()._set_field_size_if_not_set(name='column_titles.'+pos, pos=pos, field_size_mm=3.)
+        self.get_layout()._set_field_size_if_not_set(self.layout.layout['column_titles'], pos=pos, field_size_mm=3.)
         return self
 
 def figure(grids, width_cm: float, filename, intermediate_dir = None, tex_packages=["[T1]{fontenc}", "{libertine}"]):

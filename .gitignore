@@ -2,6 +2,7 @@ gen_*.json
 *.tex
 *.pdf
 *.png
+/examples/*.tikz
 !grid-layout.png
 !vertical-stack.png
 !split-comparison.png
@@ -22,16 +23,8 @@ uploadpip.ps1
 *__pgfull7.json
 *__pgrad7.json
 *__upsmcmc.json
-!tests/errors/pool/*
-!tests/images/pool/*
-
-# generated test results
-tests/gen_figure.pptx
-tests/gen_figure.pdf
-tests/siggraph/*
-tests/*.html
-tests/scripts
-figure.html
+!examples/errors/pool/*
+!examples/images/pool/*
 
 # Python compiled files
 __pycache__
