@@ -85,7 +85,7 @@ if __name__ == "__main__":
     # figuregen.horizontal_figure([grid], width_cm=18., filename='single-grid.html')
 
     # Test the new backend on this figure
-    from figuregen.backend import figure
+    from figuregen import figure
     from figuregen.tikz import TikzBackend
     figure([[grid]], width_cm=18., filename='single-grid.tikz', backend=TikzBackend())
 

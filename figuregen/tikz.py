@@ -1,4 +1,5 @@
 from .backend import *
+import importlib.resources as pkg_resources
 
 class TikzBackend(Backend):
     """ Generates the code for a TikZ picture representing the figure.
@@ -19,26 +20,63 @@ class TikzBackend(Backend):
     @property
     def header(self) -> str:
         """ The TikZ macros used for the figure components """
-        return ""
+        return pkg_resources.read_text(__package__, 'commands.tikz')
 
     def _sanitize_latex_path(self, path):
         p = path.replace('\\', '/')
         return "\\detokenize{" + p + "}"
 
+    def _latex_color(self, rgb):
+        return "{rgb,255:red," + str(rgb[0]) + ";green," + str(rgb[1]) + ";blue," + str(rgb[2]) + "}"
+
     def assemble_grid(self, components: List[Component], output_dir: str) -> str:
         tikz_code = ""
         for c in components:
+            elem_id = f"fig{c.figure_idx}-grid{c.grid_idx}"
+            if c.row_idx >= 0:
+                elem_id += f"-row{c.row_idx}"
+            if c.col_idx >= 0:
+                elem_id += f"-col{c.col_idx}"
+
+            # Position arguments are the same for all components
+            dims = "{" + f"{c.bounds.width}" + "mm}" + "{" + f"{c.bounds.height}" + "mm}"
+            anchor = "{(" + f"{c.bounds.left}mm, {-c.bounds.top}mm" + ")}"
+
             if isinstance(c, ImageComponent):
                 # Generate the image data
-                prefix = f'img-fig{c.figure_idx}-grid{c.grid_idx}-row{c.row_idx}-col{c.col_idx}'
-                prefix = os.path.join(output_dir, prefix)
+                prefix = "img-" + elem_id
+                file_prefix = os.path.join(output_dir, prefix)
                 try:
-                    filename = c.data.make_pdf(c.bounds.width, c.bounds.height, prefix)
+                    filename = c.data.make_pdf(c.bounds.width, c.bounds.height, file_prefix)
                 except NotImplementedError:
-                    filename = c.data.make_raster(c.bounds.width, c.bounds.height, prefix)
+                    filename = c.data.make_raster(c.bounds.width, c.bounds.height, file_prefix)
 
-                # Emit the command
-                tikz_code += "\\makeimagenode{" + self._sanitize_latex_path(filename) + "}\n"
+                # Assemble the position arguments
+                fname = "{" + self._sanitize_latex_path(filename) + "}"
+                name = "{" + prefix + "}"
+
+                # Check if there is a frame and emit the correct command
+                if c.has_frame:
+                    linewidth = "{" + f'{c.frame_linewidth}pt' + "}"
+                    color = "{" + self._latex_color(c.frame_color) + "}"
+                    tikz_code += "\\makeframedimagenode" + dims + fname + name + anchor + color + linewidth + "\n"
+                else:
+                    tikz_code += "\\makeimagenode" + dims + fname + name + anchor + "\n"
+
+            if isinstance(c, TextComponent):
+                prefix = c.type + "-" + elem_id
+                name = "{" + prefix + "}"
+                fontsize = "{" + f'{c.fontsize}pt' + "}"
+                color = "{" + self._latex_color(c.color) + "}"
+                content = "{" + c.content + "}"
+                rotation = "{" + str(c.rotation) + "}"
+                fill_color = "{" + self._latex_color(c.background_color) + "}"
+
+                node = "\\maketextnode" if c.rotation % 180 < 20 else "\\maketextnodeflipped"
+
+                tikz_code += node + dims + name + anchor + color + fontsize + content
+                tikz_code += fill_color + rotation + "\n"
+
         return tikz_code
 
     def combine_grids(self, data: List[str]) -> str:
@@ -52,4 +90,6 @@ class TikzBackend(Backend):
             if self._include_header:
                 f.write(self.header)
                 f.write("\n")
+            f.write("\\begin{tikzpicture}\n")
             f.write(data)
+            f.write("\\end{tikzpicture}")

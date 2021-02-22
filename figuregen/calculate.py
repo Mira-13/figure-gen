@@ -197,3 +197,86 @@ def image_pos(grid: Grid, image_size: Size, column, row):
     left += (grid.layout.layout['column_space'] + image_size.width_mm)*(column)
 
     return top, left
+
+def south_caption_pos(grid: Grid, image_size: Size, column, row):
+    top, left = image_pos(grid, image_size, column, row)
+    top += image_size.height_mm + grid.layout.layout['element_config']['captions']['south']['offset']
+    return top, left
+
+def titles_pos_and_size(grid: Grid, image_size: Size, direction: str):
+    '''
+    Note: this does not include element captions, yet. Because it was never really used in tikz or elsewhere.
+    '''
+    offset_left = grid.layout.layout['padding']['west']
+    offset_top =  grid.layout.layout['padding']['north']
+
+    if direction == 'north' or direction == 'south':
+        width = image_size.width_mm * grid.cols + grid.layout.layout['column_space']*(grid.cols - 1)
+        height = size_of(grid.layout.layout['titles'], direction)[0]
+
+        offset_left += sum(size_of(grid.layout.layout['titles'], 'west')) + sum(size_of(grid.layout.layout['row_titles'], 'west'))
+        if direction == 'south':
+            offset_top += sum(size_of(grid.layout.layout['element_config']['captions'], 'south')) * grid.rows
+            offset_top += grid.layout.layout['padding']['north'] + sum(size_of(grid.layout.layout['titles'], 'north')) + sum(size_of(grid.layout.layout['column_titles'], 'north'))
+            offset_top += (grid.layout.layout['row_space']*(grid.rows - 1)) + image_size.height_mm * grid.rows
+            offset_top += sum(size_of(grid.layout.layout['column_titles'], 'south')) + size_of(grid.layout.layout['titles'], 'south')[1]
+
+        return offset_top, offset_left, width, height
+
+    elif direction == 'east' or direction == 'west':
+        height = image_size.height_mm * grid.rows + grid.layout.layout['row_space']*(grid.rows - 1)
+        height += sum(size_of(grid.layout.layout['element_config']['captions'], 'south')) * (grid.rows - 1)
+        width = size_of(grid.layout.layout['titles'], direction)[0]
+
+        offset_top += sum(size_of(grid.layout.layout['titles'], 'north'))
+        offset_top += sum(size_of(grid.layout.layout['column_titles'], 'north'))
+        if direction == 'east':
+            offset_left += sum(size_of(grid.layout.layout['titles'], 'west')) + sum(size_of(grid.layout.layout['row_titles'], 'west'))
+            offset_left += (grid.layout.layout['column_space']*(grid.cols - 1)) + image_size.width_mm * grid.cols
+            offset_left += sum(size_of(grid.layout.layout['row_titles'], 'east')) + size_of(grid.layout.layout['titles'], 'east')[1]
+
+        return offset_top, offset_left, width, height
+
+    else:
+        assert False, "Error: Invalid direction value: " + direction +". (html module)"
+
+def row_titles_pos(grid: Grid, image_size: Size, cur_row, direction):
+    if not(direction == 'east' or direction == 'west'):
+        raise Error("Error: Invalid direction value for row titles: " + direction +". Expected 'east' or 'west'.")
+
+    data = grid.layout.layout
+
+    width = size_of(data['row_titles'], direction)[0]
+    height = image_size.height_mm
+
+    offset_left = data['padding']['west'] + sum(size_of(data['titles'], 'west'))
+    offset_top = data['padding']['north'] + sum(size_of(data['titles'], 'north')) + sum(size_of(data['column_titles'], 'north'))
+    offset_top += (data['row_space'] + image_size.height_mm) * (cur_row - 1)
+    offset_top += sum(size_of(data['element_config']['captions'], 'south')) * (cur_row-1)
+    if direction == 'east':
+        offset_left += sum(size_of(data['row_titles'], 'west'))
+        offset_left += (data['column_space']*(grid.cols - 1)) + image_size.width_mm * grid.cols
+        offset_left += size_of(data['row_titles'], 'east')[1]
+
+    return offset_top, offset_left, width, height
+
+def column_titles_pos(grid: Grid, image_size: Size, cur_column, direction):
+    if not(direction == 'north' or direction == 'south'):
+        raise "Error: Invalid direction value for column titles: " + direction +". Expected 'north' or 'south'."
+
+    data = grid.layout.layout
+
+    width = image_size.width_mm
+    height = size_of(data['column_titles'], direction)[0]
+
+    offset_top = data['padding']['north'] + sum(size_of(data['titles'], 'north'))
+    offset_left = data['padding']['west'] + sum(size_of(data['titles'], 'west'))
+    offset_left += (data['column_space'] + image_size.width_mm) *(cur_column - 1)
+    offset_left += sum(size_of(data['row_titles'], 'west'))
+    if direction == 'south':
+        offset_top += sum(size_of(data['element_config']['captions'], 'south')) * grid.rows
+        offset_top += sum(size_of(data['column_titles'], 'north'))
+        offset_top += (data['row_space']*(grid.rows - 1)) + image_size.height_mm * grid.rows
+        offset_top += size_of(data['column_titles'], 'south')[1]
+
+    return offset_top, offset_left, width, height

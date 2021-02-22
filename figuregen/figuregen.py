@@ -1,3 +1,4 @@
+from typing import List
 from . import implementation
 from .default_layouts import layouts as _default_layout
 from .element_data import *
@@ -126,7 +127,7 @@ class LayoutView:
         else:
             field_size = component[pos]['width']
         if field_size is None or field_size == 0:
-            self._set_text_properties(component, pos, field_size_mm)
+            self._set_text_properties(component[pos], pos, field_size_mm)
 
 class ElementView:
     '''
@@ -189,13 +190,13 @@ class ElementView:
                 'be a list of tuples. Each tuple represents the x and y coordination in pixels.')
 
         try:
-            self.elem["lines"].append({"from": start_positions[0], "to": end_positions[0], "color": color, "lw": linewidth_pt})
+            self.elem["lines"].append({"from": start_positions[0], "to": end_positions[0], "color": color, "linewidth": linewidth_pt})
         except:
             self.elem["lines"] = []
-            self.elem["lines"].append({"from": start_positions[0], "to": end_positions[0], "color": color, "lw": linewidth_pt})
+            self.elem["lines"].append({"from": start_positions[0], "to": end_positions[0], "color": color, "linewidth": linewidth_pt})
 
         for i in range(1, len(start_positions)):
-            self.elem["lines"].append({"from": start_positions[i], "to": end_positions[i], "color": color, "lw": linewidth_pt})
+            self.elem["lines"].append({"from": start_positions[i], "to": end_positions[i], "color": color, "linewidth": linewidth_pt})
 
     def set_marker_properties(self, linewidth=1.5, is_dashed=False):
         print('Warning, function does not change marker properties anymore: set_marker_properties got replaced by set_marker.')
@@ -217,7 +218,7 @@ class ElementView:
         except:
             self.elem["crop_marker"] = []
 
-        self.elem["crop_marker"].append({"pos": pos, "size": size, "color": color, "lw": linewidth_pt, "dashed": is_dashed})
+        self.elem["crop_marker"].append({"pos": pos, "size": size, "color": color, "linewidth": linewidth_pt, "dashed": is_dashed})
         return self
 
     def set_caption(self, txt_content):
@@ -384,7 +385,24 @@ class Grid:
         self.get_layout()._set_field_size_if_not_set(self.layout.layout['column_titles'], pos=pos, field_size_mm=3.)
         return self
 
-def figure(grids, width_cm: float, filename, intermediate_dir = None, tex_packages=["[T1]{fontenc}", "{libertine}"]):
+from .backend import Backend, PptxBackend, HtmlBackend, PdfBackend
+from .tikz import TikzBackend
+
+def _backend_from_filename(filename: str) -> Backend:
+    """ Guesses the correct backend based on the filename """
+    extension = os.path.splitext(filename)[1].lower()
+    if extension == ".pptx":
+        return PptxBackend()
+    elif extension == ".html":
+        return HtmlBackend()
+    elif extension == ".pdf":
+        return PdfBackend()
+    elif extension == ".tikz":
+        return TikzBackend()
+    else:
+        raise ValueError(f"Could not derive backend from extension '{filename}'. Please specify.")
+
+def figure(grids: List[List[Grid]], width_cm: float, filename: str, backend: Backend):
     """
     Grid rows: Creates a figure by putting grids next to each other, from left to right.
     Grid columns: stacks rows vertically.
@@ -396,13 +414,9 @@ def figure(grids, width_cm: float, filename, intermediate_dir = None, tex_packag
         intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
         tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
     """
-    if any(isinstance(el, list) for el in grids):
-        return implementation.figure(grids, width_cm, filename, intermediate_dir, tex_packages)
-
-    a = np.array(grids)
-    raise Error('figure: provided argument ("grids") needs a two-dimensional list. '
-            f'Given grids shape is: {a.shape}. Either provide a list of lists or use a '
-            'simple list and call "horizontal_figure".')
+    if backend is None:
+        backend = _backend_from_filename(filename)
+    backend.generate(grids, width_cm * 10, filename)
 
 def horizontal_figure(grids, width_cm: float, filename, intermediate_dir = None, tex_packages=["[T1]{fontenc}", "{libertine}"]):
     """
