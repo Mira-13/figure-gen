@@ -36,7 +36,7 @@ class TextComponent(Component):
     background_color: Tuple[float]
     type: str
     horizontal_alignment: str = "center"
-    padding: Tuple[float] = (0, 0)
+    padding: calc.Size = calc.Size(0, 0)
     vertical_alignment: str = "center"
 
 @dataclass
@@ -183,7 +183,7 @@ class Backend:
         bounds = Bounds(pos_top, pos_left, rect_width, rect_height)
 
         bg_color = [255, 255, 255] if cfg['background_color'] is None else cfg['background_color']
-        padding = cfg['padding_mm']
+        padding = calc.Size(cfg['padding_mm'], cfg['padding_mm'])
 
         c = TextComponent(bounds, -1, -1, -1, -1, cfg["text"], 0, cfg['fontsize'], cfg['text_color'],
             bg_color, "label-" + label_pos, alignment, padding, "top" if is_top else "bottom")
@@ -278,7 +278,7 @@ class Backend:
     def gen_south_captions(self, grid: Grid, grid_bounds: Bounds, img_size: calc.Size) -> List[Component]:
         layout = grid.layout.layout['element_config']['captions']['south']
         if layout['height'] == 0:
-            return
+            return []
 
         captions = []
         for row_idx in range(grid.rows):

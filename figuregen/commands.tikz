@@ -36,9 +36,11 @@
     \def\rot{#9}%
     \maketextnodecontinued
 }
-\newcommand\maketextnodecontinued[2]{%
+\newcommand\maketextnodecontinued[4]{%
     \def\vertal{#1}
     \def\horzal{#2}
+    \def\padvert{#3}
+    \def\padhorz{#4}
 
     \node[anchor=north west, minimum width=\width, minimum height=\heighty, inner sep=0, outer sep=0,
         fill=\fill] (\name) at \anchor {};
@@ -47,7 +49,7 @@
         \node[anchor=center, minimum width=\width, minimum height=\heighty, rotate=\rot, text=\color,
             inner sep=0, outer sep=0] at (\name.center)
         {
-            \begin{minipage}[c][\heighty][\vertal]{\width} \fontsize{\fontsz}{\fontsz} \selectfont \horzal
+            \begin{minipage}[c][\heighty-\padvert-\padvert][\vertal]{\width-\padhorz-\padhorz} \fontsize{\fontsz}{\fontsz} \selectfont \horzal
                 \content\strut
             \end{minipage}
         };
@@ -68,9 +70,11 @@
     \def\rot{#9}%
     \maketextnodeflippedcontinued
 }
-\newcommand\maketextnodeflippedcontinued[2]{%
+\newcommand\maketextnodeflippedcontinued[4]{%
     \def\vertal{#1}
     \def\horzal{#2}
+    \def\padvert{#3}
+    \def\padhorz{#4}
 
     \node[anchor=north west, minimum width=\width, minimum height=\heighty, inner sep=0, outer sep=0,
         fill=\fill] (\name) at \anchor {};
@@ -79,7 +83,7 @@
         \node[anchor=center, minimum width=\width, minimum height=\heighty, rotate=\rot, text=\color,
             inner sep=0, outer sep=0] at (\name.center)
         {
-            \begin{minipage}[c][\width][\vertal]{\heighty} \fontsize{\fontsz}{\fontsz} \selectfont \horzal
+            \begin{minipage}[c][\width-\padvert-\padvert][\vertal]{\heighty-\padhorz-\padhorz} \fontsize{\fontsz}{\fontsz} \selectfont \horzal
                 \content\strut
             \end{minipage}
         };

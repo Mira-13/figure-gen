@@ -87,8 +87,11 @@ class TikzBackend(Backend):
                 elif c.horizontal_alignment == "right":
                     horz_align = "{\\raggedleft}"
 
+                pad_vert = "{" + str(c.padding.height_mm) + "mm}"
+                pad_horz = "{" + str(c.padding.width_mm) + "mm}"
+
                 tikz_code += node + dims + name + anchor + color + fontsize + content
-                tikz_code += fill_color + rotation + vert_align + horz_align + "\n"
+                tikz_code += fill_color + rotation + vert_align + horz_align + pad_vert + pad_horz + "\n"
 
             if isinstance(c, RectangleComponent):
                 color = "{" + self._latex_color(c.color) + "}"
