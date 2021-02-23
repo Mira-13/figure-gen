@@ -122,7 +122,7 @@ class TikzBackend(Backend):
         tikz_code = "\\makebackgroundnode" + dims + anchor + figure_id + "\n"
         return tikz_code + '\n'.join(data)
 
-    def combine_rows(self, data: List[str]) -> str:
+    def combine_rows(self, data: List[str], bounds: Bounds) -> str:
         return '\n'.join(data)
 
     def write_to_file(self, data: str, filename: str):

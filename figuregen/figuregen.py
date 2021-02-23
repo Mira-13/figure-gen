@@ -1,8 +1,6 @@
 from typing import List
-from . import implementation
 from .default_layouts import layouts as _default_layout
 from .element_data import *
-import numpy as np
 import copy
 import os
 
@@ -386,9 +384,11 @@ class Grid:
         self.get_layout()._set_field_size_if_not_set(self.layout.layout['column_titles'], pos=pos, field_size_mm=3.)
         return self
 
-from .backend import Backend, PptxBackend, HtmlBackend
+from .backend import Backend
 from .tikz import TikzBackend
 from .pdflatex import PdfBackend
+from .htmlbackend import HtmlBackend
+from .pptx import PptxBackend
 
 def _backend_from_filename(filename: str) -> Backend:
     """ Guesses the correct backend based on the filename """
@@ -404,7 +404,7 @@ def _backend_from_filename(filename: str) -> Backend:
     else:
         raise ValueError(f"Could not derive backend from extension '{filename}'. Please specify.")
 
-def figure(grids: List[List[Grid]], width_cm: float, filename: str, backend: Backend):
+def figure(grids: List[List[Grid]], width_cm: float, filename: str, backend: Backend = None):
     """
     Grid rows: Creates a figure by putting grids next to each other, from left to right.
     Grid columns: stacks rows vertically.

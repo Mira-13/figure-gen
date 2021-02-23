@@ -1,6 +1,5 @@
 from typing import List, Tuple
 from dataclasses import dataclass
-import tempfile
 import os
 from .figuregen import *
 from . import calculate as calc
@@ -86,7 +85,7 @@ class Backend:
             row_idx += 1
 
         # Combine all rows
-        result = self.combine_rows(gen_rows)
+        result = self.combine_rows(gen_rows, Bounds(0, 0, width_mm, top))
         self.write_to_file(result, filename)
 
     def compute_aligned_sizes(self, grids: List[Grid], width_mm: float) -> List[Tuple[calc.Size, calc.Size]]:
@@ -412,15 +411,8 @@ class Backend:
     def combine_grids(self, data, idx: int, bounds: Bounds):
         raise NotImplementedError()
 
-    def combine_rows(self, data):
+    def combine_rows(self, data, bounds: Bounds):
         raise NotImplementedError()
 
     def write_to_file(self, data, filename):
         raise NotImplementedError()
-
-class PptxBackend(Backend):
-    pass
-
-class HtmlBackend(Backend):
-    pass
-

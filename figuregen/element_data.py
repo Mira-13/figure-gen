@@ -1,6 +1,9 @@
 import cv2
+import os
+import base64
 import simpleimageio
 import numpy as np
+import tempfile
 
 class Error(Exception):
     def __init__(self, message):
@@ -43,19 +46,27 @@ class ElementData:
         '''
         raise NotImplementedError()
 
-    def make_html(self, width, height, base_filename) -> str:
+    def make_html(self, width, height) -> str:
         ''' Writes the element to a static .html page, images should be embedded as base64.
+
+        The default generates a raster image in a temporary file and encodes it as base64 .png
 
         Args:
             width: Desired width of the image in [mm]
             height: Desired height of the image in [mm]
-            base_filename: Backend-generated filename prefix that can be used to generate a unique file
-                in the correct location
 
         Returns:
-            The filename of the generated file.
+            The generated inline html code.
         '''
-        raise NotImplementedError()
+        temp_folder = tempfile.TemporaryDirectory()
+        fname = self.make_raster(width, height, os.path.join(temp_folder.name, "image.png"))
+        with open(fname, "rb") as f:
+            b64 = base64.b64encode(f.read())
+        temp_folder.cleanup()
+
+        html = "<img src='data:image/png;base64," + b64.decode('utf-8')
+        html += f"' style='width: {width}mm; height: {height}mm;' />"
+        return html
 
 class Plot(ElementData):
     ''' Base class for all generated images and plots.
