@@ -108,16 +108,15 @@ class HtmlBackend(Backend):
                 html_code += "<div style='position: absolute; " + dims + pos
                 html_code += f"border: {c.linewidth}pt {self._html_color(c.color)}"
                 html_code += 'dashed' if c.dashed else 'solid' + "; "
-                html_code += "'></div>"
+                html_code += "'></div>\n"
 
             if isinstance(c, LineComponent):
-                pass
-                # parent_name = "{" + "img-" + elem_id + "}"
-                # color = "{" + self._latex_color(c.color) + "}"
-                # linewidth = "{" + str(c.linewidth) + "pt}"
-                # start = "{" + f"({c.from_x}mm, {-c.from_y}mm)"+ "}"
-                # end = "{" + f"({c.to_x}mm, {-c.to_y}mm)"+ "}"
-                # tikz_code += "\\makeclippedline" + parent_name + start + end + linewidth + color + "\n"
+                html_code += f'<div class="svg-container" style="position: absolute; {dims + pos}">'
+                html_code += f'<svg style="{dims}">'
+                html_code += f'<line x1="{c.from_x - c.bounds.left}mm" y1="{c.from_y - c.bounds.top}mm" '
+                html_code += f'x2="{c.to_x - c.bounds.left}mm" y2="{c.to_y - c.bounds.top}mm" '
+                html_code += f'style="stroke:{self._html_color(c.color)}; stroke-width:{c.linewidth}pt" />'
+                html_code += '</svg></div>\n'
 
         return html_code
 
