@@ -40,8 +40,12 @@
     \maketextnodecontinued
 }
 \newcommand\maketextnodecontinued[4]{%
-    \node[anchor=north west, minimum width=\myargA, minimum height=\myargB, inner sep=0, outer sep=0,
-        fill={\myargG}] (\myargC) at \myargD {};
+    \ifx\myargG\empty
+    \node[anchor=north west, minimum width=\myargA, minimum height=\myargB, inner sep=0, outer sep=0] (\myargC) at \myargD {};
+    \else
+    \node[anchor=north west, minimum width=\myargA, minimum height=\myargB, inner sep=0, outer sep=0,fill={\myargG}] (\myargC) at \myargD {};
+    \fi
+
     \begin{scope}
         \clip (\myargC.south west) rectangle (\myargC.north east);
         \node[anchor=center, minimum width=\myargA, minimum height=\myargB, rotate=\myargH, text={\myargE},
@@ -72,8 +76,12 @@
     \maketextnodeflippedcontinued
 }
 \newcommand\maketextnodeflippedcontinued[4]{%
-    \node[anchor=north west, minimum width=\myargA, minimum height=\myargB, inner sep=0, outer sep=0,
-        fill={\myargG}] (\myargC) at \myargD {};
+    \ifx\myargG\empty
+    \node[anchor=north west, minimum width=\myargA, minimum height=\myargB, inner sep=0, outer sep=0] (\myargC) at \myargD {};
+    \else
+    \node[anchor=north west, minimum width=\myargA, minimum height=\myargB, inner sep=0, outer sep=0,fill={\myargG}] (\myargC) at \myargD {};
+    \fi
+
     \begin{scope}
         \clip (\myargC.south west) rectangle (\myargC.north east);
         \node[anchor=center, minimum width=\myargA, minimum height=\myargB, rotate=\myargH, text={\myargE},

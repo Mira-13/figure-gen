@@ -32,6 +32,8 @@ class TikzBackend(Backend):
         return "\\detokenize{" + os.path.basename(path) + "}"
 
     def _latex_color(self, rgb):
+        if rgb is None:
+            return ""
         return "rgb,255:red," + str(rgb[0]) + ";green," + str(rgb[1]) + ";blue," + str(rgb[2])
 
     def assemble_grid(self, components: List[Component], output_dir: str) -> str:

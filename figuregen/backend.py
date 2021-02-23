@@ -192,11 +192,10 @@ class Backend:
 
         bounds = Bounds(pos_top, pos_left, rect_width, rect_height)
 
-        bg_color = [255, 255, 255] if cfg['background_color'] is None else cfg['background_color']
         padding = calc.Size(cfg['padding_mm'], cfg['padding_mm'])
 
         c = TextComponent(bounds, -1, -1, -1, -1, cfg["text"], 0, cfg['fontsize'], cfg['text_color'],
-            bg_color, "label-" + label_pos, alignment, padding, "top" if is_top else "bottom")
+            cfg['background_color'], "label-" + label_pos, alignment, padding, "top" if is_top else "bottom")
 
         return c
 
@@ -324,9 +323,8 @@ class Backend:
                 continue
 
             t = grid.layout.layout['titles'][direction]
-            bgn_color = [255,255,255] if t['background_color'] is None else t['background_color']
             titles.append(TextComponent(bounds, -1, -1, -1, -1, content, t['rotation'], t['fontsize'],
-                t['text_color'], bgn_color, "title-" + direction))
+                t['text_color'], t['background_color'], "title-" + direction))
         return titles
 
     def _compute_bg_colors(self, bg_color_properties, num):
@@ -354,12 +352,10 @@ class Backend:
 
                 if is_row:
                     titles.append(TextComponent(bounds, -1, -1, i, -1, txt, t['rotation'], t['fontsize'],
-                        t['text_color'], bg_colors[i] if bg_colors[i] is not None else [255, 255, 255],
-                        "rowtitle-" + direction))
+                        t['text_color'], bg_colors[i], "rowtitle-" + direction))
                 else:
                     titles.append(TextComponent(bounds, -1, -1, -1, i, txt, t['rotation'], t['fontsize'],
-                        t['text_color'], bg_colors[i] if bg_colors[i] is not None else [255, 255, 255],
-                        "coltitle-" + direction))
+                        t['text_color'], bg_colors[i], "coltitle-" + direction))
         return titles
 
     def gen_row_titles(self, grid: Grid, grid_bounds: Bounds, img_size: calc.Size) -> List[Component]:
