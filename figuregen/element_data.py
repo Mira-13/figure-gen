@@ -59,7 +59,7 @@ class ElementData:
             The generated inline html code.
         '''
         temp_folder = tempfile.TemporaryDirectory()
-        fname = self.make_raster(width, height, os.path.join(temp_folder.name, "image.png"))
+        fname = self.make_raster(width, height, os.path.join(temp_folder.name, "image"))
         with open(fname, "rb") as f:
             b64 = base64.b64encode(f.read())
         temp_folder.cleanup()

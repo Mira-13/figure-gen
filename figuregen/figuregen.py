@@ -388,7 +388,7 @@ from .backend import Backend
 from .tikz import TikzBackend
 from .pdflatex import PdfBackend
 from .html import HtmlBackend
-from .pptx import PptxBackend
+from .powerpoint import PptxBackend
 
 def _backend_from_filename(filename: str) -> Backend:
     """ Guesses the correct backend based on the filename """
