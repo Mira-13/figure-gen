@@ -83,7 +83,10 @@ class HtmlBackend(Backend):
                 if rotation != "":
                     dims = f"width: {c.bounds.height}mm; height: {c.bounds.width}mm;"
 
-                bgn = "background-color: " + self._html_color(c.background_color) + "; "
+                if c.background_color is not None:
+                    bgn = "background-color: " + self._html_color(c.background_color) + "; "
+                else:
+                    bgn = ""
                 pad = f"padding-top: {c.padding.height_mm}mm; padding-bottom: {c.padding.height_mm}mm; "
                 pad += f"padding-left: {c.padding.width_mm}mm; padding-right: {c.padding.width_mm}mm; "
                 pad += "box-sizing: border-box; "

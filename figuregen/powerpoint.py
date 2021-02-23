@@ -85,8 +85,11 @@ class PptxBackend(Backend):
                 shape.shadow.inherit = False
 
                 # Background color
-                shape.fill.solid()
-                shape.fill.fore_color.rgb = RGBColor(c.background_color[0], c.background_color[1], c.background_color[2])
+                if c.background_color is not None:
+                    shape.fill.solid()
+                    shape.fill.fore_color.rgb = RGBColor(c.background_color[0], c.background_color[1], c.background_color[2])
+                else:
+                    shape.fill.background()
                 shape.line.fill.background()
 
                 # Text properties
