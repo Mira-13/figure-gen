@@ -37,6 +37,7 @@ class TextComponent(Component):
     type: str
     horizontal_alignment: str = "center"
     padding: Tuple[float] = (0, 0)
+    vertical_alignment: str = "center"
 
 @dataclass
 class RectangleComponent(Component):
@@ -185,7 +186,7 @@ class Backend:
         padding = cfg['padding_mm']
 
         c = TextComponent(bounds, -1, -1, -1, -1, cfg["text"], 0, cfg['fontsize'], cfg['text_color'],
-            bg_color, "label-" + label_pos, alignment, padding)
+            bg_color, "label-" + label_pos, alignment, padding, "top" if is_top else "bottom")
 
         return c
 
@@ -205,11 +206,10 @@ class Backend:
 
     def gen_markers(self, element: ElementView, img_pos_top, img_pos_left, img_size: calc.Size) -> List[Component]:
         try:
-            markers = element.elem['marker']
+            markers = element.elem['crop_marker']
         except:
             return []
 
-        markers = []
         if isinstance(element.image, RasterImage):
             # Coordinates are in pixels
             w_scale = img_size.width_mm / element.image.width_px
@@ -219,15 +219,16 @@ class Backend:
             w_scale = img_size.width_mm
             h_scale = img_size.height_mm
 
+        result = []
         for m in markers:
             if m['linewidth'] > 0.0:
                 pos_top = img_pos_top + (m['pos'][1] * h_scale)
                 pos_left = img_pos_left + (m['pos'][0] * w_scale)
-                w = m['size'][1] * h_scale
-                h = m['size'][0] * w_scale
+                w = m['size'][0] * w_scale
+                h = m['size'][1] * h_scale
                 bounds = Bounds(pos_top, pos_left, w, h)
-                markers.append(RectangleComponent(bounds, -1, -1, -1, -1, m['color']), m['linewidth'], m['dashed'])
-        return markers
+                result.append(RectangleComponent(bounds, -1, -1, -1, -1, m['color'], m['linewidth'], m['dashed']))
+        return result
 
     def gen_images(self, grid: Grid, grid_bounds: Bounds, img_size: calc.Size) -> List[Component]:
         """ Generates a list of figure components for all images and their lables, captions, frames, and markers """
@@ -295,7 +296,7 @@ class Backend:
                     img_size.width_mm, layout['height'])
 
                 captions.append(TextComponent(bounds, -1, -1, row_idx, col_idx, txt_content, layout['rotation'],
-                    layout['fontsize'], layout['text_color'], [255, 255, 255], "caption"))
+                    layout['fontsize'], layout['text_color'], [255, 255, 255], "caption", vertical_alignment="top"))
 
         return captions
 

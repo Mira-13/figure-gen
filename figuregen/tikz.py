@@ -27,7 +27,7 @@ class TikzBackend(Backend):
         return "\\detokenize{" + p + "}"
 
     def _latex_color(self, rgb):
-        return "{rgb,255:red," + str(rgb[0]) + ";green," + str(rgb[1]) + ";blue," + str(rgb[2]) + "}"
+        return "rgb,255:red," + str(rgb[0]) + ";green," + str(rgb[1]) + ";blue," + str(rgb[2])
 
     def assemble_grid(self, components: List[Component], output_dir: str) -> str:
         tikz_code = ""
@@ -39,8 +39,9 @@ class TikzBackend(Backend):
                 elem_id += f"-col{c.col_idx}"
 
             # Position arguments are the same for all components
-            dims = "{" + f"{c.bounds.width}" + "mm}" + "{" + f"{c.bounds.height}" + "mm}"
-            anchor = "{(" + f"{c.bounds.left}mm, {-c.bounds.top}mm" + ")}"
+            if c.bounds is not None:
+                dims = "{" + f"{c.bounds.width}" + "mm}" + "{" + f"{c.bounds.height}" + "mm}"
+                anchor = "{(" + f"{c.bounds.left}mm, {-c.bounds.top}mm" + ")}"
 
             if isinstance(c, ImageComponent):
                 # Generate the image data
@@ -74,9 +75,26 @@ class TikzBackend(Backend):
 
                 node = "\\maketextnode" if c.rotation % 180 < 20 else "\\maketextnodeflipped"
 
-                tikz_code += node + dims + name + anchor + color + fontsize + content
-                tikz_code += fill_color + rotation + "\n"
+                vert_align = "{c}"
+                if c.vertical_alignment == "top":
+                    vert_align = "{t}"
+                elif c.vertical_alignment == "bottom":
+                    vert_align = "{b}"
 
+                horz_align = "{\\centering}"
+                if c.horizontal_alignment == "left":
+                    horz_align = "{\\raggedright}"
+                elif c.horizontal_alignment == "right":
+                    horz_align = "{\\raggedleft}"
+
+                tikz_code += node + dims + name + anchor + color + fontsize + content
+                tikz_code += fill_color + rotation + vert_align + horz_align + "\n"
+
+            if isinstance(c, RectangleComponent):
+                color = "{" + self._latex_color(c.color) + "}"
+                linewidth = "{" + str(c.linewidth) + "pt}"
+                linestyle = "{dashed}" if c.dashed else "{solid}"
+                tikz_code += "\\makerectangle" + dims + anchor + color + linewidth + linestyle + "\n"
         return tikz_code
 
     def combine_grids(self, data: List[str]) -> str:

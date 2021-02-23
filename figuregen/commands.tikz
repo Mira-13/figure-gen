@@ -11,7 +11,7 @@
 \newcommand{\makeframedimagenode}[7]{
     \node[anchor=north west, minimum width=#1, minimum height=#2, inner sep=0, outer sep=0] (#4) at #5 {};
     \node[anchor=center, minimum width=#1-#7, minimum height=#2-#7, inner sep=0, outer sep=0,
-        draw=#6, line width=#7] (#4-frame) at (#4.center) {};
+        draw={#6}, line width=#7] (#4-frame) at (#4.center) {};
     \begin{scope}
         \clip
             ([xshift = #7 * 0.5, yshift = #7 * 0.5]#4.south west)
@@ -24,17 +24,31 @@
 
 % Generates a node with text inside. The text is clipped to the node so it does not overlap
 % with other content.
-% Arguments: width, height, name, anchor, color, fontsize, content, fill color, rotation
-\newcommand{\maketextnode}[9]{
-    \node[anchor=north west, minimum width=#1, minimum height=#2, inner sep=0, outer sep=0,
-        fill=#8] (#3) at #4 {};
+\newcommand\maketextnode[9]{%
+    \def\width{#1}%
+    \def\heighty{#2}% DO NOT CHANGE TO \height ! (workaround for LaTeX madness)
+    \def\name{#3}%
+    \def\anchor{#4}%
+    \def\color{#5}%
+    \def\fontsz{#6}%
+    \def\content{#7}%
+    \def\fill{#8}%
+    \def\rot{#9}%
+    \maketextnodecontinued
+}
+\newcommand\maketextnodecontinued[2]{%
+    \def\vertal{#1}
+    \def\horzal{#2}
+
+    \node[anchor=north west, minimum width=\width, minimum height=\heighty, inner sep=0, outer sep=0,
+        fill=\fill] (\name) at \anchor {};
     \begin{scope}
-        \clip (#3.south west) rectangle (#3.north east);
-        \node[anchor=center, minimum width=#1, minimum height=#2, rotate=#9, text=#5,
-            inner sep=0, outer sep=0] at (#3.center)
+        \clip (\name.south west) rectangle (\name.north east);
+        \node[anchor=center, minimum width=\width, minimum height=\heighty, rotate=\rot, text=\color,
+            inner sep=0, outer sep=0] at (\name.center)
         {
-            \begin{minipage}[c][#2]{#1} \fontsize{#6}{#6} \selectfont \centering
-                #7\strut
+            \begin{minipage}[c][\heighty][\vertal]{\width} \fontsize{\fontsz}{\fontsz} \selectfont \horzal
+                \content\strut
             \end{minipage}
         };
     \end{scope}
@@ -42,18 +56,39 @@
 
 % Generates a node with text inside. The text is clipped to the node so it does not overlap
 % with other content. Width and height of the innermost node are flipped, use this for rotated text.
-% Arguments: width, height, name, anchor, color, fontsize, content, fill color, rotation
-\newcommand{\maketextnodeflipped}[9]{
-    \node[anchor=north west, minimum width=#1, minimum height=#2, inner sep=0, outer sep=0,
-        fill=#8] (#3) at #4 {};
+\newcommand\maketextnodeflipped[9]{%
+    \def\width{#1}%
+    \def\heighty{#2}%
+    \def\name{#3}%
+    \def\anchor{#4}%
+    \def\color{#5}%
+    \def\fontsz{#6}%
+    \def\content{#7}%
+    \def\fill{#8}%
+    \def\rot{#9}%
+    \maketextnodeflippedcontinued
+}
+\newcommand\maketextnodeflippedcontinued[2]{%
+    \def\vertal{#1}
+    \def\horzal{#2}
+
+    \node[anchor=north west, minimum width=\width, minimum height=\heighty, inner sep=0, outer sep=0,
+        fill=\fill] (\name) at \anchor {};
     \begin{scope}
-        \clip (#3.south west) rectangle (#3.north east);
-        \node[anchor=center, minimum width=#1, minimum height=#2, rotate=#9, text=#5,
-            inner sep=0, outer sep=0] at (#3.center)
+        \clip (\name.south west) rectangle (\name.north east);
+        \node[anchor=center, minimum width=\width, minimum height=\heighty, rotate=\rot, text=\color,
+            inner sep=0, outer sep=0] at (\name.center)
         {
-            \begin{minipage}[c][#1]{#2} \fontsize{#6}{#6} \selectfont \centering
-                #7\strut
+            \begin{minipage}[c][\width][\vertal]{\heighty} \fontsize{\fontsz}{\fontsz} \selectfont \horzal
+                \content\strut
             \end{minipage}
         };
     \end{scope}
+}
+
+% Generates a rectangle marker (outline, no fill)
+% Arguments: width, height, anchor, color, linewidth, linestyle (dashed or solid)
+\newcommand{\makerectangle}[6]{
+    \node[anchor=north west, minimum width=#1, minimum height=#2, draw={#4}, line width=#5, #6,
+        inner sep=0, outer sep=0] () at #3 {};
 }

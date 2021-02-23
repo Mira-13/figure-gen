@@ -4,6 +4,7 @@ from .default_layouts import layouts as _default_layout
 from .element_data import *
 import numpy as np
 import copy
+import os
 
 class Error(Exception):
     def __init__(self, message):
