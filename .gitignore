@@ -10,9 +10,11 @@ gen_*.json
 !single-grid.png
 *.exr
 uploadpip.ps1
+log
 
 *.pptx
 !figure_generator_layout.pptx
+!theme.pptx
 
 # siggraph sample data
 *__path.json
