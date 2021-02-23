@@ -1,5 +1,6 @@
 from typing import List, Tuple
 from dataclasses import dataclass
+import tempfile
 import os
 from .figuregen import *
 from . import calculate as calc
@@ -416,15 +417,6 @@ class Backend:
 
     def write_to_file(self, data, filename):
         raise NotImplementedError()
-
-class PdfBackend(Backend):
-    """ Generates a TikZ picture and compiles it with pdflatex to a .pdf
-    Requires pdflatex in the PATH.
-    """
-
-    def __init__(self, intermediate_dir = None, tex_packages=["[T1]{fontenc}", "{libertine}"]):
-        self._intermediate_dir = intermediate_dir
-        self._packages = tex_packages
 
 class PptxBackend(Backend):
     pass

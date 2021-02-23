@@ -386,8 +386,9 @@ class Grid:
         self.get_layout()._set_field_size_if_not_set(self.layout.layout['column_titles'], pos=pos, field_size_mm=3.)
         return self
 
-from .backend import Backend, PptxBackend, HtmlBackend, PdfBackend
+from .backend import Backend, PptxBackend, HtmlBackend
 from .tikz import TikzBackend
+from .pdflatex import PdfBackend
 
 def _backend_from_filename(filename: str) -> Backend:
     """ Guesses the correct backend based on the filename """

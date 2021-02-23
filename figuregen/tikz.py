@@ -28,8 +28,8 @@ class TikzBackend(Backend):
         return '\n'.join(["\\usepackage{calc}", "\\usepackage{tikz}"])
 
     def _sanitize_latex_path(self, path):
-        p = path.replace('\\', '/')
-        return "\\detokenize{" + p + "}"
+        # Assume that pdflatex will be run from the same folder and strip the directory name from the path
+        return "\\detokenize{" + os.path.basename(path) + "}"
 
     def _latex_color(self, rgb):
         return "rgb,255:red," + str(rgb[0]) + ";green," + str(rgb[1]) + ";blue," + str(rgb[2])
