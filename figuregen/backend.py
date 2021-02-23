@@ -126,6 +126,7 @@ class Backend:
             elem_size = calc.element_size_from_height(m, height)
             w = calc.total_width(m, elem_size)
             sizes.append((calc.Size(w, height), elem_size))
+        return sizes
 
     def gen_lines(self, element: ElementView, img_pos_top, img_pos_left, img_size: calc.Size) -> List[Component]:
         try:

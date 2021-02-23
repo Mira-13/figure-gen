@@ -3,7 +3,7 @@ import importlib.resources as pkg_resources
 
 class TikzBackend(Backend):
     """ Generates the code for a TikZ picture representing the figure.
-    Default file ending is .tikz, use \input{figure.tikz} to include in LaTeX.
+    Default file ending is .tikz, use \\input{figure.tikz} to include in LaTeX.
     """
 
     def __init__(self, include_header=True):
@@ -21,6 +21,11 @@ class TikzBackend(Backend):
     def header(self) -> str:
         """ The TikZ macros used for the figure components """
         return pkg_resources.read_text(__package__, 'commands.tikz')
+
+    @property
+    def preamble(self) -> str:
+        """ The minimum set of \\usepackage's for the figure to display correctly. """
+        return '\n'.join(["\\usepackage{calc}", "\\usepackage{tikz}"])
 
     def _sanitize_latex_path(self, path):
         p = path.replace('\\', '/')

@@ -24,33 +24,31 @@
 
 % Generates a node with text inside. The text is clipped to the node so it does not overlap
 % with other content.
+% Arguments: width, height, name, anchor, text color, fontsize, content, fill color, rotation, vertical alignment, horizontal alignment, vertical padding, horizontal padding
 \newcommand\maketextnode[9]{%
-    \def\width{#1}%
-    \def\heighty{#2}% DO NOT CHANGE TO \height ! (workaround for LaTeX madness)
-    \def\name{#3}%
-    \def\anchor{#4}%
-    \def\color{#5}%
-    \def\fontsz{#6}%
-    \def\content{#7}%
-    \def\fill{#8}%
-    \def\rot{#9}%
+    % We use garbage names because proper ones interfere randomly and unpredictably in a
+    % distribution-dependent way with some of the TikZ and LaTeX commands we use below
+    \def\myargA{#1}%
+    \def\myargB{#2}%
+    \def\myargC{#3}%
+    \def\myargD{#4}%
+    \def\myargE{#5}%
+    \def\myargF{#6}%
+    \def\myargG{#7}%
+    \def\myargH{#8}%
+    \def\myargI{#9}%
     \maketextnodecontinued
 }
 \newcommand\maketextnodecontinued[4]{%
-    \def\vertal{#1}
-    \def\horzal{#2}
-    \def\padvert{#3}
-    \def\padhorz{#4}
-
-    \node[anchor=north west, minimum width=\width, minimum height=\heighty, inner sep=0, outer sep=0,
-        fill=\fill] (\name) at \anchor {};
+    \node[anchor=north west, minimum width=\myargA, minimum height=\myargB, inner sep=0, outer sep=0,
+        fill={\myargH}] (\myargC) at \myargD {};
     \begin{scope}
-        \clip (\name.south west) rectangle (\name.north east);
-        \node[anchor=center, minimum width=\width, minimum height=\heighty, rotate=\rot, text=\color,
-            inner sep=0, outer sep=0] at (\name.center)
+        \clip (\myargC.south west) rectangle (\myargC.north east);
+        \node[anchor=center, minimum width=\myargA, minimum height=\myargB, rotate=\myargI, text={\myargE},
+            inner sep=0, outer sep=0] at (\myargC.center)
         {
-            \begin{minipage}[c][\heighty-\padvert-\padvert][\vertal]{\width-\padhorz-\padhorz} \fontsize{\fontsz}{\fontsz} \selectfont \horzal
-                \content\strut
+            \begin{minipage}[c][\myargB-#3-#3][#1]{\myargA-#4-#4} \fontsize{\myargF}{\myargF} \selectfont #2
+                \myargG\strut
             \end{minipage}
         };
     \end{scope}
@@ -58,33 +56,31 @@
 
 % Generates a node with text inside. The text is clipped to the node so it does not overlap
 % with other content. Width and height of the innermost node are flipped, use this for rotated text.
+% Arguments: width, height, name, anchor, text color, fontsize, content, fill color, rotation, vertical alignment, horizontal alignment, vertical padding, horizontal padding
 \newcommand\maketextnodeflipped[9]{%
-    \def\width{#1}%
-    \def\heighty{#2}%
-    \def\name{#3}%
-    \def\anchor{#4}%
-    \def\color{#5}%
-    \def\fontsz{#6}%
-    \def\content{#7}%
-    \def\fill{#8}%
-    \def\rot{#9}%
+    % We use garbage names because proper ones interfere randomly and unpredictably in a
+    % distribution-dependent way with some of the TikZ and LaTeX commands we use below
+    \def\myargA{#1}%
+    \def\myargB{#2}%
+    \def\myargC{#3}%
+    \def\myargD{#4}%
+    \def\myargE{#5}%
+    \def\myargF{#6}%
+    \def\myargG{#7}%
+    \def\myargH{#8}%
+    \def\myargI{#9}%
     \maketextnodeflippedcontinued
 }
 \newcommand\maketextnodeflippedcontinued[4]{%
-    \def\vertal{#1}
-    \def\horzal{#2}
-    \def\padvert{#3}
-    \def\padhorz{#4}
-
-    \node[anchor=north west, minimum width=\width, minimum height=\heighty, inner sep=0, outer sep=0,
-        fill=\fill] (\name) at \anchor {};
+    \node[anchor=north west, minimum width=\myargA, minimum height=\myargB, inner sep=0, outer sep=0,
+        fill={\myargH}] (\myargC) at \myargD {};
     \begin{scope}
-        \clip (\name.south west) rectangle (\name.north east);
-        \node[anchor=center, minimum width=\width, minimum height=\heighty, rotate=\rot, text=\color,
-            inner sep=0, outer sep=0] at (\name.center)
+        \clip (\myargC.south west) rectangle (\myargC.north east);
+        \node[anchor=center, minimum width=\myargA, minimum height=\myargB, rotate=\myargI, text={\myargE},
+            inner sep=0, outer sep=0] at (\myargC.center)
         {
-            \begin{minipage}[c][\width-\padvert-\padvert][\vertal]{\heighty-\padhorz-\padhorz} \fontsize{\fontsz}{\fontsz} \selectfont \horzal
-                \content\strut
+            \begin{minipage}[c][\myargA-#3-#3][#1]{\myargB-#4-#4} \fontsize{\myargF}{\myargF} \selectfont #2
+                \myargG\strut
             \end{minipage}
         };
     \end{scope}

@@ -86,7 +86,7 @@ def total_width(grid: Grid, image_size: Size):
     total_width += sum_title_spacing(grid.layout, 'east')
     total_width += sum_title_spacing(grid.layout, 'west')
 
-    total_width += grid.layout['padding']['west'] + grid.layout['padding']['east']
+    total_width += grid.layout.layout['padding']['west'] + grid.layout.layout['padding']['east']
     return total_width
 
 def min_height(grid: Grid):
