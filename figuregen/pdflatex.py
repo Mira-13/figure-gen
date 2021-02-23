@@ -46,8 +46,8 @@ class PdfBackend(Backend):
     def combine_grids(self, data, idx: int, bounds: Bounds):
         return self._tikz_gen.combine_grids(data, idx, bounds)
 
-    def combine_rows(self, data):
-        return self._tikz_gen.combine_rows(data)
+    def combine_rows(self, data, bounds: Bounds):
+        return self._tikz_gen.combine_rows(data, bounds)
 
     def write_to_file(self, data, filename):
         _, ext = os.path.splitext(filename)
