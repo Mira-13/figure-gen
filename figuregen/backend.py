@@ -25,15 +25,15 @@ class ImageComponent(Component):
     data: ElementData
     has_frame: bool
     frame_linewidth: float
-    frame_color: Tuple[float]
+    frame_color: Tuple[float, float, float]
 
 @dataclass
 class TextComponent(Component):
     content: str
     rotation: float
     fontsize: float
-    color: Tuple[float]
-    background_color: Tuple[float]
+    color: Tuple[float, float, float]
+    background_color: Tuple[float, float, float]
     type: str
     horizontal_alignment: str = "center"
     padding: calc.Size = calc.Size(0, 0)
@@ -41,7 +41,7 @@ class TextComponent(Component):
 
 @dataclass
 class RectangleComponent(Component):
-    color: Tuple[float]
+    color: Tuple[float, float, float]
     linewidth: float
     dashed: bool
 
@@ -52,7 +52,7 @@ class LineComponent(Component):
     to_x: float
     to_y: float
     linewidth: float
-    color: Tuple[float]
+    color: Tuple[float, float, float]
 
 class Backend:
     def generate(self, grids: List[List[Grid]], width_mm: float, filename: str):
@@ -79,7 +79,8 @@ class Backend:
                 gen_grids.append(self.assemble_grid(components, output_dir))
                 left += sizes[grid_idx][0].width_mm
 
-            gen_rows.append(self.combine_grids(gen_grids))
+            bounds = Bounds(top, 0, width_mm, sizes[0][0].height_mm)
+            gen_rows.append(self.combine_grids(gen_grids, row_idx, bounds))
             top += sizes[0][0].height_mm
             row_idx += 1
 
@@ -88,6 +89,13 @@ class Backend:
         self.write_to_file(result, filename)
 
     def compute_aligned_sizes(self, grids: List[Grid], width_mm: float) -> List[Tuple[calc.Size, calc.Size]]:
+        """
+        Computes the sizes of all grids and contained images so that their heights match and they fill the given
+        width exactly.
+
+        Returns:
+            a list where each element is a tuple of (grid size, image size)
+        """
         num_modules = len(grids)
         assert(num_modules != 0)
 
@@ -399,7 +407,7 @@ class Backend:
     def assemble_grid(self, components: List[Component], output_dir: str):
         raise NotImplementedError()
 
-    def combine_grids(self, data):
+    def combine_grids(self, data, idx: int, bounds: Bounds):
         raise NotImplementedError()
 
     def combine_rows(self, data):

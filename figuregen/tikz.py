@@ -106,10 +106,16 @@ class TikzBackend(Backend):
                 start = "{" + f"({c.from_x}mm, {-c.from_y}mm)"+ "}"
                 end = "{" + f"({c.to_x}mm, {-c.to_y}mm)"+ "}"
                 tikz_code += "\\makeclippedline" + parent_name + start + end + linewidth + color + "\n"
+
         return tikz_code
 
-    def combine_grids(self, data: List[str]) -> str:
-        return '\n'.join(data)
+    def combine_grids(self, data: List[str], idx: int, bounds: Bounds) -> str:
+        # Create an empty "background" node to make sure that outer paddings are not cropped away
+        figure_id = "{figure-" + str(idx) + "}"
+        dims = "{" + f"{bounds.width}" + "mm}" + "{" + f"{bounds.height}" + "mm}"
+        anchor = "{(" + f"{bounds.left}mm, {-bounds.top}mm" + ")}"
+        tikz_code = "\\makebackgroundnode" + dims + anchor + figure_id + "\n"
+        return tikz_code + '\n'.join(data)
 
     def combine_rows(self, data: List[str]) -> str:
         return '\n'.join(data)

@@ -105,3 +105,9 @@
         \draw[color={#5}, line width=#4] #2 -- #3;
     \end{scope}
 }
+
+% Generates an empty node (no fill, no draw) to enforce a minimum size for the full tikzpicture
+% Arguments: width, height, anchor, name
+\newcommand{\makebackgroundnode}[4]{
+    \node[anchor=north west, minimum width=#1, minimum height=#2, inner sep=0, outer sep=0] (#4) at #3 {};
+}
