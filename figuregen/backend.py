@@ -144,7 +144,8 @@ class Backend:
             end_h = l['to'][0] * h_scale + img_pos_top
             end_w = l['to'][1] * w_scale + img_pos_left
             rgb = (l['color'][0], l['color'][1], l['color'][2])
-            result.append(LineComponent(None, -1, -1, -1, -1, start_w, start_h, end_w, end_h, l['linewidth'], rgb))
+            bounds = Bounds(img_pos_top, img_pos_left, img_size.width_mm, img_size.height_mm)
+            result.append(LineComponent(bounds, -1, -1, -1, -1, start_w, start_h, end_w, end_h, l['linewidth'], rgb))
 
         return result
 

@@ -98,6 +98,14 @@ class TikzBackend(Backend):
                 linewidth = "{" + str(c.linewidth) + "pt}"
                 linestyle = "{dashed}" if c.dashed else "{solid}"
                 tikz_code += "\\makerectangle" + dims + anchor + color + linewidth + linestyle + "\n"
+
+            if isinstance(c, LineComponent):
+                parent_name = "{" + "img-" + elem_id + "}"
+                color = "{" + self._latex_color(c.color) + "}"
+                linewidth = "{" + str(c.linewidth) + "pt}"
+                start = "{" + f"({c.from_x}mm, {-c.from_y}mm)"+ "}"
+                end = "{" + f"({c.to_x}mm, {-c.to_y}mm)"+ "}"
+                tikz_code += "\\makeclippedline" + parent_name + start + end + linewidth + color + "\n"
         return tikz_code
 
     def combine_grids(self, data: List[str]) -> str:

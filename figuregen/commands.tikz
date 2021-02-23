@@ -96,3 +96,12 @@
     \node[anchor=north west, minimum width=#1, minimum height=#2, draw={#4}, line width=#5, #6,
         inner sep=0, outer sep=0] () at #3 {};
 }
+
+% Draws a line on top of another node, clipped to never leave the node
+% Arguments: parent node name, start, end, line width, line color
+\newcommand{\makeclippedline}[5]{
+    \begin{scope}
+        \clip (#1.south west) rectangle (#1.north east);
+        \draw[color={#5}, line width=#4] #2 -- #3;
+    \end{scope}
+}
