@@ -24,7 +24,7 @@
 
 % Generates a node with text inside. The text is clipped to the node so it does not overlap
 % with other content.
-% Arguments: width, height, name, anchor, text color, fontsize, content, fill color, rotation, vertical alignment, horizontal alignment, vertical padding, horizontal padding
+% Arguments: width, height, name, anchor, text color, fontsize, fill color, rotation, vertical alignment, horizontal alignment, vertical padding, horizontal padding, content
 \newcommand\maketextnode[9]{%
     % We use garbage names because proper ones interfere randomly and unpredictably in a
     % distribution-dependent way with some of the TikZ and LaTeX commands we use below
@@ -41,14 +41,14 @@
 }
 \newcommand\maketextnodecontinued[4]{%
     \node[anchor=north west, minimum width=\myargA, minimum height=\myargB, inner sep=0, outer sep=0,
-        fill={\myargH}] (\myargC) at \myargD {};
+        fill={\myargG}] (\myargC) at \myargD {};
     \begin{scope}
         \clip (\myargC.south west) rectangle (\myargC.north east);
-        \node[anchor=center, minimum width=\myargA, minimum height=\myargB, rotate=\myargI, text={\myargE},
+        \node[anchor=center, minimum width=\myargA, minimum height=\myargB, rotate=\myargH, text={\myargE},
             inner sep=0, outer sep=0] at (\myargC.center)
         {
-            \begin{minipage}[c][\myargB-#3-#3][#1]{\myargA-#4-#4} \fontsize{\myargF}{\myargF} \selectfont #2
-                \myargG\strut
+            \begin{minipage}[c][\myargB-#2-#2][\myargI]{\myargA-#3-#3} \fontsize{\myargF}{\myargF} \selectfont #1
+                #4\strut
             \end{minipage}
         };
     \end{scope}
@@ -73,14 +73,14 @@
 }
 \newcommand\maketextnodeflippedcontinued[4]{%
     \node[anchor=north west, minimum width=\myargA, minimum height=\myargB, inner sep=0, outer sep=0,
-        fill={\myargH}] (\myargC) at \myargD {};
+        fill={\myargG}] (\myargC) at \myargD {};
     \begin{scope}
         \clip (\myargC.south west) rectangle (\myargC.north east);
-        \node[anchor=center, minimum width=\myargA, minimum height=\myargB, rotate=\myargI, text={\myargE},
+        \node[anchor=center, minimum width=\myargA, minimum height=\myargB, rotate=\myargH, text={\myargE},
             inner sep=0, outer sep=0] at (\myargC.center)
         {
-            \begin{minipage}[c][\myargA-#3-#3][#1]{\myargB-#4-#4} \fontsize{\myargF}{\myargF} \selectfont #2
-                \myargG\strut
+            \begin{minipage}[c][\myargA-#3-#3][\myargI]{\myargB-#2-#2} \fontsize{\myargF}{\myargF} \selectfont #1
+                #4\strut
             \end{minipage}
         };
     \end{scope}

@@ -95,8 +95,8 @@ class TikzBackend(Backend):
                 pad_vert = "{" + str(c.padding.height_mm) + "mm}"
                 pad_horz = "{" + str(c.padding.width_mm) + "mm}"
 
-                tikz_code += node + dims + name + anchor + color + fontsize + content
-                tikz_code += fill_color + rotation + vert_align + horz_align + pad_vert + pad_horz + "\n"
+                tikz_code += node + dims + name + anchor + color + fontsize
+                tikz_code += fill_color + rotation + vert_align + horz_align + pad_vert + pad_horz + content + "\n"
 
             if isinstance(c, RectangleComponent):
                 color = "{" + self._latex_color(c.color) + "}"
