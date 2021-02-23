@@ -387,7 +387,7 @@ class Grid:
 from .backend import Backend
 from .tikz import TikzBackend
 from .pdflatex import PdfBackend
-from .htmlbackend import HtmlBackend
+from .html import HtmlBackend
 from .pptx import PptxBackend
 
 def _backend_from_filename(filename: str) -> Backend:
