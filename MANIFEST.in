@@ -1,5 +1,6 @@
 include figuregen/commands.tikz
 include figuregen/theme.pptx
+include commands.tikz
 
 exclude tests
 exclude examples
