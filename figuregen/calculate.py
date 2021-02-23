@@ -165,7 +165,7 @@ def element_size_from_height(grid: Grid, total_height: float) -> Size:
         else:
             print(f'Warning: Height per element is {height_per_img} which is less than 1mm.'
                    'Probably due to an extreme aspect ratio or too many elements.')
-    return Size(height_per_img * grid.aspect_ratio, height_per_img)
+    return Size(height_per_img / grid.aspect_ratio, height_per_img)
 
 def size_of(data_part, direction: str):
     assert direction in data_part
