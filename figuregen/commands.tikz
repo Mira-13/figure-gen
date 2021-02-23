@@ -10,8 +10,6 @@
 % Arguments: width, height, filename, name, anchor, color, linewidth
 \newcommand{\makeframedimagenode}[7]{
     \node[anchor=north west, minimum width=#1, minimum height=#2, inner sep=0, outer sep=0] (#4) at #5 {};
-    \node[anchor=center, minimum width=#1-#7, minimum height=#2-#7, inner sep=0, outer sep=0,
-        draw={#6}, line width=#7] (#4-frame) at (#4.center) {};
     \begin{scope}
         \clip
             ([xshift = #7 * 0.5, yshift = #7 * 0.5]#4.south west)
@@ -20,6 +18,8 @@
 
         \node[anchor=north west, minimum width=#1, minimum height=#2, inner sep=0, outer sep=0] (#4-content) at #5 {\includegraphics[width=#1, height=#2]{#3}};
     \end{scope}
+    \node[anchor=center, minimum width=#1-#7, minimum height=#2-#7, inner sep=0, outer sep=0,
+        draw={#6}, line width=#7] (#4-frame) at (#4.center) {};
 }
 
 % Generates a node with text inside. The text is clipped to the node so it does not overlap
