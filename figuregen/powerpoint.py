@@ -52,13 +52,15 @@ class PptxBackend(Backend):
                 # Write image to temp folder
                 with tempfile.TemporaryDirectory() as tmpdir:
                     fname = c.data.make_raster(c.bounds.width, c.bounds.height, os.path.join(tmpdir, "image"))
-                    shape = slide.shapes.add_picture(fname, Mm(c.bounds.left), Mm(c.bounds.top), width=Mm(c.bounds.width))
+                    shape = slide.shapes.add_picture(fname, Mm(c.bounds.left), Mm(c.bounds.top),
+                        width=Mm(c.bounds.width))
                     shape.shadow.inherit = False
 
                 if c.has_frame:
                     offset = Pt(c.frame_linewidth) / 2
-                    shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Mm(c.bounds.left) + offset, Mm(c.bounds.top) + offset,
-                        Mm(c.bounds.width) - Pt(c.frame_linewidth), Mm(c.bounds.height) - Pt(c.frame_linewidth))
+                    shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Mm(c.bounds.left) + offset,
+                        Mm(c.bounds.top) + offset, Mm(c.bounds.width) - Pt(c.frame_linewidth),
+                        Mm(c.bounds.height) - Pt(c.frame_linewidth))
                     shape.shadow.inherit = False
                     shape.line.color.rgb = RGBColor(c.frame_color[0], c.frame_color[1], c.frame_color[2])
                     shape.line.width = Pt(c.frame_linewidth)
@@ -77,7 +79,8 @@ class PptxBackend(Backend):
 
                     shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Mm(pos_left), Mm(pos_top),
                         Mm(width), Mm(height))
-                    shape.rotation = -c.rotation # tikz rotation is counter-clockwise, pptx clockwise (we switch in pptx)
+                    # tikz rotation is counter-clockwise, pptx clockwise (we switch in pptx)
+                    shape.rotation = -c.rotation
                 else:
                     shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Mm(c.bounds.left), Mm(c.bounds.top),
                         Mm(c.bounds.width), Mm(c.bounds.height))
@@ -87,7 +90,8 @@ class PptxBackend(Backend):
                 # Background color
                 if c.background_color is not None:
                     shape.fill.solid()
-                    shape.fill.fore_color.rgb = RGBColor(c.background_color[0], c.background_color[1], c.background_color[2])
+                    shape.fill.fore_color.rgb = RGBColor(c.background_color[0], c.background_color[1],
+                        c.background_color[2])
                 else:
                     shape.fill.background()
                 shape.line.fill.background()
