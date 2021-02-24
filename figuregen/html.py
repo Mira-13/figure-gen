@@ -1,4 +1,6 @@
+from typing import Union
 from .backend import *
+from concurrent.futures import ThreadPoolExecutor, Future
 
 class HtmlBackend(Backend):
     def __init__(self, inline=False, custom_head: str = "", id_prefix=""):
@@ -13,6 +15,7 @@ class HtmlBackend(Backend):
         self._inline = inline
         self._custom_head = custom_head
         self._prefix = id_prefix
+        self._thread_pool = ThreadPoolExecutor()
 
     @property
     def style(self) -> str:
@@ -33,8 +36,26 @@ class HtmlBackend(Backend):
     def _html_color(self, rgb) -> str:
         return f"rgb({rgb[0]},{rgb[1]},{rgb[2]})"
 
+    def _make_image(self, c: ImageComponent, dims, pos, elem_id):
+        # Generate the image data
+        elem_idx = self._prefix + "img-" + elem_id
+        imgtag = c.data.make_html(c.bounds.width, c.bounds.height)
+
+        html_code = f"<div class='element' id='{elem_idx}' style='"
+        html_code += dims + pos
+
+        # Check if there is a frame and emit the correct command
+        frame = ""
+        if c.has_frame:
+            frame += f"<div style='position: absolute; top: 0; left: 0; " + dims
+            frame += f"border: {c.frame_linewidth}pt solid "
+            frame += f"{self._html_color(c.frame_color)}; box-sizing: border-box;'></div>"
+
+        html_code += "' >" + imgtag + frame + "</div>"
+        return html_code
+
     def assemble_grid(self, components: List[Component], output_dir: str):
-        html_code = ""
+        html_lines = []
         for c in components:
             elem_id = f"fig{c.figure_idx}-grid{c.grid_idx}"
             if c.row_idx >= 0:
@@ -48,21 +69,7 @@ class HtmlBackend(Backend):
                 dims = f"width: {c.bounds.width}mm; height: {c.bounds.height}mm;"
 
             if isinstance(c, ImageComponent):
-                # Generate the image data
-                elem_idx = self._prefix + "img-" + elem_id
-                imgtag = c.data.make_html(c.bounds.width, c.bounds.height)
-
-                html_code += f"<div class='element' id='{elem_idx}' style='"
-                html_code += dims + pos
-
-                # Check if there is a frame and emit the correct command
-                frame = ""
-                if c.has_frame:
-                    frame += f"<div style='position: absolute; top: 0; left: 0; " + dims
-                    frame += f"border: {c.frame_linewidth}pt solid "
-                    frame += f"{self._html_color(c.frame_color)}; box-sizing: border-box;'></div>"
-
-                html_code += "' >" + imgtag + frame + "</div>\n"
+                html_lines.append(self._thread_pool.submit(self._make_image, c, dims, pos, elem_id))
 
             if isinstance(c, TextComponent):
                 elem_idx = self._prefix + c.type + "-" + elem_id
@@ -97,53 +104,62 @@ class HtmlBackend(Backend):
                 elif c.vertical_alignment == "bottom":
                     aligncls = "botalign"
 
-                html_code += "\n".join([
+                html_lines.append("\n".join([
                     f"<div class='title-container {aligncls}' id='{elem_idx}' style='" + dims + pos
                         + pad + bgn + rotation + "' >",
                     "<p class='title-content' style='" + color + fontsize + horz_align + "'>",
                     c.content.replace('\\\\', '<br/>'),
                     "</p>",
-                    "</div>",
-                    ""
-                ])
+                    "</div>"
+                ]))
 
             if isinstance(c, RectangleComponent):
-                html_code += "<div style='position: absolute; " + dims + pos
+                html_code = "<div style='position: absolute; " + dims + pos
                 html_code += f"border: {c.linewidth}pt {self._html_color(c.color)}"
                 html_code += 'dashed' if c.dashed else 'solid' + "; "
-                html_code += "'></div>\n"
+                html_code += "'></div>"
+                html_lines.append(html_code)
 
             if isinstance(c, LineComponent):
-                html_code += f'<div class="svg-container" style="position: absolute; {dims + pos}">'
+                html_code = f'<div class="svg-container" style="position: absolute; {dims + pos}">'
                 html_code += f'<svg style="{dims}">'
                 html_code += f'<line x1="{c.from_x - c.bounds.left}mm" y1="{c.from_y - c.bounds.top}mm" '
                 html_code += f'x2="{c.to_x - c.bounds.left}mm" y2="{c.to_y - c.bounds.top}mm" '
                 html_code += f'style="stroke:{self._html_color(c.color)}; stroke-width:{c.linewidth}pt" />'
-                html_code += '</svg></div>\n'
+                html_code += '</svg></div>'
+                html_lines.append(html_code)
 
-        return html_code
+        return html_lines
 
-    def combine_grids(self, data: List[str], idx: int, bounds: Bounds) -> str:
+    def combine_grids(self, data: List[List[Union[str, Future]]], idx: int, bounds: Bounds) -> List[Union[str, Future]]:
         # Create a container div for each row
         figure_id = self._prefix + "figure-" + str(idx)
         pos = f"top: {bounds.top}mm; left: {bounds.left}mm; "
         dims = f"width: {bounds.width}mm; height: {bounds.height}mm; "
 
-        html_code = "<div id='" + figure_id + "' style='" + pos + dims + "'>\n"
-        html_code += '\n'.join(data)
-        html_code += "</div>\n"
+        # Flatten the inner lines and combine
+        result = ["<div id='" + figure_id + "' style='" + pos + dims + "'>"]
+        for grid in data:
+            for line in grid:
+                result.append(line)
+        result.append("</div>")
 
-        return html_code
+        return result
 
-    def combine_rows(self, data: List[str], bounds: Bounds) -> str:
+    def combine_rows(self, data: List[List[Union[str, Future]]], bounds: Bounds) -> str:
         # Create a container div to make sure that everything can be moved around on a final page
         pos = f"top: {bounds.top}mm; left: {bounds.left}mm; "
         dims = f"width: {bounds.width}mm; height: {bounds.height}mm; "
 
+        # Synchronize all export tasks
         html_code = "<div class='figure' style='" + pos + dims + "'>\n"
-        html_code += '\n'.join(data)
+        for row in data:
+            for line in row:
+                if isinstance(line, Future):
+                    html_code += line.result() + "\n"
+                else:
+                    html_code += line + "\n"
         html_code += "</div>\n"
-
         return html_code
 
     def write_to_file(self, data: str, filename: str):

@@ -3,9 +3,8 @@ from pptx.util import Mm, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
 from pptx.enum.text import PP_ALIGN
-
 import importlib.resources as pkg_resources
-
+from concurrent.futures import ThreadPoolExecutor, Future
 from .backend import *
 
 class PptxBackend(Backend):
@@ -17,6 +16,9 @@ class PptxBackend(Backend):
     - do not support 'dashed' frames - if a frame is 'dashed' the frame in pptx will be normal (but still has a frame)
     - only support text rotation by 0° and +-90°
     '''
+    def __init__(self):
+        self._thread_pool = ThreadPoolExecutor()
+
     def assemble_grid(self, components: List[Component], output_dir: str):
         return components
 
@@ -26,7 +28,26 @@ class PptxBackend(Backend):
             flat.extend(row)
         return flat
 
-    def combine_rows(self, data: List[Component], bounds: Bounds) -> str:
+    def _add_image(self, c: Component, slide):
+        # Write image to temp folder
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fname = c.data.make_raster(c.bounds.width, c.bounds.height, os.path.join(tmpdir, "image"))
+            shape = slide.shapes.add_picture(fname, Mm(c.bounds.left), Mm(c.bounds.top),
+                width=Mm(c.bounds.width))
+            shape.shadow.inherit = False
+
+        if c.has_frame:
+            offset = Pt(c.frame_linewidth) / 2
+            shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Mm(c.bounds.left) + offset,
+                Mm(c.bounds.top) + offset, Mm(c.bounds.width) - Pt(c.frame_linewidth),
+                Mm(c.bounds.height) - Pt(c.frame_linewidth))
+            shape.shadow.inherit = False
+            shape.line.color.rgb = RGBColor(c.frame_color[0], c.frame_color[1], c.frame_color[2])
+            shape.line.width = Pt(c.frame_linewidth)
+            # shape.line.join_type = 'Miter' # Removes rounded edges, but is not supported, yet (sadly)
+            shape.fill.background()
+
+    def combine_rows(self, data: List[Component], bounds: Bounds) -> Tuple[str, List[Future]]:
         # We load a template from a file to have some nicer line styles etc by default
         # (they cannot currently be specified via python-pptx)
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -47,25 +68,11 @@ class PptxBackend(Backend):
         flat = []
         for row in data:
             flat.extend(row)
+
+        futures = []
         for c in flat:
             if isinstance(c, ImageComponent):
-                # Write image to temp folder
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    fname = c.data.make_raster(c.bounds.width, c.bounds.height, os.path.join(tmpdir, "image"))
-                    shape = slide.shapes.add_picture(fname, Mm(c.bounds.left), Mm(c.bounds.top),
-                        width=Mm(c.bounds.width))
-                    shape.shadow.inherit = False
-
-                if c.has_frame:
-                    offset = Pt(c.frame_linewidth) / 2
-                    shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Mm(c.bounds.left) + offset,
-                        Mm(c.bounds.top) + offset, Mm(c.bounds.width) - Pt(c.frame_linewidth),
-                        Mm(c.bounds.height) - Pt(c.frame_linewidth))
-                    shape.shadow.inherit = False
-                    shape.line.color.rgb = RGBColor(c.frame_color[0], c.frame_color[1], c.frame_color[2])
-                    shape.line.width = Pt(c.frame_linewidth)
-                    # shape.line.join_type = 'Miter' # Removes rounded edges, but is not supported, yet (sadly)
-                    shape.fill.background()
+                futures.append(self._thread_pool.submit(self._add_image, c, slide))
 
             if isinstance(c, TextComponent):
                 if c.rotation == 90.0 or c.rotation == -90.0:
@@ -134,7 +141,9 @@ class PptxBackend(Backend):
                 shape.line.color.rgb = RGBColor(c.color[0], c.color[1], c.color[2])
                 shape.line.width = Pt(c.linewidth)
 
-        return prs
+        return prs, futures
 
-    def write_to_file(self, data: str, filename: str):
-        data.save(filename)
+    def write_to_file(self, data: Tuple[Presentation, List[Future]], filename: str):
+        for f in data[1]:
+            f.result()
+        data[0].save(filename)

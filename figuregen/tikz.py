@@ -1,5 +1,7 @@
+from typing import Union
 from .backend import *
 import importlib.resources as pkg_resources
+from concurrent.futures import ThreadPoolExecutor, Future
 
 class TikzBackend(Backend):
     """ Generates the code for a TikZ picture representing the figure.
@@ -12,6 +14,7 @@ class TikzBackend(Backend):
             include_header: boolean, set to false to not include the macro definitions in the generated file.
         """
         self._include_header = include_header
+        self._thread_pool = ThreadPoolExecutor()
 
     def add_overlay(self, tikz_code: str):
         """ Adds overlay code that will be stitched on top of the generated figure. """
@@ -36,8 +39,29 @@ class TikzBackend(Backend):
             return ""
         return "rgb,255:red," + str(rgb[0]) + ";green," + str(rgb[1]) + ";blue," + str(rgb[2])
 
-    def assemble_grid(self, components: List[Component], output_dir: str) -> str:
-        tikz_code = ""
+    def _make_image(self, c: ImageComponent, dims: str, anchor: str, output_dir: str, elem_id: str) -> str:
+        # Generate the image data
+        prefix = "img-" + elem_id
+        file_prefix = os.path.join(output_dir, prefix)
+        try:
+            filename = c.data.make_pdf(c.bounds.width, c.bounds.height, file_prefix)
+        except NotImplementedError:
+            filename = c.data.make_raster(c.bounds.width, c.bounds.height, file_prefix)
+
+        # Assemble the position arguments
+        fname = "{" + self._sanitize_latex_path(filename) + "}"
+        name = "{" + prefix + "}"
+
+        # Check if there is a frame and emit the correct command
+        if c.has_frame:
+            linewidth = "{" + f'{c.frame_linewidth}pt' + "}"
+            color = "{" + self._latex_color(c.frame_color) + "}"
+            return "\\makeframedimagenode" + dims + fname + name + anchor + color + linewidth + "\n"
+        else:
+            return "\\makeimagenode" + dims + fname + name + anchor + "\n"
+
+    def assemble_grid(self, components: List[Component], output_dir: str) -> List[Union[Future, str]]:
+        tikz_lines = []
         for c in components:
             elem_id = f"fig{c.figure_idx}-grid{c.grid_idx}"
             if c.row_idx >= 0:
@@ -51,25 +75,8 @@ class TikzBackend(Backend):
                 anchor = "{(" + f"{c.bounds.left}mm, {-c.bounds.top}mm" + ")}"
 
             if isinstance(c, ImageComponent):
-                # Generate the image data
-                prefix = "img-" + elem_id
-                file_prefix = os.path.join(output_dir, prefix)
-                try:
-                    filename = c.data.make_pdf(c.bounds.width, c.bounds.height, file_prefix)
-                except NotImplementedError:
-                    filename = c.data.make_raster(c.bounds.width, c.bounds.height, file_prefix)
-
-                # Assemble the position arguments
-                fname = "{" + self._sanitize_latex_path(filename) + "}"
-                name = "{" + prefix + "}"
-
-                # Check if there is a frame and emit the correct command
-                if c.has_frame:
-                    linewidth = "{" + f'{c.frame_linewidth}pt' + "}"
-                    color = "{" + self._latex_color(c.frame_color) + "}"
-                    tikz_code += "\\makeframedimagenode" + dims + fname + name + anchor + color + linewidth + "\n"
-                else:
-                    tikz_code += "\\makeimagenode" + dims + fname + name + anchor + "\n"
+                tikz_lines.append(self._thread_pool.submit(
+                    self._make_image, c, dims, anchor, output_dir, elem_id))
 
             if isinstance(c, TextComponent):
                 prefix = c.type + "-" + elem_id
@@ -97,14 +104,14 @@ class TikzBackend(Backend):
                 pad_vert = "{" + str(c.padding.height_mm) + "mm}"
                 pad_horz = "{" + str(c.padding.width_mm) + "mm}"
 
-                tikz_code += node + dims + name + anchor + color + fontsize
-                tikz_code += fill_color + rotation + vert_align + horz_align + pad_vert + pad_horz + content + "\n"
+                tikz_lines.append(node + dims + name + anchor + color + fontsize + fill_color + rotation +
+                    vert_align + horz_align + pad_vert + pad_horz + content)
 
             if isinstance(c, RectangleComponent):
                 color = "{" + self._latex_color(c.color) + "}"
                 linewidth = "{" + str(c.linewidth) + "pt}"
                 linestyle = "{dashed}" if c.dashed else "{solid}"
-                tikz_code += "\\makerectangle" + dims + anchor + color + linewidth + linestyle + "\n"
+                tikz_lines.append("\\makerectangle" + dims + anchor + color + linewidth + linestyle)
 
             if isinstance(c, LineComponent):
                 parent_name = "{" + "img-" + elem_id + "}"
@@ -112,20 +119,34 @@ class TikzBackend(Backend):
                 linewidth = "{" + str(c.linewidth) + "pt}"
                 start = "{" + f"({c.from_x}mm, {-c.from_y}mm)"+ "}"
                 end = "{" + f"({c.to_x}mm, {-c.to_y}mm)"+ "}"
-                tikz_code += "\\makeclippedline" + parent_name + start + end + linewidth + color + "\n"
+                tikz_lines.append("\\makeclippedline" + parent_name + start + end + linewidth + color)
 
-        return tikz_code
+        return tikz_lines
 
-    def combine_grids(self, data: List[str], idx: int, bounds: Bounds) -> str:
+    def combine_grids(self, data, idx: int, bounds: Bounds) -> List[Union[Future, str]]:
         # Create an empty "background" node to make sure that outer paddings are not cropped away
         figure_id = "{figure-" + str(idx) + "}"
         dims = "{" + f"{bounds.width}" + "mm}" + "{" + f"{bounds.height}" + "mm}"
         anchor = "{(" + f"{bounds.left}mm, {-bounds.top}mm" + ")}"
         tikz_code = "\\makebackgroundnode" + dims + anchor + figure_id + "\n"
-        return tikz_code + '\n'.join(data)
 
-    def combine_rows(self, data: List[str], bounds: Bounds) -> str:
-        return '\n'.join(data)
+        # Flatten the list of list into a single list with one element per component
+        result = [tikz_code]
+        for grid in data:
+            for d in grid:
+                result.append(d)
+        return result
+
+    def combine_rows(self, data: List[List[Union[Future, str]]], bounds: Bounds) -> str:
+        # Synchronize all export futures and combine the lines
+        tikz_code = ""
+        for fig in data:
+            for c in fig:
+                if isinstance(c, Future):
+                    tikz_code += c.result() + "\n"
+                else:
+                    tikz_code += c + "\n"
+        return tikz_code
 
     def write_to_file(self, data: str, filename: str):
         with open(filename, "w") as f:
