@@ -1,17 +1,19 @@
+# Generated figures and intermediate files
 gen_*.json
-*.tex
-*.pdf
-*.png
+/examples/*.tex
+/examples/*.pdf
+/examples/*.png
 /examples/*.tikz
+/examples/*.html
+/tests/*.pdf
 !grid-layout.png
 !vertical-stack.png
 !split-comparison.png
 !pool-siggraph.png
 !single-grid.png
+!plotgrid.png
 *.exr
-uploadpip.ps1
 log
-
 *.pptx
 !figure_generator_layout.pptx
 !theme.pptx
@@ -34,6 +36,7 @@ __pycache__
 
 # Visual studio generated / user specific
 .vs
+uploadpip.ps1
 
 # Python setuptools / wheel / pip generated files
 build/*

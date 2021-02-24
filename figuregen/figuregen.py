@@ -410,25 +410,23 @@ def figure(grids: List[List[Grid]], width_cm: float, filename: str, backend: Bac
     Grid columns: stacks rows vertically.
     Aligns the height of the given grids such that they fit the given total width.
 
-    args:
+    Args:
         grids: a list of lists of Grids (figuregen.Grid), which stacks horizontal figures vertically
         width_cm: total width of the figure in centimeters
-        intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
-        tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
+        backend: a Backend object that will be used to create the figure, or None to use a default
     """
     if backend is None:
         backend = _backend_from_filename(filename)
     backend.generate(grids, width_cm * 10, filename)
 
-def horizontal_figure(grids, width_cm: float, filename, intermediate_dir = None, tex_packages=["[T1]{fontenc}", "{libertine}"]):
+def horizontal_figure(grids, width_cm: float, filename, backend: Backend = None):
     """
     Creates a figure by putting grids next to each other, from left to right.
     Aligns the height of the given grids such that they fit the given total width.
 
-    args:
+    Args:
         grids: a list of Grids (figuregen.Grid)
         width_cm: total width of the figure in centimeters
-        intermediate_dir: folder to write .tex and other intermediate files to. If set to None, uses a temporary one.
-        tex_packages: a list of strings. Valid packages looks like ['{comment}', '[T1]{fontenc}'] without the prefix '\\usepackage'.
+        backend: a Backend object that will be used to create the figure, or None to use a default
     """
-    figure([grids], width_cm, filename, intermediate_dir, tex_packages)
+    figure([grids], width_cm, filename, backend)

@@ -5,6 +5,7 @@ from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
 from pptx.enum.text import PP_ALIGN
 import importlib.resources as pkg_resources
 from concurrent.futures import ThreadPoolExecutor, Future
+from threading import Lock
 from .backend import *
 
 class PptxBackend(Backend):
@@ -18,6 +19,7 @@ class PptxBackend(Backend):
     '''
     def __init__(self):
         self._thread_pool = ThreadPoolExecutor()
+        self._slide_mutex = Lock()
 
     def assemble_grid(self, components: List[Component], output_dir: str):
         return components
@@ -32,11 +34,14 @@ class PptxBackend(Backend):
         # Write image to temp folder
         with tempfile.TemporaryDirectory() as tmpdir:
             fname = c.data.make_raster(c.bounds.width, c.bounds.height, os.path.join(tmpdir, "image"))
+            self._slide_mutex.acquire()
             shape = slide.shapes.add_picture(fname, Mm(c.bounds.left), Mm(c.bounds.top),
                 width=Mm(c.bounds.width))
             shape.shadow.inherit = False
+            self._slide_mutex.release()
 
         if c.has_frame:
+            self._slide_mutex.acquire()
             offset = Pt(c.frame_linewidth) / 2
             shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Mm(c.bounds.left) + offset,
                 Mm(c.bounds.top) + offset, Mm(c.bounds.width) - Pt(c.frame_linewidth),
@@ -46,8 +51,9 @@ class PptxBackend(Backend):
             shape.line.width = Pt(c.frame_linewidth)
             # shape.line.join_type = 'Miter' # Removes rounded edges, but is not supported, yet (sadly)
             shape.fill.background()
+            self._slide_mutex.release()
 
-    def combine_rows(self, data: List[Component], bounds: Bounds) -> Tuple[str, List[Future]]:
+    def combine_rows(self, data: List[Component], bounds: Bounds):
         # We load a template from a file to have some nicer line styles etc by default
         # (they cannot currently be specified via python-pptx)
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -69,11 +75,16 @@ class PptxBackend(Backend):
         for row in data:
             flat.extend(row)
 
+        # Generate all images in parallel
         futures = []
         for c in flat:
             if isinstance(c, ImageComponent):
                 futures.append(self._thread_pool.submit(self._add_image, c, slide))
+        for f in futures:
+            f.result()
 
+        # Add everything else afterwards, to ensure proper z-order
+        for c in flat:
             if isinstance(c, TextComponent):
                 if c.rotation == 90.0 or c.rotation == -90.0:
                     # The shape is rotated about its center. We want a rotation about the top left corner instead.
@@ -141,9 +152,7 @@ class PptxBackend(Backend):
                 shape.line.color.rgb = RGBColor(c.color[0], c.color[1], c.color[2])
                 shape.line.width = Pt(c.linewidth)
 
-        return prs, futures
+        return prs
 
-    def write_to_file(self, data: Tuple[Presentation, List[Future]], filename: str):
-        for f in data[1]:
-            f.result()
-        data[0].save(filename)
+    def write_to_file(self, data, filename: str):
+        data.save(filename)
