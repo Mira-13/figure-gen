@@ -48,15 +48,15 @@ top_lay.set_padding(column=1.0, right=1.5)
 top_lay.set_col_titles('top', field_size_mm=5.0)
 
 if __name__ == "__main__":
-    from figuregen import figure
-    from figuregen.tikz import TikzBackend
-    figure([[top_grid]], width_cm=15., filename='split-comparison.tikz', backend=TikzBackend())
-    # figuregen.horizontal_figure([top_grid], width_cm=15., filename='split-comparison.html')
-    # figuregen.horizontal_figure([top_grid], width_cm=15., filename='split-comparison.pptx')
-    # figuregen.horizontal_figure([top_grid], width_cm=15., filename='split-comparison.pdf', tex_packages=["[T1]{fontenc}", "{arev}"])
+    width_cm = 15
+    basename = "split-comparison"
+    figuregen.figure([[top_grid]], width_cm=width_cm, filename=basename+'.pdf',
+        backend=figuregen.PdfBackend(intermediate_dir="log"))
+    figuregen.figure([[top_grid]], width_cm=width_cm, filename=basename+'.pptx')
+    figuregen.figure([[top_grid]], width_cm=width_cm, filename=basename+'.html')
 
-    # try:
-    #     from figuregen.util import jupyter
-    #     jupyter.convert('split-comparison.pdf', 300)
-    # except:
-    #     print('Warning: pdf could not be converted to png')
+    try:
+        from figuregen.util import jupyter
+        jupyter.convert(basename+'.pdf', 300)
+    except:
+        print('Warning: pdf could not be converted to png')

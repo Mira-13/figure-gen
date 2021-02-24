@@ -80,17 +80,12 @@ grid.set_col_titles('north', ['Column titles', 'are', 'the best'])
 #layout.set_col_titles('north', 10., offset_mm=1., fontsize=9, bg_color=[200, 180, 220])
 
 if __name__ == "__main__":
-    # figuregen.horizontal_figure([grid], width_cm=18., filename='single-grid.pdf')
-    # figuregen.horizontal_figure([grid], width_cm=18., filename='single-grid.pptx')
-    # figuregen.horizontal_figure([grid], width_cm=18., filename='single-grid.html')
+    figuregen.figure([[grid]], width_cm=18., filename='single-grid.pdf')
+    figuregen.figure([[grid]], width_cm=18., filename='single-grid.pptx')
+    figuregen.figure([[grid]], width_cm=18., filename='single-grid.html')
 
-    # Test the new backend on this figure
-    from figuregen import figure
-    from figuregen.tikz import TikzBackend
-    figure([[grid]], width_cm=18., filename='single-grid.tikz', backend=TikzBackend())
-
-    # try:
-    #     from figuregen.util import jupyter
-    #     jupyter.convert('single-grid.pdf', 300)
-    # except:
-    #     print('Warning: pdf could not be converted to png')
+    try:
+        from figuregen.util import jupyter
+        jupyter.convert('single-grid.pdf', 300)
+    except:
+        print('Warning: pdf could not be converted to png')

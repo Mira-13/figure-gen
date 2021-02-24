@@ -39,9 +39,15 @@ Clicking on an image below leads to the test that created the corresponding figu
 
 ### Vertical stacks
 [<img src="examples/vertical-stack.png" width="600"/>](examples/vertical_stack.py)
+
 ### Split Comparison
 [<img src="examples/split-comparison.png" width="600"/>](examples/split_comparison.py)
-### Grids and Plots
+
+### Crop Comparison
 [<img src="examples/pool-siggraph.png" width="600"/>](examples/siggraph_example.py)
+
+### Plots
+[<img src="examples/plotgrid.png" width="600"/>](examples/plotgrid.py)
+
 ### Grid with titles, labels, markers, and frames
 [<img src="examples/single-grid.png" width="600"/>](examples/single_module.py)
