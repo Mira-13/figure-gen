@@ -12,6 +12,7 @@ gen_*.json
 !pool-siggraph.png
 !single-grid.png
 !plotgrid.png
+!pool_with_template.png
 *.exr
 log
 *.pptx

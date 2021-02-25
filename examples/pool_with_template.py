@@ -21,3 +21,8 @@ figure = CropComparison(
 
 figuregen.figure([figure.figure_row], width_cm=17.7, filename="pool_with_template.pdf")
 
+try:
+    from figuregen.util import jupyter
+    jupyter.convert('pool_with_template.pdf', 300)
+except:
+    print('Warning: pdf could not be converted to png')
