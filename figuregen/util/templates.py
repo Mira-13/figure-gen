@@ -199,6 +199,17 @@ class FullSizeWithCrops:
             self._ref_grid[-1].layout.set_padding(right=1)
 
         # Put error values underneath the columns
+        if self._crops_below:
+            for i in range(len(images)):
+                if i > 0:
+                    err = self.error_string(i - 1, self.errors)
+                else:
+                    err = self.error_metric_name
+                self._crop_grid[i].set_title("bottom", method_names[i] + "\\\\" + err)
+                self._crop_grid[i].layout.set_title("bottom", 6, 1, 8)
+        else:
+            pass # TODO
+
         # TODO this requires titles spanning multiple grids (the image and its crops)!
         # error_strings = [ f"{self.error_metric_name}" ]
         # error_strings.extend([ self.error_string(i, self.errors) for i in range(len(self.errors)) ])
