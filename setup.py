@@ -1,13 +1,14 @@
 import setuptools
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setuptools.setup(
     name='figuregen',
     version='1.0.0',
     description='Figure Generator',
-    long_description='This tool generates figures in pdf- (via LaTeX), html- and pptx-format. '\
-    'It might help not only to create final figures, but also to analyze images faster: '\
-    'We offer a bunch of error metrics that allows not only to compare images visually but also mathematically. '\
-    'The pptx-format allows manual tweaks - if so desired.',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     url='https://github.com/Mira-13/figure-gen',
     author='Mira Niemann',
     author_email='mira.niemann@gmail.com',
