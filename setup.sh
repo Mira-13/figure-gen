@@ -1,3 +1,5 @@
 python -m pip install build
+rm -rf ./build
+rm -rf ./dist
 python -m build
-python -m pip install --upgrade ./dist/figuregen-1.0.0-py3-none-any.whl
+python -m pip install --upgrade ./dist/figuregen-1.0.1-py3-none-any.whl
