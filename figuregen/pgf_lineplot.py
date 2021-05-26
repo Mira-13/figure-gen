@@ -170,7 +170,11 @@ class PgfLinePlot(Plot):
 
         subprocess.check_call(["pdflatex", "-interaction=nonstopmode", f"{os.path.basename(name)}.tex"],
             cwd=temp_dir, stdout=subprocess.DEVNULL)
-        shutil.copy(os.path.join(temp_dir, f"{os.path.basename(name)}.pdf"), f"{name}.pdf")
+
+        try:
+            shutil.copy(os.path.join(temp_dir, f"{os.path.basename(name)}.pdf"), f"{name}.pdf")
+        except shutil.SameFileError:
+            pass # If the file is already where it is supposed to be, we don't do anything
 
         if temp_folder is not None:
             temp_folder.cleanup()
