@@ -23,6 +23,8 @@ plot.set_axis_properties('x', range=[1, 65], ticks=[5, 25, 50], use_log_scale=Fa
 plot.set_axis_properties('y', range=None, ticks=[5, 10, 30, 50], use_log_scale=True, use_scientific_notations=False)
 plot.set_v_line(pos=10.5, color=[242, 113, 0], linestyle=(0,(4,6)), linewidth_pt=0.6)
 plot.set_colors(plot_color)
+plot.set_linestyle(1, "dashed")
+plot.set_legend(["first line", "second line"])
 
 # ----- PLOT Module -----
 plot_module = figuregen.Grid(1,1)

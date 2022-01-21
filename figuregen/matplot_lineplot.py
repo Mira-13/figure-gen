@@ -46,13 +46,13 @@ def _setup_fonts(plt, font_properties):
 def _label_alignment(rotation : str):
     return 'top' if rotation == 'horizontal' else 'bottom'
 
-def _plot_lines(ax, data, colors, linewidth):
+def _plot_lines(ax, data, colors, linewidth, linestyles):
     i = 0
     for d in data:
         if colors is not None and len(colors) > i:
-            ax.plot(d[0], d[1], linewidth=linewidth, color=np.array(colors[i])/255.0)
+            ax.plot(d[0], d[1], linewidth=linewidth, color=np.array(colors[i])/255.0, linestyle=linestyles[i])
         else:
-            ax.plot(d[0], d[1], linewidth=linewidth)
+            ax.plot(d[0], d[1], linewidth=linewidth, linestyle=linestyles[i])
         i += 1
 
 def _apply_axis_range(ax, props):
@@ -145,6 +145,8 @@ class MatplotLinePlot(Plot):
         """
         self.aspect_ratio = aspect_ratio
         self._data = data
+        self._names = None
+        self._linestyles = [ "solid" for _ in data ]
         self._labels = {}
         self._axis_properties = {}
         self._markers = {}
@@ -284,6 +286,18 @@ class MatplotLinePlot(Plot):
         if tick_line_pt is not None:
             self._config['tick_linewidth_pt'] = tick_line_pt
 
+    def set_linestyle(self, idx: int, linestyle):
+        ''' Sets the linestyle of an individual plot line. Value can be anything supported by matplotlib
+            https://matplotlib.org/stable/gallery/lines_bars_and_markers/linestyles.html
+        '''
+        self._linestyles[idx] = linestyle
+
+    def set_legend(self, names):
+        ''' Enables a legend and uses the given list of strings for the names
+        '''
+        assert len(names) == len(self._data), "Must have exactly one name per plot line"
+        self._names = names
+
     def _make(self, width_mm, height_mm, filename):
         matplot_mutex.acquire()
         try:
@@ -294,12 +308,16 @@ class MatplotLinePlot(Plot):
             fig, ax = plt.subplots(figsize=figsize, constrained_layout=True)
             fig.set_constrained_layout_pads(w_pad=0, h_pad=0, hspace=0., wspace=0.)
 
-            _plot_lines(ax, self._data, self._colors, self._config['plot_linewidth_pt'])
+            _plot_lines(ax, self._data, self._colors, self._config['plot_linewidth_pt'], self._linestyles)
             _apply_axes_properties_and_labels(fig, ax, self._axis_properties, self._labels,
                 self._config, self._font['fontsize_pt'])
             plt.grid(color=np.array(self._grid['color'])/255.0, linestyle=self._grid['linestyle'],
                 linewidth=self._grid['linewidth_pt'])
             _place_marker(ax, self._markers)
+
+            if self._names is not None:
+                ax.legend(self._names)
+
             plt.savefig(filename, pad_inches=0.0, dpi=500)
         finally:
             matplot_mutex.release()
