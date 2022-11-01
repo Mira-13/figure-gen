@@ -84,7 +84,7 @@ class CropComparison:
         return "relMSE"
 
     def compute_error(self, reference_image, method_image) -> Tuple[str, List[float]]:
-        return image.relative_mse(method_image, reference_image, 0.01)
+        return image.relative_mse(method_image, reference_image)
 
     def error_string(self, index: int, errors: List[float]):
         """ Generates the human-readable error string for the i-th element in a list of error values.
@@ -235,7 +235,7 @@ class FullSizeWithCrops:
         return "relMSE"
 
     def compute_error(self, reference_image, method_image) -> Tuple[str, List[float]]:
-        return image.relative_mse(method_image, reference_image, 0.01)
+        return image.relative_mse(method_image, reference_image)
 
     def error_string(self, index: int, errors: List[float]):
         """ Generates the human-readable error string for the i-th element in a list of error values.
