@@ -1,0 +1,30 @@
+# Checks if figure-gen pacakge 
+name: CI
+
+on:
+   pull_request: {}
+   push: {}
+
+jobs:
+  build_and_test_ubuntu:
+    name: Linux Ubuntu 22.04 build
+    runs-on: ubuntu-22.04
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install third party dependencies
+      run: |
+        sudo apt-get install texlive-latex-base
+        sudo apt-get install texlive-fonts-recommended
+        sudo apt-get install texlive-fonts-extra
+        sudo apt-get install texlive-latex-extra
+
+    - name: Build and Install
+      run: |
+        ./setup.sh
+
+    - name: Run Example
+      run: |
+        cd examples
+        python3 full_size_with_crops.py
