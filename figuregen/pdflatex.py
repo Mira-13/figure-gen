@@ -71,10 +71,36 @@ class PdfBackend(Backend):
         with open(tex_filename, "w") as f:
             f.write(tex_code)
 
+        def extract_errors(logfile):
+            """ Basic parsing of pdflatex log files.
+
+            Tries to find each line that contains an error message and outputs that line and a number
+            of following lines.
+            """
+            with open(logfile) as fp: lines = fp.readlines()
+
+            num_lines = 5
+            def concat(i): return "\n".join([lines[j] for j in range(i, min(i + num_lines, len(lines)))])
+
+            for i in range(len(lines)):
+                if "error:" in lines[i] or "Error:" in lines[i]: yield concat(i)
+                elif ".tex:"in lines[i]: yield concat(i)
+                elif lines[i].startswith("! "): yield concat(i)
+
         try:
-            subprocess.check_call(['pdflatex', '-interaction=nonstopmode', "figure.tex"],
-                cwd=self._intermediate_dir, stdout=subprocess.DEVNULL)
+            subprocess.check_call([
+                    "pdflatex",
+                    "-interaction=batchmode",
+                    "figure.tex"
+                ], cwd=self._intermediate_dir, stdout=subprocess.DEVNULL)
         except subprocess.CalledProcessError:
-            print("ERROR: pdflatex reported an error. The .pdf file was copied anyway but likely contains errors.")
+            logfile = os.path.join(self._intermediate_dir, "figure.log")
+            if not os.path.exists(logfile):
+                print("Error: pdflatex failed, but no log was written.")
+            else:
+                print("Error: pdflatex failed with the following errors:")
+                print("\n".join([errline for errline in extract_errors(logfile)]))
+            print(f"Error: pdflatex failed. You can view the full log in {logfile}. "
+                "This path can be changed by specifying an intermediate_dir")
 
         shutil.copy(pdf_filename, filename)
