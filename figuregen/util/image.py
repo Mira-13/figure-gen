@@ -12,7 +12,12 @@ def crop(img, *crop_args):
     assert left + width <= img.shape[1], "crop is outside the image"
     assert top + height <= img.shape[0], "crop is outside the image"
 
-    return img[top:top+height,left:left+width,:]
+    assert img.ndim == 2 or img.ndim == 3, "not an image"
+
+    if img.ndim == 3:
+        return img[top:top+height,left:left+width,:]
+    elif img.ndim == 2:
+        return img[top:top+height,left:left+width]
 
 class Cropbox:
     def __init__(self, top, left, height, width, scale=1):
