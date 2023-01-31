@@ -168,8 +168,21 @@ class PgfLinePlot(Plot):
         with open(os.path.join(temp_dir, f"{os.path.basename(name)}.tex"), "w") as fp:
             fp.write(tex)
 
-        subprocess.check_call(["pdflatex", "-interaction=nonstopmode", f"{os.path.basename(name)}.tex"],
-            cwd=temp_dir, stdout=subprocess.DEVNULL)
+        try:
+            subprocess.check_call(["pdflatex", "-interaction=nonstopmode", f"{os.path.basename(name)}.tex"],
+                cwd=temp_dir, stdout=subprocess.DEVNULL)
+        except subprocess.CalledProcessError:
+            from texsnip import extract_errors, red
+
+            logfile = os.path.join(temp_dir, f"{os.path.basename(name)}.log")
+            if not os.path.exists(logfile):
+                print(red("Error: pdflatex failed, but no log was written."))
+            else:
+                print("\n".join([errline for errline in extract_errors(logfile)]))
+                print(red(f"Error: pdflatex failed. Syntax error or missing package? "
+                    "You can view the full log in {logfile}. This path can be changed by specifying an intermediate_dir"))
+            extract_errors(f"{os.path.basename(name)}.log")
+            raise
 
         try:
             shutil.copy(os.path.join(temp_dir, f"{os.path.basename(name)}.pdf"), f"{name}.pdf")

@@ -23,7 +23,8 @@ setuptools.setup(
         'matplotlib>=3.2.1',
         'python-pptx',
         'simpleimageio',
-        'opencv-python'
+        'opencv-python',
+        'texsnip>=1.0.2'
     ],
     zip_safe=False,
     include_package_data=True
