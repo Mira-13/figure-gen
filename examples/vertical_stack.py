@@ -65,8 +65,9 @@ for col in range(top_cols):
 top_grid.set_col_titles('top', method_titles)
 
 # Specify paddings (unit: mm)
-top_lay = top_grid.get_layout()
-top_lay.set_padding(column=1.0, bottom=0.25)
+top_lay = top_grid.layout
+top_lay.column_space = 1.0
+top_lay.padding[figuregen.BOTTOM] = 0.25
 
 # ---------- Horizontal Figure BOTTOM ----------
 # One grid for each method
@@ -90,8 +91,8 @@ for sub_fig in bottom_grids:
 
 # Specify paddings (unit: mm)
 for sub_fig in bottom_grids:
-    sub_fig.get_layout().set_padding(column=0.5, right=1.0, row=0.5)
-bottom_grids[-1].get_layout().set_padding(right=0.0) # remove last padding
+    sub_fig.layout.set_padding(column=0.5, right=1.0, row=0.5)
+bottom_grids[-1].layout.set_padding(right=0.0) # remove last padding
 
 # ---------- V-STACK of Horizontal Figures (create figure) ----------
 v_grids = [

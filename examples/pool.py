@@ -1,6 +1,7 @@
-import figuregen
-import figuregen.util
 import os
+
+import figuregen as fig
+from figuregen.util import image
 import simpleimageio
 
 scene, seconds = 'pool', 60
@@ -12,7 +13,7 @@ baseline = 2
 crops = [[400, 120, 40, 30], [595, 81, 40, 30], [123, 300, 40, 30]]
 
 # ---------- Data Gathering: images -------------
-def get_image(method=None, crop_args=None):
+def get_image(method=None):
     if method is None:
         path = os.path.join('images', scene, scene+".exr")
     else:
@@ -20,17 +21,14 @@ def get_image(method=None, crop_args=None):
         path = os.path.join('images', scene, scene+sec_string+method+".exr")
 
     img = simpleimageio.read(path)
-    if crop_args is not None:
-        img = figuregen.util.image.crop(img, crop_args)
-        img = figuregen.util.image.zoom(img)
-    return figuregen.util.image.lin_to_srgb(img)
+    return image.lin_to_srgb(simpleimageio.read(path))
 
 ref_img = get_image()
 m_images = [get_image(m) for m in method_list[:-1]]
 
 #-------- Data Gathering: errors & captions ----------
 def get_error(method_img):
-    rMSE = figuregen.util.image.relative_mse(img=method_img, ref=ref_img)
+    rMSE = image.relative_mse(img=method_img, ref=ref_img)
     return rMSE
 
 def get_captions():
@@ -56,8 +54,8 @@ def get_captions():
 
 
 # ---------- REFERENCE Module ----------
-ref_grid = figuregen.Grid(1,1)
-reference = ref_grid.get_element(0,0).set_image(figuregen.PNG(ref_img))
+ref_grid = fig.Grid(1,1)
+reference = ref_grid.get_element(0,0).set_image(fig.PNG(ref_img))
 
 # marker
 for crop in crops:
@@ -67,30 +65,39 @@ for crop in crops:
 ref_grid.set_title('top', 'Pool')
 
 # layout
-ref_layout = ref_grid.get_layout().set_padding(top=0.1, right=0.5)
-ref_layout.set_title('top', field_size_mm=6., offset_mm=0.2, fontsize=8)
+ref_layout = ref_grid.layout
+ref_layout.padding[fig.TOP] = 0.1
+ref_layout.padding[fig.RIGHT] = 0.5
+ref_layout.titles[fig.TOP] = fig.TextFieldLayout(size=6., offset=0.2, fontsize=8)
 
 
 # ---------- COMPARE Module ----------
 num_rows = len(crops)
 num_cols = len(method_list)
-comp_grid = figuregen.Grid(num_rows, num_cols)
+comp_grid = fig.Grid(num_rows, num_cols)
 
-# set images
+def crop_image(img, crop_args):
+    img = image.crop(img, *crop_args)
+    img = image.zoom(img, 10)
+    return img
+
 for row in range(0,num_rows):
     for col in range(0,num_cols):
-        img = figuregen.PNG(get_image(method=method_list[col], crop_args=crops[row]))
+        img = fig.PNG(crop_image(get_image(method_list[col]), crops[row]))
         e = comp_grid.get_element(row, col).set_image(img)
 
 # titles
 comp_grid.set_col_titles('top', get_captions())
 
 # layout
-c_layout = comp_grid.get_layout().set_padding(top=0.1, right=0.5, row=0.4, column=0.4)
-c_layout.set_col_titles('top', field_size_mm=6., offset_mm=0.2, fontsize=8)
+c_layout = comp_grid.layout
+c_layout.padding[fig.TOP] = 0.1
+c_layout.row_space = 0.4
+c_layout.column_space = 0.4
+c_layout.column_titles[fig.TOP] = fig.TextFieldLayout(size=6., offset=0.2, fontsize=8)
 
 # ------ create figure --------
 if __name__ == "__main__":
-    figuregen.horizontal_figure([ref_grid, comp_grid], width_cm=15., filename=scene+'.pdf')
-    figuregen.horizontal_figure([ref_grid, comp_grid], width_cm=15., filename=scene+'.pptx')
-    figuregen.horizontal_figure([ref_grid, comp_grid], width_cm=15., filename=scene+'.html')
+    fig.horizontal_figure([ref_grid, comp_grid], width_cm=15., filename=scene+'.pdf')
+    fig.horizontal_figure([ref_grid, comp_grid], width_cm=15., filename=scene+'.pptx')
+    fig.horizontal_figure([ref_grid, comp_grid], width_cm=15., filename=scene+'.html')

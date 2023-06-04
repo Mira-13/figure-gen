@@ -1,5 +1,5 @@
-from typing import List
-from .default_layouts import layouts as _default_layout
+from typing import List, Self
+from .layout import GridLayout, TextFieldLayout, LEFT, TOP, BOTTOM, RIGHT
 from .element_data import *
 import copy
 import os
@@ -12,7 +12,7 @@ class GridError(Exception):
     def __init__(self, row, col, message):
         self.message = f"Error in row {row}, column {col}: {message}"
 
-def _transfer_position(position):
+def _map_position(position):
     if position == 'top':
         return 'north'
     if position == 'bottom':
@@ -27,107 +27,6 @@ def _transfer_position(position):
 
     raise Error('Incorrect position. Try: "top"/"left"/... or "north"/"west"/...')
 
-def _is_north_or_south(pos):
-    if pos in ['north', 'south', 'top', 'bottom']:
-        return True
-    return False
-
-class LayoutView:
-    '''
-    This class is used to make changes in a 'Grid' layout to be more user friendly.
-    '''
-
-    def __init__(self, grid):
-        self.layout = grid.data['layout']
-
-    def set_padding(self, top=None, left=None, bottom=None, right=None, column=None, row=None):
-        '''
-        unit: mm (float) for top/left/bottom/right, same for column/row
-        '''
-        if top is not None:
-            self.layout['padding']['north'] = top
-        if left is not None:
-            self.layout['padding']['west'] = left
-        if bottom is not None:
-            self.layout['padding']['south'] = bottom
-        if right is not None:
-            self.layout['padding']['east'] = right
-        if column is not None:
-            self.layout['column_space'] = column
-        if row is not None:
-            self.layout['row_space'] = row
-        return self
-
-    def _set_text_properties(self, field, position, field_size_mm, offset_mm=None, fontsize=None,
-                             txt_rotation=None, txt_color=None, line_space=None):
-        if _is_north_or_south(position):
-            field["height"] = field_size_mm
-        else:
-            field["width"] = field_size_mm
-
-        if offset_mm is not None:
-            field["offset"] = offset_mm
-        if txt_rotation is not None:
-            field["rotation"] = txt_rotation
-        if fontsize is not None:
-            field["fontsize"] = fontsize
-        if txt_color is not None:
-            field["text_color"] = txt_color
-        if line_space is not None:
-            field["line_space"] = line_space
-        return self
-
-    def set_caption(self, height_mm, offset_mm=None, fontsize=None, txt_rotation=None, txt_color=None, line_space=None):
-        '''
-        Writes text below/south (each) image of that grid.
-        '''
-        field = self.layout["element_config"]["captions"]["south"]
-        self._set_text_properties(field, 'south', height_mm, offset_mm, fontsize, txt_rotation, txt_color, line_space)
-        return self
-
-    def set_title(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None,
-                  txt_color=None, line_space=None, bg_color=None):
-        '''
-        Writes a grid/subfigure title.
-        '''
-
-        field = self.layout['titles'][_transfer_position(position)]
-        self._set_text_properties(field, position, field_size_mm, offset_mm, fontsize, txt_rotation,
-            txt_color, line_space)
-        if bg_color is not None:
-            field["background_color"] = bg_color
-        return self
-
-    def set_row_titles(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None,
-                       txt_color=None, line_space=None, bg_color=None):
-        field = self.layout['row_titles'][_transfer_position(position)]
-        self._set_text_properties(field, position, field_size_mm, offset_mm, fontsize, txt_rotation,
-            txt_color, line_space)
-        if bg_color is not None:
-            field["background_colors"] = bg_color
-        return self
-
-    def set_col_titles(self, position, field_size_mm, offset_mm=None, fontsize=None, txt_rotation=None,
-                       txt_color=None, line_space=None, bg_color=None):
-        field = self.layout['column_titles'][_transfer_position(position)]
-        self._set_text_properties(field, position, field_size_mm, offset_mm, fontsize, txt_rotation,
-            txt_color, line_space)
-        if bg_color is not None:
-            field["background_colors"] = bg_color
-        return self
-
-    def _set_field_size_if_not_set(self, component, pos, field_size_mm=5):
-        '''
-        Makes sure, that the corresponding field_size of new added content will be set (not zero) and, therefore,
-        visible for the user.
-        '''
-        if _is_north_or_south(pos):
-            field_size = component[pos]['height']
-        else:
-            field_size = component[pos]['width']
-        if field_size is None or field_size == 0:
-            self._set_text_properties(component[pos], pos, field_size_mm)
-
 class ElementView:
     '''
     A 'Grid' contains one or multiple elements depending on num_row and num_col.
@@ -138,7 +37,7 @@ class ElementView:
         self.elem = grid.data["elements"][row][col]
         self.row = row
         self.col = col
-        self.layout = grid.get_layout()
+        self.layout = grid.layout
 
     @property
     def image(self) -> ElementData:
@@ -213,7 +112,7 @@ class ElementView:
             raise Error('set_marker: invalid linewidth "'+str(linewidth_pt)+'". Please choose a positive linewidth_pt > 0.')
 
         try:
-            test = self.elem["crop_marker"][0]
+            _ = self.elem["crop_marker"][0]
         except:
             self.elem["crop_marker"] = []
 
@@ -231,7 +130,7 @@ class ElementView:
 
         # check if caption layout is already set, if not, set a field_size,
         # so that the user is not confused, why content isn't shown
-        self.layout._set_field_size_if_not_set(self.layout.layout['element_config']['captions'], pos='south', field_size_mm=6.)
+        self.layout._set_field_size_if_not_set(self.layout.layout['captions'], pos='south', field_size_mm=6.)
         return self
 
     def set_label(self, txt_content, pos, width_mm=10., height_mm=3.0, offset_mm=[1.0, 1.0],
@@ -282,11 +181,11 @@ class Grid:
         ''' Create an empty grid
         '''
         self.data = {
-            "elements": [[{} for i in range(num_cols)] for i in range(num_rows)],
+            "elements": [[{} for _ in range(num_cols)] for _ in range(num_rows)],
             "row_titles": {},
             "column_titles": {},
             "titles": {},
-            "layout": copy.deepcopy(_default_layout["grid"])
+            "layout": GridLayout()
         }
         self.rows = num_rows
         self.cols = num_cols
@@ -306,13 +205,10 @@ class Grid:
         return self[0, 0].image.aspect_ratio
 
     @property
-    def layout(self):
-        return self.get_layout()
+    def layout(self) -> GridLayout:
+        return self.data["layout"]
 
-    def get_layout(self):
-        return LayoutView(self)
-
-    def copy_layout(self, other: 'Grid') -> None:
+    def copy_layout(self, other: Self) -> None:
         ''' Copies the layout of another grid. Useful to quickly align paddings and font settings.
 
         Args:
@@ -321,7 +217,7 @@ class Grid:
         assert isinstance(other, Grid)
         self.data["layout"] = copy.deepcopy(other.data["layout"])
 
-    def set_title(self, position, txt_content) -> 'Grid':
+    def set_title(self, position, txt_content) -> Self:
         '''
         If the user has not specified the title size in the layout yet, it will be set to a default value of 6mm.
 
@@ -331,11 +227,12 @@ class Grid:
         Returns:
             This object (for chaining purposes)
         '''
-        pos = _transfer_position(position)
+        pos = _map_position(position)
         self.data["titles"][pos] = str(txt_content)
 
         # set a field_size (if not already done), so that the user is not confused, why content isn't shown
-        self.get_layout()._set_field_size_if_not_set(self.layout.layout['titles'], pos=pos, field_size_mm=6.)
+        if self.layout.titles[pos].size == 0:
+            self.layout.titles[pos].size = 6
         return self
 
     def set_row_titles(self, position: str, txt_list: list):
@@ -344,7 +241,7 @@ class Grid:
             position: string (valid: 'west'/'east' or 'right'/'left')
             txt_list: string list with one title for each row
         '''
-        pos = _transfer_position(position)
+        pos = _map_position(position)
         if pos in ['north', 'south']:
             raise Error("Invalid position for row_title. Try: 'west'/'east' or 'right'/'left'")
 
@@ -358,7 +255,8 @@ class Grid:
             self.data['row_titles'][pos]['content'] = txt_list
 
         # set a field_size (if not already done), so that the user is not confused, why content isn't shown
-        self.get_layout()._set_field_size_if_not_set(self.layout.layout['row_titles'], pos=pos, field_size_mm=3.)
+        if self.layout.row_titles[pos].size == 0:
+            self.layout.row_titles[pos].size = 3
         return self
 
     def set_col_titles(self, position, txt_list):
@@ -366,7 +264,7 @@ class Grid:
         position: string (valid: 'north'/'south' or 'top'/'bottom')
         txt_list: string list of num_cols
         '''
-        pos = _transfer_position(position)
+        pos = _map_position(position)
         if pos in ['west', 'east']:
             raise Error('Invalid position for column_title. Try: "north"/"south" or "top"/"bottom"')
         if not isinstance(txt_list, list):
@@ -381,7 +279,8 @@ class Grid:
             self.data['column_titles'][pos]['content'] = txt_list
 
          # set a field_size (if not already done), so that the user is not confused, why content isn't shown
-        self.get_layout()._set_field_size_if_not_set(self.layout.layout['column_titles'], pos=pos, field_size_mm=3.)
+        if self.layout.column_titles[pos].size == 0:
+            self.layout.column_titles[pos].size = 3
         return self
 
 from .backend import Backend
@@ -404,7 +303,7 @@ def _backend_from_filename(filename: str) -> Backend:
     else:
         raise ValueError(f"Could not derive backend from extension '{filename}'. Please specify.")
 
-def figure(grids: List[List[Grid]], width_cm: float, filename: str, backend: Backend = None):
+def figure(grids: List[List[Grid]], width_cm: float, filename: str, backend: Backend | None = None):
     """
     Grid rows: Creates a figure by putting grids next to each other, from left to right.
     Grid columns: stacks rows vertically.
@@ -419,7 +318,7 @@ def figure(grids: List[List[Grid]], width_cm: float, filename: str, backend: Bac
         backend = _backend_from_filename(filename)
     backend.generate(grids, width_cm * 10, filename)
 
-def horizontal_figure(grids, width_cm: float, filename, backend: Backend = None):
+def horizontal_figure(grids, width_cm: float, filename, backend: Backend | None = None):
     """
     Creates a figure by putting grids next to each other, from left to right.
     Aligns the height of the given grids such that they fit the given total width.

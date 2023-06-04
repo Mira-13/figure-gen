@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Sequence, Tuple
 from dataclasses import dataclass, field
 import os
 from .figuregen import *
@@ -25,15 +25,15 @@ class ImageComponent(Component):
     data: ElementData
     has_frame: bool
     frame_linewidth: float
-    frame_color: Tuple[float, float, float]
+    frame_color: Sequence[float]
 
 @dataclass
 class TextComponent(Component):
     content: str
     rotation: float
     fontsize: float
-    color: Tuple[float, float, float]
-    background_color: Tuple[float, float, float]
+    color: Sequence[float]
+    background_color: Sequence[float] | None
     type: str
     horizontal_alignment: str = "center"
     padding: calc.Size = field(default_factory=lambda: calc.Size(0, 0))
@@ -158,7 +158,7 @@ class Backend:
 
         return result
 
-    def _gen_label(self, img_pos_top, img_pos_left, img_width, img_height, cfg, label_pos) -> TextComponent:
+    def _gen_label(self, img_pos_top, img_pos_left, img_width, img_height, cfg, label_pos) -> TextComponent | None:
         try:
             cfg = cfg[label_pos]
         except KeyError:
@@ -285,8 +285,8 @@ class Backend:
         return images
 
     def gen_south_captions(self, grid: Grid, grid_bounds: Bounds, img_size: calc.Size) -> List[Component]:
-        layout = grid.layout.layout['element_config']['captions']['south']
-        if layout['height'] == 0:
+        layout = grid.layout.captions['south']
+        if layout.size == 0:
             return []
 
         captions = []
@@ -302,10 +302,10 @@ class Backend:
 
                 (top, left) = calc.south_caption_pos(grid, img_size, col_idx, row_idx)
                 bounds = Bounds(top + grid_bounds.top, left + grid_bounds.left,
-                    img_size.width_mm, layout['height'])
+                    img_size.width_mm, layout.size)
 
-                captions.append(TextComponent(bounds, -1, -1, row_idx, col_idx, txt_content, layout['rotation'],
-                    layout['fontsize'], layout['text_color'], [255, 255, 255], "caption", vertical_alignment="top"))
+                captions.append(TextComponent(bounds, -1, -1, row_idx, col_idx, txt_content, layout.rotation,
+                    layout.fontsize, layout.text_color, [255, 255, 255], "caption", vertical_alignment="top"))
 
         return captions
 
@@ -322,23 +322,23 @@ class Backend:
             if width == 0 or height == 0 or content == "":
                 continue
 
-            t = grid.layout.layout['titles'][direction]
-            titles.append(TextComponent(bounds, -1, -1, -1, -1, content, t['rotation'], t['fontsize'],
-                t['text_color'], t['background_color'], "title-" + direction))
+            t = grid.layout.titles[direction]
+            titles.append(TextComponent(bounds, -1, -1, -1, -1, content, t.rotation, t.fontsize,
+                t.text_color, self._compute_bg_colors(t.background_colors, 1)[0], "title-" + direction))
         return titles
 
-    def _compute_bg_colors(self, bg_color_properties, num):
-        if bg_color_properties is None: # no background color
-            return [None for i in range(num)]
-        elif not isinstance(bg_color_properties[0], list): # constant color for all
-            return [bg_color_properties for i in range(num)]
-        else: # individual background colors
+    def _compute_bg_colors(self, bg_color_properties, num) -> list[list[float] | None]:
+        if bg_color_properties is None:
+            return [None for _ in range(num)]
+        elif not hasattr(bg_color_properties[0], '__iter__'): # single constant color for all
+            return [bg_color_properties for _ in range(num)]
+        else:
             return bg_color_properties
 
-    def _gen_row_col_titles(self, direction: str, layout, num: int, pos_fn, contents: List[str], is_row):
+    def _gen_row_col_titles(self, direction: str, layout: dict[str, TextFieldLayout], num: int, pos_fn, contents: List[str], is_row):
         titles = []
         if calc.size_of(layout, direction)[0] != 0.0:
-            bg_colors = self._compute_bg_colors(layout[direction]['background_colors'], num)
+            bg_colors = self._compute_bg_colors(layout[direction].background_colors, num)
             t = layout[direction]
 
             for i in range(num):
@@ -351,11 +351,11 @@ class Backend:
                     continue
 
                 if is_row:
-                    titles.append(TextComponent(bounds, -1, -1, i, -1, txt, t['rotation'], t['fontsize'],
-                        t['text_color'], bg_colors[i], "rowtitle-" + direction))
+                    titles.append(TextComponent(bounds, -1, -1, i, -1, txt, t.rotation, t.fontsize,
+                        t.text_color, bg_colors[i], "rowtitle-" + direction))
                 else:
-                    titles.append(TextComponent(bounds, -1, -1, -1, i, txt, t['rotation'], t['fontsize'],
-                        t['text_color'], bg_colors[i], "coltitle-" + direction))
+                    titles.append(TextComponent(bounds, -1, -1, -1, i, txt, t.rotation, t.fontsize,
+                        t.text_color, bg_colors[i], "coltitle-" + direction))
         return titles
 
     def gen_row_titles(self, grid: Grid, grid_bounds: Bounds, img_size: calc.Size) -> List[Component]:
@@ -369,7 +369,7 @@ class Backend:
                 continue
 
             contents = grid.data['row_titles'][direction]['content']
-            t = self._gen_row_col_titles(direction, grid.layout.layout['row_titles'], grid.rows, pos_fn,
+            t = self._gen_row_col_titles(direction, grid.layout.row_titles, grid.rows, pos_fn,
                 contents, True)
             titles.extend(t)
 
@@ -386,7 +386,7 @@ class Backend:
                 continue
 
             contents = grid.data['column_titles'][direction]['content']
-            t = self._gen_row_col_titles(direction, grid.layout.layout['column_titles'], grid.cols, pos_fn,
+            t = self._gen_row_col_titles(direction, grid.layout.column_titles, grid.cols, pos_fn,
                 contents, False)
             titles.extend(t)
 

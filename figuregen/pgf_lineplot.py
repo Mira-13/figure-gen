@@ -478,6 +478,6 @@ class PgfLinePlot(Plot):
 
     def make_raster(self, width, height, filename):
         fn = self.make_pdf(width, height, filename)
-        from pdf2image import convert_from_path
+        from pdf2image.pdf2image import convert_from_path
         convert_from_path(fn, dpi=self._dpi, transparent=True, fmt="png", output_file=filename, single_file=True)
         return filename + ".png"

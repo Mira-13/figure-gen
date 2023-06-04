@@ -1,8 +1,17 @@
-import figuregen
-from figuregen.util import image
 import os
 import simpleimageio
 import json
+
+# ------------------------------------------
+# For development / testing only: add parent directory to python path so we can load the package without installing it
+# DO NOT use this if you have installed figuregen via pip
+import sys
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+# -------------------------------------------
+
+import figuregen as fig
+from figuregen.util import image
+
 
 # ---------- Data Gathering ----------
 idx = 2 # scene_idx, only pool scene will be in repo included
@@ -103,9 +112,9 @@ def get_plot_data(scene, method_list):
     ]
 
 # ---------- REFERENCE Module ----------
-ref_grid = figuregen.Grid(1,1)
+ref_grid = fig.Grid(1,1)
 ref_img = get_image(scene[idx], seconds[idx])
-reference = ref_grid.get_element(0,0).set_image(figuregen.PNG(ref_img))
+reference = ref_grid.get_element(0,0).set_image(fig.PNG(ref_img))
 
 # marker
 for crop in crops[idx]:
@@ -115,28 +124,34 @@ for crop in crops[idx]:
 ref_grid.set_title('south', scene[idx].replace('-',' ').title())
 
 # layout
-ref_layout = ref_grid.get_layout().set_padding(bottom=0.1, right=0.5)
-ref_layout.set_title('south', field_size_mm=7., offset_mm=0.5, fontsize=8)
+l = ref_grid.layout
+l.padding[fig.BOTTOM] = 0.1
+l.padding[fig.RIGHT] = 0.5
+l.titles[fig.BOTTOM] = fig.TextFieldLayout(size=7., offset=0.5, fontsize=8)
 
 
 # ---------- COMPARE Module ----------
 num_rows = len(crops[idx])
 num_cols = len(method_list)
-comp_grid = figuregen.Grid(num_rows, num_cols)
+comp_grid = fig.Grid(num_rows, num_cols)
 
 # set images
 for row in range(0,num_rows):
     for col in range(0,num_cols):
         img = get_image(scene[idx], seconds[idx], method=method_list[col], cropbox=crops[idx][row])
         e = comp_grid.get_element(row, col)
-        e.set_image(figuregen.PNG(img))
+        e.set_image(fig.PNG(img))
 
 # titles
-comp_grid.set_col_titles('south', get_captions(scene[idx], method_titles, baseline, seconds[idx]))
+comp_grid.set_col_titles(fig.BOTTOM, get_captions(scene[idx], method_titles, baseline, seconds[idx]))
 
 # layout
-c_layout = comp_grid.get_layout().set_padding(bottom=0.1, right=0.5, row=0.5, column=0.5)
-c_layout.set_col_titles('south', field_size_mm=7., offset_mm=0.5, fontsize=8, bg_color=colors)
+l = comp_grid.layout
+l.padding[fig.BOTTOM] = ref_grid.layout.padding[fig.BOTTOM]
+l.padding[fig.RIGHT] = ref_grid.layout.padding[fig.RIGHT]
+l.row_space = 0.5
+l.column_space = 0.5
+l.column_titles[fig.BOTTOM] = fig.TextFieldLayout(size=7., offset=0.5, fontsize=8, background_colors=colors)
 
 # ---------- PLOT Module ----------
 xticks = [
@@ -149,7 +164,7 @@ vline_positions = [
     (13.97, 18.62)
 ]
 
-plot = figuregen.MatplotLinePlot(aspect_ratio=1.1, data=get_plot_data(scene[idx], method_list))
+plot = fig.MatplotLinePlot(aspect_ratio=1.1, data=get_plot_data(scene[idx], method_list))
 plot.set_colors(colors)
 
 plot.set_axis_label('x', "Time [s]")
@@ -161,16 +176,16 @@ plot.set_axis_properties('y', ticks=[0.01, 0.1, 1.0])
 plot.set_v_line(pos=vline_positions[idx][0], color=colors[baseline], linestyle=(0,(4,6)), linewidth_pt=0.6)
 plot.set_v_line(pos=vline_positions[idx][1], color=colors[3], linestyle=(-5,(4,6)), linewidth_pt=0.6)
 
-plot_module = figuregen.Grid(1,1)
+plot_module = fig.Grid(1,1)
 plot_module.get_element(0,0).set_image(plot)
 
 # ---- TOGETHER ----
 modules = [ref_grid, comp_grid, plot_module]
 
 if __name__ == "__main__":
-    figuregen.horizontal_figure(modules, width_cm=18., filename=scene[idx]+'-siggraph.pdf')
-    figuregen.horizontal_figure(modules, width_cm=18., filename=scene[idx]+'-siggraph.pptx')
-    figuregen.horizontal_figure(modules, width_cm=18., filename=scene[idx]+'-siggraph.html')
+    fig.horizontal_figure(modules, width_cm=18., filename=scene[idx]+'-siggraph.pdf')
+    fig.horizontal_figure(modules, width_cm=18., filename=scene[idx]+'-siggraph.pptx')
+    fig.horizontal_figure(modules, width_cm=18., filename=scene[idx]+'-siggraph.html')
 
     try:
         from figuregen.util import jupyter

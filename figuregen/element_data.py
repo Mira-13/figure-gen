@@ -1,3 +1,4 @@
+import shutil
 import cv2
 import os
 import base64
@@ -93,7 +94,7 @@ class Image(ElementData):
 class PDF(Image):
     ''' Loads and embeds the first page of a pdf file.
 
-    Additional dependencies: PyPDF2 and pdf2image (requires poppler to be installed and in the PATH)
+    Additional dependencies: pypdf and pdf2image (the latter requires poppler to be installed and in the PATH)
     '''
     def __init__(self, filename, dpi=300, use_jpeg=False):
         self.file = filename
@@ -103,14 +104,14 @@ class PDF(Image):
 
     @Image.aspect_ratio.getter
     def aspect_ratio(self):
-        from PyPDF2 import PdfFileReader
-        box = PdfFileReader(open(self.filename, "rb")).getPage(0).mediaBox
-        width_pt = box.upperRight[0]
-        height_pt = box.upperRight[1]
+        from pypdf import PdfReader
+        box = PdfReader(open(self.file, "rb")).pages[0].mediabox
+        width_pt = box.upper_right[0]
+        height_pt = box.upper_right[1]
         return float(float(height_pt) / float(width_pt))
 
     def convert(self):
-        from pdf2image import convert_from_path
+        from pdf2image.pdf2image import convert_from_path
         images = convert_from_path(self.file, dpi=self.dpi, last_page=1)
         return np.array(images[0])
 
@@ -120,7 +121,8 @@ class PDF(Image):
         return base_filename + self.ext
 
     def make_pdf(self, width, height, base_filename) -> str:
-        return self.file
+        shutil.copy(self.file, base_filename + ".pdf")
+        return base_filename + ".pdf"
 
 class RasterImage(Image):
     ''' Abstract base class for all supported raster image types. '''

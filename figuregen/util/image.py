@@ -2,12 +2,7 @@ import numpy as np
 
 from simpleimageio import lin_to_srgb, luminance, exposure, average_color_channels, zoom
 
-def crop(img, *crop_args):
-    '''
-    crop_args: list or tuple of 4 elements: left, top, width, height.
-    '''
-    left, top, width, height = crop_args
-
+def crop(img, left, top, width, height):
     assert top >= 0 and left >= 0, "crop is outside the image"
     assert left + width <= img.shape[1], "crop is outside the image"
     assert top + height <= img.shape[0], "crop is outside the image"
@@ -64,8 +59,10 @@ class SplitImage:
             '''
             self.degree = degree
             if self.degree > 45 or self.degree < -45:
-                print('Warning: SplitImage should get a degree between -45° and 45°, else the weights might not work like intended.' /
-                'You might want to switch vertical from True to False or reverse.')
+                print(
+                    'Warning: SplitImage should get a degree between -45° and 45°, else the weights might not work as intended. '
+                    f'Try setting "vertical = {not vertical}" instead.'
+                )
             self.is_vertical = vertical
             self.num_img = len(list_img)
             assert self.num_img > 1, "at least two images are required"

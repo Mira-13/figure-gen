@@ -2,7 +2,7 @@ from typing import Tuple, List
 import numpy as np
 
 from . import image
-from .. import figuregen
+from .. import figuregen as fig
 
 class CropComparison:
     """ Matrix of cropped and zoomed images next to a reference image.
@@ -46,7 +46,7 @@ class CropComparison:
         ]
 
         # Create the grid for the reference image
-        self._ref_grid = figuregen.Grid(1, 1)
+        self._ref_grid = fig.Grid(1, 1)
         self._ref_grid[0, 0].image = self.tonemap(reference_image)
         for crop in crops:
             self._ref_grid[0, 0].set_marker(crop.marker_pos, crop.marker_size, color=[255,255,255])
@@ -55,7 +55,7 @@ class CropComparison:
             self._ref_grid.set_col_titles("bottom", [scene_name])
 
         # Create the grid with the crops
-        self._crop_grid = figuregen.Grid(num_cols=len(method_images) + 1, num_rows=len(crops))
+        self._crop_grid = fig.Grid(num_cols=len(method_images) + 1, num_rows=len(crops))
         for row in range(len(crops)):
             self._crop_grid[row, 0].image = self.tonemap(crops[row].crop(reference_image))
             for col in range(len(method_images)):
@@ -65,19 +65,22 @@ class CropComparison:
         error_strings = [ f"{self.error_metric_name}" ]
         error_strings.extend([ self.error_string(i, self.errors) for i in range(len(self.errors)) ])
         self._crop_grid.set_col_titles("bottom", error_strings)
-        self._crop_grid.layout.set_padding(column=1, row=1)
-        self._crop_grid.layout.set_col_titles("bottom", fontsize=8, field_size_mm=2.8, offset_mm=0.5)
+
+        crop_layout = self._crop_grid.layout
+        crop_layout.row_space = 1
+        crop_layout.column_space = 1
+        crop_layout.titles[fig.BOTTOM] = fig.TextFieldLayout(fontsize=8, size=2.8, offset=0.5)
 
         # If given, show method names on top
         if method_names is not None:
             self._crop_grid.set_col_titles("top", method_names)
-            self._crop_grid.layout.set_col_titles("top", fontsize=8, field_size_mm=2.8, offset_mm=0.25)
+            crop_layout.column_titles[fig.TOP] = fig.TextFieldLayout(fontsize=8, size=2.8, offset=0.25)
 
         self._ref_grid.copy_layout(self._crop_grid)
-        self._ref_grid.layout.set_padding(right=1)
+        self._ref_grid.layout.padding[fig.RIGHT] = 1
 
     def tonemap(self, img):
-        return figuregen.JPEG(image.lin_to_srgb(img), quality=80)
+        return fig.JPEG(image.lin_to_srgb(img), quality=80)
 
     @property
     def error_metric_name(self) -> str:
@@ -112,7 +115,7 @@ class CropComparison:
         return self._errors
 
     @property
-    def figure_row(self) -> List[figuregen.Grid]:
+    def figure_row(self) -> List[fig.Grid]:
         return [ self._ref_grid, self._crop_grid ]
 
 class FullSizeWithCrops:
@@ -162,7 +165,7 @@ class FullSizeWithCrops:
         images.extend(method_images)
 
         # Create the grid for the reference image
-        self._ref_grid = [ figuregen.Grid(1, 1) for _ in range(len(images)) ]
+        self._ref_grid = [ fig.Grid(1, 1) for _ in range(len(images)) ]
         for i in range(len(images)):
             self._ref_grid[i][0, 0].image = self.tonemap(images[i])
             for crop in crops:
@@ -171,7 +174,7 @@ class FullSizeWithCrops:
         # Create the grid with the crops
         if self._crops_below:
             self._crop_grid = [
-                figuregen.Grid(num_cols=len(crops), num_rows=1)
+                fig.Grid(num_cols=len(crops), num_rows=1)
                 for _ in range(len(images))
             ]
             for i in range(len(images)):
@@ -179,7 +182,7 @@ class FullSizeWithCrops:
                     self._crop_grid[i][0, col].image = self.tonemap(crops[col].crop(images[i]))
         else:
             self._crop_grid = [
-                figuregen.Grid(num_cols=1, num_rows=len(crops))
+                fig.Grid(num_cols=1, num_rows=len(crops))
                 for _ in range(len(images))
             ]
             for i in range(len(images)):
@@ -188,15 +191,15 @@ class FullSizeWithCrops:
 
         # Add padding to the right of all but the last image
         for i in range(len(images) - 1):
-            self._ref_grid[i].layout.set_padding(right=1)
-            self._crop_grid[i].layout.set_padding(right=1)
+            self._ref_grid[i].layout.padding[fig.RIGHT] = 1
+            self._crop_grid[i].layout.padding[fig.RIGHT] = 1
             if self._crops_below:
-                self._ref_grid[i].layout.set_padding(bottom=1)
+                self._ref_grid[i].layout.padding[fig.BOTTOM] = 1
 
         if self._crops_below:
-            self._ref_grid[-1].layout.set_padding(bottom=1)
+            self._ref_grid[-1].layout.padding[fig.BOTTOM] = 1
         else:
-            self._ref_grid[-1].layout.set_padding(right=1)
+            self._ref_grid[-1].layout.padding[fig.RIGHT] = 1
 
         # Put error values underneath the columns
         if self._crops_below:
@@ -206,7 +209,7 @@ class FullSizeWithCrops:
                 else:
                     err = self.error_metric_name
                 self._crop_grid[i].set_title("bottom", method_names[i] + "\\\\" + err)
-                self._crop_grid[i].layout.set_title("bottom", 6, 1, 8)
+                self._crop_grid[i].layout.titles[fig.BOTTOM] = fig.TextFieldLayout(size=6, offset=1, fontsize=8)
         else:
             pass # TODO
 
@@ -228,7 +231,7 @@ class FullSizeWithCrops:
         # TODO set appropriate paddings for alignment etc
 
     def tonemap(self, img):
-        return figuregen.JPEG(image.lin_to_srgb(img), quality=80)
+        return fig.JPEG(image.lin_to_srgb(img), quality=80)
 
     @property
     def error_metric_name(self) -> str:
@@ -263,7 +266,7 @@ class FullSizeWithCrops:
         return self._errors
 
     @property
-    def figure(self) -> List[List[figuregen.Grid]]:
+    def figure(self) -> List[List[fig.Grid]]:
         if self._crops_below:
             return [ self._ref_grid, self._crop_grid ]
         else:

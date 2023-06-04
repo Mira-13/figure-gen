@@ -30,12 +30,13 @@ images = [
 
 # ---- GRIDS ----
 grid = figuregen.Grid(1, 1)
-grid.get_layout().set_padding(right=1.5, bottom=1.0)
+grid.layout.padding[figuregen.RIGHT] = 1.5
+grid.layout.padding[figuregen.BOTTOM] = 1
 e1 = grid.get_element(0,0).set_image(images[0])
 
 grid2 = figuregen.Grid(1, 1)
 e2 = grid2.get_element(0,0).set_image(images[1])
-grid2.get_layout().set_padding(bottom=1.0)
+grid2.layout.padding[figuregen.BOTTOM] = 1
 
 all_grids = [
     [grid, grid],
