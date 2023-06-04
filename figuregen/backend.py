@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import os
 from .figuregen import *
 from . import calculate as calc
@@ -36,7 +36,7 @@ class TextComponent(Component):
     background_color: Tuple[float, float, float]
     type: str
     horizontal_alignment: str = "center"
-    padding: calc.Size = calc.Size(0, 0)
+    padding: calc.Size = field(default_factory=lambda: calc.Size(0, 0))
     vertical_alignment: str = "center"
 
 @dataclass
