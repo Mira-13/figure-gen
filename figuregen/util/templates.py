@@ -69,7 +69,7 @@ class CropComparison:
         crop_layout = self._crop_grid.layout
         crop_layout.row_space = 1
         crop_layout.column_space = 1
-        crop_layout.titles[fig.BOTTOM] = fig.TextFieldLayout(fontsize=8, size=2.8, offset=0.5)
+        crop_layout.column_titles[fig.BOTTOM] = fig.TextFieldLayout(fontsize=8, size=2.8, offset=0.5)
 
         # If given, show method names on top
         if method_names is not None:
