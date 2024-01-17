@@ -1,4 +1,12 @@
 import simpleimageio as sio
+
+# ------------------------------------------
+# For development / testing only: add parent directory to python path so we can load the package without installing it
+# DO NOT use this if you have installed figuregen via pip
+import sys, os
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+# -------------------------------------------
+
 import figuregen
 from figuregen.util.templates import CropComparison
 from figuregen.util.image import Cropbox

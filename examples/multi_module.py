@@ -14,7 +14,7 @@ images = [
 
 # ---- Grid Module ----
 grid0 = figuregen.Grid(1, 1)
-grid0.get_layout().set_padding(right=0.5)
+grid0.layout.set_padding(right=0.5)
 e0 = grid0.get_element(0,0).set_image(images[1])
 e0.set_frame(0.3, [0,0,0])
 e0.set_marker(pos=[2,12], size=[10,10], color=[155, 155, 155], linewidth_pt=0.6)
@@ -22,7 +22,7 @@ e0.set_marker(pos=[15,1], size=[10,15], color=[186, 98, 82], linewidth_pt=0.6)
 
 # ---- Grid Module ----
 grid1 = figuregen.Grid(2, 2)
-layout1 = grid1.get_layout()
+layout1 = grid1.layout
 layout1.set_padding(top=0.2, right=0.5)
 
 # fill grid with image data
@@ -33,10 +33,11 @@ for row in range(2):
         e.set_frame(0.3, [0,0,0])
 
 grid1.set_col_titles('south', ['Blue', 'Yellow'])
-layout1.set_col_titles('south', field_size_mm=4., offset_mm=0.2, bg_color=[[200, 200, 255], [255, 255, 200]])
+layout1.column_titles[figuregen.BOTTOM] = figuregen.TextFieldLayout(size=4., offset=0.2, background_colors=[[200, 200, 255], [255, 255, 200]])
 
 grid1.set_row_titles('east', ['Awesome 1', 'Awesome 2'])
-layout1.set_row_titles('east', field_size_mm=3. ,bg_color=[186, 98, 82], txt_color=[255,255,255])
+layout1.row_titles[figuregen.RIGHT] = figuregen.TextFieldLayout(3., background_colors=(186, 98, 82),
+                                                                text_color=(255,255,255), rotation=-90)
 
 grid1.set_title('north', 'Top Title')
 

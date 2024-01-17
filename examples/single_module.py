@@ -1,4 +1,12 @@
 import numpy as np
+
+# ------------------------------------------
+# For development / testing only: add parent directory to python path so we can load the package without installing it
+# DO NOT use this if you have installed figuregen via pip
+import sys, os
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+# -------------------------------------------
+
 import figuregen
 import unittest
 
@@ -32,8 +40,7 @@ for row in range(n_rows):
         img = figuregen.PNG(images[row])
         grid.get_element(row,col).set_image(img)
 
-layout = grid.get_layout()
-layout.set_padding(top=0.5, bottom=1.5)
+grid.layout.set_padding(top=0.5, bottom=1.5)
 
 # marker
 grid.get_element(0,0).set_marker(pos=[32,12], size=[15,10], color=colors[4])
@@ -50,7 +57,7 @@ grid.get_element(0,2).set_caption('caption c)')
 grid.get_element(1,0).set_caption('caption d)')
 grid.get_element(1,1).set_caption('caption e)')
 grid.get_element(1,2).set_caption('caption f)')
-layout.set_caption(height_mm=4.0, fontsize=9, txt_color=[170,170,170])
+grid.layout.captions[figuregen.BOTTOM] = figuregen.TextFieldLayout(size=4.0, fontsize=9, text_color=(170,170,170))
 
 # labels (examples, each element can have in total 6 labels on each valid position)
 e4 = grid.get_element(1,0)
@@ -63,18 +70,20 @@ e4.set_label("top\\\\left", pos='top_left', width_mm=8., height_mm=7.0, offset_m
 
 # grid specific titles
 grid.set_title('top', 'Top Title')
-layout.set_title('top', 5., offset_mm=2.,fontsize=12, bg_color=colors[5], txt_color=[255,255,255])
+grid.layout.titles[figuregen.TOP] = figuregen.TextFieldLayout(5., offset=2.,fontsize=12,
+                                                              background_colors=colors[5], text_color=(255,255,255))
 
 grid.set_title('south', 'Bottom Title') #use defaults
 
 grid.set_title('right', 'Right Title') #use defaults
 
 grid.set_title('left', 'Left Title')
-layout.set_title('left', 4., offset_mm=2.,fontsize=12)
+grid.layout.titles[figuregen.LEFT] = figuregen.TextFieldLayout(4., offset=2., fontsize=12, rotation=90)
 
 # Row and column titles
 grid.set_row_titles('left', ['Row titles', 'are better'])
-layout.set_row_titles('left', 10., offset_mm=1., fontsize=9, txt_rotation=0, bg_color=[colors[4],colors[2]])
+grid.layout.row_titles[figuregen.LEFT] = figuregen.TextFieldLayout(10., offset=1., fontsize=9, rotation=0,
+                                                                   background_colors=[colors[4],colors[2]])
 
 grid.set_col_titles('north', ['Column titles', 'are', 'the best'])
 #layout.set_col_titles('north', 10., offset_mm=1., fontsize=9, bg_color=[200, 180, 220])

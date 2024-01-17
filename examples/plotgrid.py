@@ -92,7 +92,7 @@ def make_row(method_name, title, mark_strata=False, problem_range=None, show_tit
 
     # Add titles
     grid.set_row_titles("left", [title])
-    grid.get_layout().set_row_titles("left", 3, offset_mm=0.5, fontsize=8)
+    grid.layout.row_titles[figuregen.LEFT] = figuregen.TextFieldLayout(size=3, offset=0.5, fontsize=8, rotation=90)
     if show_titles:
         grid.set_col_titles("bottom", [
             "a) Integrand and densities",
@@ -102,13 +102,13 @@ def make_row(method_name, title, mark_strata=False, problem_range=None, show_tit
             "e) Var-aware",
             "f) Optimal weights"
         ])
-        grid.get_layout().set_col_titles("bottom", 6, offset_mm=0.5, fontsize=8)
+        grid.layout.column_titles[figuregen.BOTTOM] = figuregen.TextFieldLayout(size=6, offset=0.5, fontsize=8)
 
     grid.set_col_titles("top", variance_captions)
-    grid.get_layout().set_col_titles("top", 3, offset_mm=0.5, fontsize=8)
+    grid.layout.column_titles[figuregen.TOP] = figuregen.TextFieldLayout(size=3, offset=0.5, fontsize=8)
 
     # Add space between the rows (needs to be removed for the last one)
-    grid.get_layout().set_padding(bottom=2)
+    grid.layout.set_padding(bottom=2)
 
     return [grid]
 
@@ -119,7 +119,7 @@ rows = [
 ]
 
 # Remove bottom padding from the last row
-rows[-1][0].get_layout().set_padding(bottom=0)
+rows[-1][0].layout.padding[figuregen.BOTTOM] = 0
 
 if __name__ == "__main__":
     import time

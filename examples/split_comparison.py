@@ -43,9 +43,9 @@ for row in range(n_rows):
 top_grid.set_col_titles('top', ['Horizontal Split', 'Vertical Split', 'C)', 'D)'])
 
 # LAYOUT: Specify paddings (unit: mm)
-top_lay = top_grid.get_layout()
+top_lay = top_grid.layout
 top_lay.set_padding(column=1.0, right=1.5)
-top_lay.set_col_titles('top', field_size_mm=5.0)
+top_lay.column_titles[figuregen.TOP].size = 5.0
 
 if __name__ == "__main__":
     width_cm = 15
