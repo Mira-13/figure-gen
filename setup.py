@@ -24,7 +24,7 @@ setuptools.setup(
         'python-pptx',
         'simpleimageio',
         'opencv-python',
-        'texsnip>=1.0.2'
+        'texsnip>=1.1.0'
     ],
     zip_safe=False,
     include_package_data=True
