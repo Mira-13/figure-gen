@@ -130,7 +130,8 @@ class ElementView:
 
         # check if caption layout is already set, if not, set a field_size,
         # so that the user is not confused, why content isn't shown
-        self.layout._set_field_size_if_not_set(self.layout.layout['captions'], pos='south', field_size_mm=6.)
+        if self.layout.captions[BOTTOM].size == 0:
+            self.layout.captions[BOTTOM].size = 6
         return self
 
     def set_label(self, txt_content, pos, width_mm=10., height_mm=3.0, offset_mm=[1.0, 1.0],
