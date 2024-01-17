@@ -8,7 +8,7 @@ class TextFieldLayout:
     offset: float = 0
     """ Space between this field and the corresponding grid component (e.g., distance between an image and its caption), in mm """
     rotation: int = 0
-    """ Rotation of the text in degrees. Some backends might only support +-90 """
+    """ Counter clockwise rotation of the text in degrees. Some backends might only support +-90 """
     fontsize: float = 8
     """ Fontsize in pt """
     line_space: float = 1.2
@@ -16,7 +16,7 @@ class TextFieldLayout:
     text_color: Tuple[float, float, float] = (0, 0, 0)
     """ Color (sRGB, from 0 to 255) of the text """
     background_colors: Sequence[Sequence[float]] | Sequence[float] | None = None
-    """ Background colors (sRGB, from 0 to 255) of the text, can be a list of colors, e.g., one per row """
+    """ Background colors (sRGB, from 0 to 255) of the text, can be a list of colors, e.g., one per row, or a single color that will be applied to all """
 
 TOP = "north"
 LEFT = "west"
