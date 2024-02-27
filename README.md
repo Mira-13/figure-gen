@@ -15,7 +15,7 @@ We support _grids_ (images that are grid-like arranged) and simple _line-plottin
 ## Dependencies
 
 Mandatory:
-- Python 3.6+ with opencv-python and simpleimageio
+- Python 3.11+ with opencv-python, simpleimageio, and texsnip
 
 Optional:
 - For the .pdf backend: pdflatex (in path) with at least: tikz, calc, standalone, fontenc, libertine, inputenc.
