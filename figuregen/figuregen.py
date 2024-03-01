@@ -3,6 +3,7 @@ from .layout import GridLayout, TextFieldLayout, LEFT, TOP, BOTTOM, RIGHT
 from .element_data import *
 import copy
 import os
+from dataclasses import dataclass
 
 class Error(Exception):
     def __init__(self, message):
@@ -176,6 +177,22 @@ class ElementView:
             "padding_mm": txt_padding_mm
         }
 
+    def validate(self):
+        if not "image" in self.elem:
+            raise ValidationError(-1, -1, -1, -1, "Image not set")
+
+
+@dataclass
+class ValidationError(Exception):
+    grid_row: int
+    grid_col: int
+    figure_row: int
+    figure_col: int
+    message: str
+
+    def __str__(self):
+        return f"Error in grid (row = {self.figure_row}, col = {self.figure_col}), element (row = {self.grid_row}, col = {self.grid_col}): {self.message}"
+
 
 class Grid:
     def __init__(self, num_rows, num_cols):
@@ -284,6 +301,17 @@ class Grid:
             self.layout.column_titles[pos].size = 3
         return self
 
+    def validate(self):
+        for row in range(self.rows):
+            for col in range(self.cols):
+                try:
+                    self[row, col].validate()
+                except ValidationError as error:
+                    error.grid_col = col
+                    error.grid_row = row
+                    raise error
+
+
 from .backend import Backend
 from .tikz import TikzBackend
 from .pdflatex import PdfBackend
@@ -317,6 +345,23 @@ def figure(grids: List[List[Grid]], width_cm: float, filename: str, backend: Bac
     """
     if backend is None:
         backend = _backend_from_filename(filename)
+
+    errors: List[ValidationError] = []
+    for row in range(len(grids)):
+        for col in range(len(grids[row])):
+            try:
+                grids[row][col].validate()
+            except ValidationError as err:
+                err.figure_col = col
+                err.figure_row = row
+                errors.append(err)
+
+    if len(errors) > 0:
+        print("Figure data is invalid:")
+        for err in errors:
+            print(f" - {err}")
+        return
+
     backend.generate(grids, width_cm * 10, filename)
 
 def horizontal_figure(grids, width_cm: float, filename, backend: Backend | None = None):
