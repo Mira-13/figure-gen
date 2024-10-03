@@ -1,5 +1,4 @@
 import shutil
-import cv2
 import os
 import base64
 import simpleimageio
@@ -113,11 +112,11 @@ class PDF(Image):
     def convert(self):
         from pdf2image.pdf2image import convert_from_path
         images = convert_from_path(self.file, dpi=self.dpi, last_page=1)
-        return np.array(images[0])
+        return np.array(images[0]) / 255
 
     def make_raster(self, width, height, base_filename) -> str:
         img = self.convert()
-        cv2.imwrite(base_filename + self.ext, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+        simpleimageio.write(base_filename + self.ext, simpleimageio.srgb_to_lin(img))
         return base_filename + self.ext
 
     def make_pdf(self, width, height, base_filename) -> str:
@@ -134,7 +133,7 @@ class RasterImage(Image):
 
         if isinstance(raw_image_or_filename, str):
             self.file = raw_image_or_filename
-            self.raw = cv2.imread(self.file)
+            self.raw = simpleimageio.lin_to_srgb(simpleimageio.read(self.file))
             self.width = self.raw.shape[1]
             self.height = self.raw.shape[0]
         else:
@@ -156,11 +155,7 @@ class RasterImage(Image):
         return float(self.height / float(self.width))
 
     def convert(self, out_filename):
-        if self.file is None:
-            clipped = simpleimageio.to_byte_image(self.raw)
-            cv2.imwrite(out_filename, cv2.cvtColor(clipped.astype('uint8'), cv2.COLOR_RGB2BGR))
-        else:
-            cv2.imwrite(out_filename, self.raw)
+        simpleimageio.write(out_filename, simpleimageio.srgb_to_lin(self.raw))
 
 class PNG(RasterImage):
     ''' A raster image that will be converted to .png '''
@@ -182,9 +177,7 @@ class JPEG(RasterImage):
 
     def make_raster(self, width, height, base_filename) -> str:
         filename = base_filename + self.ext
-        clipped = simpleimageio.to_byte_image(self.raw)
-        cv2.imwrite(filename, cv2.cvtColor(clipped.astype('uint8'), cv2.COLOR_RGB2BGR),
-            [int(cv2.IMWRITE_JPEG_QUALITY), self.quality])
+        simpleimageio.write(filename, simpleimageio.srgb_to_lin(self.raw), self.quality)
         return filename
 
 class HTML(Image):

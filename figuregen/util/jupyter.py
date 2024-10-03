@@ -3,7 +3,7 @@ from pdf2image import convert_from_path
 import IPython
 from IPython.display import Image
 from IPython.display import display
-import cv2
+import simpleimageio
 import numpy as np
 
 # HTML imports
@@ -16,7 +16,7 @@ def loadpdf(pdfname, dpi=1000):
 
 def convert(pdfname, dpi=1000):
     img = loadpdf(pdfname, dpi)
-    cv2.imwrite(pdfname.replace('.pdf', '.png'), cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+    simpleimageio.write(pdfname.replace('.pdf', '.png'), simpleimageio.srgb_to_lin(img / 255))
     return pdfname.replace('.pdf', '.png')
 
 def displaypdf(pdfname):

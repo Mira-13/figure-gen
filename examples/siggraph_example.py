@@ -151,7 +151,7 @@ l.padding[fig.BOTTOM] = ref_grid.layout.padding[fig.BOTTOM]
 l.padding[fig.RIGHT] = ref_grid.layout.padding[fig.RIGHT]
 l.row_space = 0.5
 l.column_space = 0.5
-l.column_titles[fig.BOTTOM] = fig.TextFieldLayout(size=7., offset=0.5, fontsize=8, background_colors=colors)
+l.column_titles[fig.BOTTOM] = fig.TextFieldLayout(size=7., offset=0.5, fontsize=8, background_colors=colors, vertical_alignment="center")
 
 # ---------- PLOT Module ----------
 xticks = [
