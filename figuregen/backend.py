@@ -305,7 +305,8 @@ class Backend:
                     img_size.width_mm, layout.size)
 
                 captions.append(TextComponent(bounds, -1, -1, row_idx, col_idx, txt_content, layout.rotation,
-                    layout.fontsize, layout.text_color, [255, 255, 255], "caption", vertical_alignment="top"))
+                    layout.fontsize, layout.text_color, [255, 255, 255], "caption",
+                    vertical_alignment=layout.vertical_alignment or "top", horizontal_alignment=layout.horizontal_alignment))
 
         return captions
 
@@ -322,9 +323,12 @@ class Backend:
             if width == 0 or height == 0 or content == "":
                 continue
 
+            default_align = "top" if direction == 'south' else "bottom"
+
             t = grid.layout.titles[direction]
             titles.append(TextComponent(bounds, -1, -1, -1, -1, content, t.rotation, t.fontsize,
-                t.text_color, self._compute_bg_colors(t.background_colors, 1)[0], "title-" + direction))
+                t.text_color, self._compute_bg_colors(t.background_colors, 1)[0], "title-" + direction,
+                vertical_alignment=t.vertical_alignment or default_align, horizontal_alignment=t.horizontal_alignment))
         return titles
 
     def _compute_bg_colors(self, bg_color_properties, num) -> list[list[float] | None]:
@@ -350,12 +354,16 @@ class Backend:
                 if txt == "":
                     continue
 
+                default_align = "top" if direction == 'south' else "bottom"
+
                 if is_row:
                     titles.append(TextComponent(bounds, -1, -1, i, -1, txt, t.rotation, t.fontsize,
-                        t.text_color, bg_colors[i], "rowtitle-" + direction))
+                        t.text_color, bg_colors[i], "rowtitle-" + direction,
+                        vertical_alignment=t.vertical_alignment or default_align, horizontal_alignment=t.horizontal_alignment))
                 else:
                     titles.append(TextComponent(bounds, -1, -1, -1, i, txt, t.rotation, t.fontsize,
-                        t.text_color, bg_colors[i], "coltitle-" + direction))
+                        t.text_color, bg_colors[i], "coltitle-" + direction,
+                        vertical_alignment=t.vertical_alignment or default_align, horizontal_alignment=t.horizontal_alignment))
         return titles
 
     def gen_row_titles(self, grid: Grid, grid_bounds: Bounds, img_size: calc.Size) -> List[Component]:

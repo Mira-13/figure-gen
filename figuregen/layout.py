@@ -17,6 +17,10 @@ class TextFieldLayout:
     """ Color (sRGB, from 0 to 255) of the text """
     background_colors: Sequence[Sequence[float]] | Sequence[float] | None = None
     """ Background colors (sRGB, from 0 to 255) of the text, can be a list of colors, e.g., one per row, or a single color that will be applied to all """
+    vertical_alignment: str | None = None
+    """ Vertical text alignment, must be one of: "top", "bottom", "center"; If None, the default alignment based on the type of text field is used """
+    horizontal_alignment: str = "center"
+    """ Horizontal text alignment, must be one of: "left", "right", "center" """
 
 TOP = "north"
 LEFT = "west"
