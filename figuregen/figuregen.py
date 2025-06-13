@@ -317,6 +317,8 @@ from .tikz import TikzBackend
 from .pdflatex import PdfBackend
 from .html import HtmlBackend
 from .powerpoint import PptxBackend
+from .typst import TypstBackend
+from .svg import SvgBackend
 
 def _backend_from_filename(filename: str) -> Backend:
     """ Guesses the correct backend based on the filename """
@@ -329,6 +331,10 @@ def _backend_from_filename(filename: str) -> Backend:
         return PdfBackend()
     elif extension == ".tikz":
         return TikzBackend()
+    elif extension == ".typ":
+        return TypstBackend()
+    elif extension == ".svg":
+        return SvgBackend()
     else:
         raise ValueError(f"Could not derive backend from extension '{filename}'. Please specify.")
 
