@@ -170,11 +170,11 @@ class Backend:
         rect_width, rect_height = cfg['width_mm'], cfg['height_mm']
 
         # determine the correct offsets depending on wether it is in the corner or center
-        if alignment == 'center':
-            offset_w, offset_h = 0, cfg['offset_mm']
-        else:
-            offset_w = cfg['offset_mm'][0]
-            offset_h = cfg['offset_mm'][1]
+        # if alignment == 'center':
+        #     offset_w, offset_h = 0, cfg['offset_mm']
+        # else:
+        offset_w = cfg['offset_mm'][0]
+        offset_h = cfg['offset_mm'][1]
 
         # determine pos_top of rectangle
         if is_top:
@@ -184,10 +184,10 @@ class Backend:
 
         # determine pos_left of rectangle based on alignment
         if alignment == 'center':
-            pos_left = img_pos_left + (img_width * 1/2.) - (rect_width * 1/2.)
+            pos_left = img_pos_left + (img_width * 0.5) - (rect_width * 0.5) + offset_w
         elif alignment == 'left':
             pos_left = img_pos_left + offset_w
-        else: # right
+        else:  # right
             pos_left = img_pos_left + img_width - rect_width - offset_w
 
         bounds = Bounds(pos_top, pos_left, rect_width, rect_height)

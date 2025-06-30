@@ -159,11 +159,11 @@ class ElementView:
         except:
             self.elem["label"] = {}
 
-        if 'center' in pos:
-            try:
-                offset_mm = offset_mm[0]
-            except:
-                pass
+        # if 'center' in pos:
+        #     try:
+        #         offset_mm = offset_mm[0]
+        #     except:
+        #         pass
 
         self.elem["label"][pos] = {
             "text": str(txt_content),

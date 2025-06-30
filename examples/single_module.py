@@ -8,7 +8,6 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 # -------------------------------------------
 
 import figuregen
-import unittest
 
 # --- define colors and images ---
 colors = [
